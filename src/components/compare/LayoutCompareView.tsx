@@ -1,0 +1,256 @@
+import type { LayoutViewMode } from '../../types/compare';
+import { useCompareStore } from '../../store/compareStore';
+import MeasureOverlay from './MeasureOverlay';
+
+const MAX_DISPLAY_H = 460;
+
+function pixelClass(ratio: number): string {
+  if (ratio < 0.005) return 'good';
+  if (ratio < 0.05) return 'warn';
+  return 'bad';
+}
+
+// Friendly, direction-worded shift labels (B relative to A).
+function hShift(dx: number): string {
+  const v = Math.round(dx);
+  if (v === 0) return 'aligned';
+  return `${Math.abs(v)}px ${v > 0 ? 'right' : 'left'}`;
+}
+function vShift(dy: number): string {
+  const v = Math.round(dy);
+  if (v === 0) return 'aligned';
+  return `${Math.abs(v)}px ${v > 0 ? 'down' : 'up'}`;
+}
+
+const viewLabels: [LayoutViewMode, string][] = [
+  ['side-by-side', 'Side by side'],
+  ['overlay', 'Overlay'],
+  ['diff', 'Pixel diff'],
+];
+
+export default function LayoutCompareView() {
+  const currentPage = useCompareStore((s) => s.currentPage);
+  const pc = useCompareStore((s) => s.pageCache[s.currentPage]);
+  const computing = useCompareStore((s) => s.computing);
+
+  const viewMode = useCompareStore((s) => s.viewMode);
+  const overlayOpacity = useCompareStore((s) => s.overlayOpacity);
+  const pixelThreshold = useCompareStore((s) => s.pixelThreshold);
+  const includeAA = useCompareStore((s) => s.includeAA);
+  const offsetThresholdPx = useCompareStore((s) => s.offsetThresholdPx);
+  const layoutZoom = useCompareStore((s) => s.layoutZoom);
+
+  const setViewMode = useCompareStore((s) => s.setViewMode);
+  const setOverlayOpacity = useCompareStore((s) => s.setOverlayOpacity);
+  const setPixelThreshold = useCompareStore((s) => s.setPixelThreshold);
+  const setIncludeAA = useCompareStore((s) => s.setIncludeAA);
+  const setOffsetThreshold = useCompareStore((s) => s.setOffsetThreshold);
+  const setLayoutZoom = useCompareStore((s) => s.setLayoutZoom);
+
+  if (computing && !pc) {
+    return (
+      <div className="loading-center">
+        <span className="spinner" /> Computing layout comparison…
+      </div>
+    );
+  }
+  if (!pc) return <div className="loading-center">Preparing…</div>;
+
+  const refImg = pc.imageA ?? pc.imageB;
+  const fitScale = refImg ? Math.min(1, MAX_DISPLAY_H / refImg.height) : 1;
+  const dispScale = fitScale * layoutZoom;
+  const dispW = refImg ? refImg.width * dispScale : 0;
+  const dispH = refImg ? refImg.height * dispScale : 0;
+  const zoomPct = Math.round(dispScale * 100);
+
+  const matched = [...pc.match.matched].sort((a, b) => b.offset - a.offset).slice(0, 200);
+
+  return (
+    <div className="card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Controls */}
+      <div className="layout-controls">
+        <div className="tabs">
+          {viewLabels.map(([v, label]) => (
+            <button
+              key={v}
+              className={`tab ${viewMode === v ? 'active' : ''}`}
+              onClick={() => setViewMode(v)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {viewMode === 'overlay' && (
+          <div className="range-control">
+            <span>B opacity</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={overlayOpacity}
+              onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+            />
+            <span>{Math.round(overlayOpacity * 100)}%</span>
+          </div>
+        )}
+
+        {viewMode === 'diff' && (
+          <>
+            <div className="range-control">
+              <span>Sensitivity</span>
+              <input
+                type="range"
+                min={0}
+                max={0.5}
+                step={0.01}
+                value={pixelThreshold}
+                onChange={(e) => setPixelThreshold(Number(e.target.value))}
+              />
+              <span>{pixelThreshold.toFixed(2)}</span>
+            </div>
+            <label className="range-control" style={{ cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={includeAA}
+                onChange={(e) => setIncludeAA(e.target.checked)}
+              />
+              Flag anti-aliasing
+            </label>
+          </>
+        )}
+
+        <div className="spacer" />
+
+        {/* Zoom controls */}
+        <div className="zoom-group" title="Zoom the page view">
+          <button className="zoombtn" onClick={() => setLayoutZoom(layoutZoom / 1.25)} title="Zoom out">
+            −
+          </button>
+          <span className="zoom-label">{zoomPct}%</span>
+          <button className="zoombtn" onClick={() => setLayoutZoom(layoutZoom * 1.25)} title="Zoom in">
+            +
+          </button>
+          <button className="btn sm" onClick={() => setLayoutZoom(1)} title="Fit to view">
+            Fit
+          </button>
+          {fitScale > 0 && (
+            <button className="btn sm" onClick={() => setLayoutZoom(1 / fitScale)} title="Actual pixel size">
+              1:1
+            </button>
+          )}
+        </div>
+
+        {viewMode === 'diff' && pc.pixel && (
+          <span className={`pixel-badge ${pixelClass(pc.pixel.ratio)}`}>
+            {(pc.pixel.ratio * 100).toFixed(2)}% different
+          </span>
+        )}
+      </div>
+
+      {/* Image stage */}
+      <div className="stage">
+        <div className="stage-content">
+          {viewMode === 'side-by-side' && (
+            <div className="stage-sbs">
+              {pc.imageA ? (
+                <img src={pc.imageA.dataUrl} alt="A" style={{ width: dispW, height: dispH }} />
+              ) : (
+                <div className="page-missing" style={{ width: dispW, height: dispH }}>
+                  No page {currentPage + 1}
+                </div>
+              )}
+              {pc.imageB ? (
+                <img src={pc.imageB.dataUrl} alt="B" style={{ width: dispW, height: dispH }} />
+              ) : (
+                <div className="page-missing" style={{ width: dispW, height: dispH }}>
+                  No page {currentPage + 1}
+                </div>
+              )}
+            </div>
+          )}
+
+          {viewMode === 'overlay' && refImg && (
+            <div className="stack" style={{ width: dispW, height: dispH }}>
+              {pc.imageA && (
+                <img className="base" src={pc.imageA.dataUrl} alt="A" style={{ width: dispW, height: dispH }} />
+              )}
+              {pc.imageB && (
+                <img
+                  src={pc.imageB.dataUrl}
+                  alt="B"
+                  style={{ width: dispW, height: dispH, opacity: overlayOpacity }}
+                />
+              )}
+              <MeasureOverlay naturalWidth={refImg.width} />
+            </div>
+          )}
+
+          {viewMode === 'diff' &&
+            (pc.pixel ? (
+              <div className="stack" style={{ width: dispW, height: dispH }}>
+                <img className="base" src={pc.pixel.diffDataUrl} alt="diff" style={{ width: dispW, height: dispH }} />
+                <MeasureOverlay naturalWidth={refImg!.width} />
+              </div>
+            ) : (
+              <div className="stage-notice">
+                Pixel diff unavailable — one side is missing this page or the page sizes differ.
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Geometry table */}
+      <div className="geo-panel">
+        <div className="geo-head">
+          <span title="How far each shared text run sits in B compared to where it was in A.">
+            Text position shifts · {pc.match.matched.length} runs matched · largest shift{' '}
+            {Math.round(pc.maxOffset)}px
+          </span>
+          <span className="spacer" />
+          <label>
+            Flag shifts &gt;{' '}
+            <input
+              type="number"
+              min={0}
+              value={offsetThresholdPx}
+              onChange={(e) => setOffsetThreshold(Number(e.target.value))}
+            />{' '}
+            px
+          </label>
+        </div>
+        <div className="geo-scroll">
+          {matched.length === 0 ? (
+            <div className="stage-notice">
+              No matching text runs to measure (no text layer, or no shared text).
+            </div>
+          ) : (
+            <table className="geo">
+              <thead>
+                <tr>
+                  <th>Text</th>
+                  <th>Horizontal</th>
+                  <th>Vertical</th>
+                  <th style={{ textAlign: 'right' }}>Total shift</th>
+                </tr>
+              </thead>
+              <tbody>
+                {matched.map((p, i) => (
+                  <tr key={i} className={p.offset > offsetThresholdPx ? 'flagged' : ''}>
+                    <td style={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {p.str}
+                    </td>
+                    <td className={Math.round(p.dx) === 0 ? 'aligned-cell' : ''}>{hShift(p.dx)}</td>
+                    <td className={Math.round(p.dy) === 0 ? 'aligned-cell' : ''}>{vShift(p.dy)}</td>
+                    <td className="num off">{Math.round(p.offset)}px</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

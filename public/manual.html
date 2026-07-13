@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PDF Compare — User Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --sidebar: #f3f1ea;
+    --card: #ffffff;
+    --ink: #1a1c22;
+    --ink-soft: #52545e;
+    --ink-faint: #8a8c95;
+    --line: #e6e2d8;
+    --line-strong: #d5cfc1;
+    --accent: #0e7c66;
+    --accent-soft: #e6f2ee;
+    --red: #c8402f;
+    --green: #157f5b;
+    --violet: #6d43d6;
+    --amber: #b0741a;
+    --code-bg: #f1efe8;
+    --display: "Fraunces", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15.5px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+
+  /* layout */
+  .shell { display: grid; grid-template-columns: 264px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; }
+  aside { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 30px 22px 40px; border-right: 1px solid var(--line); background: var(--sidebar); }
+  main { padding: 56px 60px 120px; min-width: 0; }
+  @media (max-width: 880px) {
+    .shell { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    main { padding: 36px 26px 80px; }
+  }
+
+  /* sidebar */
+  .brand { display: flex; align-items: center; gap: 11px; font-family: var(--display); font-size: 19px; font-weight: 600; margin-bottom: 4px; }
+  .mark { width: 30px; height: 30px; border-radius: 8px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-family: var(--mono); font-size: 12px; font-weight: 600; }
+  .brand-sub { font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 26px 41px; }
+  nav.toc { font-size: 14px; }
+  nav.toc .grp { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin: 22px 0 8px; }
+  nav.toc a { display: block; color: var(--ink-soft); text-decoration: none; padding: 5px 10px; border-radius: 7px; border-left: 2px solid transparent; margin-left: -2px; transition: background .15s, color .15s; }
+  nav.toc a:hover { background: #eae7dd; color: var(--ink); }
+  nav.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 500; }
+
+  /* content */
+  h1 { font-family: var(--display); font-weight: 600; font-size: 40px; line-height: 1.1; letter-spacing: -.01em; margin: 0 0 10px; }
+  .lead { font-size: 18px; color: var(--ink-soft); margin: 0 0 14px; max-width: 62ch; }
+  h2 { font-family: var(--display); font-weight: 600; font-size: 27px; margin: 0 0 4px; letter-spacing: -.01em; scroll-margin-top: 24px; }
+  h3 { font-size: 17px; font-weight: 600; margin: 26px 0 6px; }
+  section { padding: 44px 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: none; padding-top: 8px; }
+  p { margin: 12px 0; max-width: 68ch; }
+  .muted { color: var(--ink-soft); }
+  a.inline { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+
+  ul, ol { max-width: 68ch; padding-left: 22px; }
+  li { margin: 6px 0; }
+  ol.steps { counter-reset: s; list-style: none; padding-left: 0; }
+  ol.steps > li { position: relative; padding-left: 42px; margin: 14px 0; }
+  ol.steps > li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: -2px; width: 27px; height: 27px; border-radius: 8px; background: var(--ink); color: var(--bg); font-family: var(--mono); font-size: 13px; font-weight: 600; display: grid; place-items: center; }
+
+  code, .kbd { font-family: var(--mono); font-size: .88em; background: var(--code-bg); padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line); }
+  .ui { font-family: var(--mono); font-size: .85em; font-weight: 500; background: var(--card); border: 1px solid var(--line-strong); padding: 1px 7px; border-radius: 6px; white-space: nowrap; }
+
+  /* features highlight grid */
+  .feat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 22px 0 4px; }
+  @media (max-width: 560px) { .feat-grid { grid-template-columns: 1fr; } }
+  .feat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .feat .ic { font-size: 18px; }
+  .feat b { display: block; font-size: 15px; margin: 8px 0 3px; }
+  .feat span { font-size: 13.5px; color: var(--ink-soft); }
+
+  /* callouts */
+  .note { border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 18px 0; font-size: 14.5px; }
+  .note.warn { border-color: var(--amber); background: #fbf3e4; }
+  .note b { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: 3px; }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; border-bottom: 1px solid var(--line-strong); }
+  tbody tr:hover { background: #f6f4ee; }
+  .swatch { display: inline-block; width: 13px; height: 13px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; border: 1.5px solid; }
+  .sw-red { border-color: var(--red); background: color-mix(in srgb, var(--red) 16%, transparent); }
+  .sw-green { border-color: var(--green); background: color-mix(in srgb, var(--green) 16%, transparent); }
+  .sw-violet { border-color: var(--violet); background: color-mix(in srgb, var(--violet) 16%, transparent); }
+
+  .launch { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; background: var(--ink); color: var(--bg); text-decoration: none; padding: 11px 18px; border-radius: 9px; font-size: 14.5px; font-weight: 500; }
+  .launch:hover { background: #33353d; }
+  footer { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="brand"><span class="mark">A/B</span> PDF Compare</div>
+    <div class="brand-sub">User Manual</div>
+    <nav class="toc" id="toc">
+      <div class="grp">Start</div>
+      <a href="#overview">Overview</a>
+      <a href="#features">Feature highlights</a>
+      <a href="#getting-started">Getting started</a>
+      <a href="#interface">The interface</a>
+      <div class="grp">The three tabs</div>
+      <a href="#content-tab">Content tab</a>
+      <a href="#layout-tab">Layout tab</a>
+      <a href="#report-tab">Report tab</a>
+      <div class="grp">Reference</div>
+      <a href="#exporting">Exporting results</a>
+      <a href="#edge-cases">Edge cases &amp; notes</a>
+      <a href="#tips">Tips &amp; FAQ</a>
+    </nav>
+  </aside>
+
+  <!-- CONTENT -->
+  <main>
+    <section id="overview">
+      <h1>PDF Compare — User Manual</h1>
+      <p class="lead">PDF Compare checks a recreated document against its original across three dimensions —
+        text content, visual layout, and pixels — and produces an exportable pass/fail report. This manual
+        explains every feature and how to use it.</p>
+      <p class="muted"><b>Side A</b> is the original / reference document. <b>Side B</b> is the recreated / generated
+        document you are checking against it. Everything runs locally in your browser — no files are uploaded.</p>
+      <a class="launch" href="./index.html">Open PDF Compare →</a>
+    </section>
+
+    <section id="features">
+      <h2>Feature highlights</h2>
+      <p class="muted">The capabilities you'll use most, at a glance.</p>
+      <div class="feat-grid">
+        <div class="feat"><div class="ic">📝</div><b>Word-level content diff</b><span>Every added, removed, and moved piece of text on each page, reconstructed in reading order.</span></div>
+        <div class="feat"><div class="ic">🎯</div><b>In-place change highlights</b><span>Each change is boxed and numbered on the rendered page and linked to a scannable list.</span></div>
+        <div class="feat"><div class="ic">🖼️</div><b>Pixel-level layout diff</b><span>A heat-map of visual differences, catching shifts that never change a character.</span></div>
+        <div class="feat"><div class="ic">📏</div><b>Exact position offsets</b><span>How far each text run moved, in plain language (“12px right, 4px down”).</span></div>
+        <div class="feat"><div class="ic">🔍</div><b>Zoom &amp; measure</b><span>Zoom into any page and drag to measure distances directly on it.</span></div>
+        <div class="feat"><div class="ic">⤻</div><b>Jump to next change</b><span>Skip straight to the next page that actually differs in long documents.</span></div>
+        <div class="feat"><div class="ic">📊</div><b>Pass/fail report</b><span>Roll-up across all pages against thresholds you set, with an overall verdict.</span></div>
+        <div class="feat"><div class="ic">📤</div><b>One-click export</b><span>Export the results as an HTML report, JSON, or CSV.</span></div>
+      </div>
+    </section>
+
+    <section id="getting-started">
+      <h2>Getting started</h2>
+      <ol class="steps">
+        <li><b>Add the original.</b> Drag a PDF onto the <span class="ui">Side A · Original</span> slot in the header, or click it to browse.</li>
+        <li><b>Add the recreation.</b> Do the same for the <span class="ui">Side B · Recreated</span> slot.</li>
+        <li><b>Compare.</b> As soon as both are loaded, the comparison tabs appear and the first page is analysed automatically.</li>
+      </ol>
+      <div class="note"><b>Try it instantly</b>Before loading your own files, click <span class="ui">Load example invoices</span> on the start screen. It loads a deliberately complex 6-page sample (vs a 5-page recreation) that exercises every feature — text changes, moved columns, a pixel-only chart change, a resized page, and a missing page.</div>
+      <p>Each loaded slot shows the filename and page count (e.g. <span class="ui">6p</span>). Click the <span class="ui">×</span> on a slot to clear it and load a different file.</p>
+    </section>
+
+    <section id="interface">
+      <h2>The interface</h2>
+      <p>Once both documents are loaded, the workspace has three parts:</p>
+      <ul>
+        <li><b>Header</b> — the two upload slots; swap either file at any time.</li>
+        <li><b>Toolbar</b> — the three tab buttons (<span class="ui">Content</span>, <span class="ui">Layout</span>, <span class="ui">Report</span>) and the page navigator.</li>
+        <li><b>Page navigator</b> — <span class="ui">‹</span> / <span class="ui">›</span> to move between pages, the current page indicator, and (for multi-page documents) <span class="ui">prev change</span> / <span class="ui">next change</span> jump buttons.</li>
+      </ul>
+      <div class="note"><b>Page count mismatch</b>If the two documents have a different number of pages, a <span class="ui">⚠ 6 vs 5</span> badge appears. Navigation still covers every page; pages that exist on only one side are handled gracefully (see <a class="inline" href="#edge-cases">Edge cases</a>).</div>
+    </section>
+
+    <section id="content-tab">
+      <h2>Content tab — what changed</h2>
+      <p>The Content tab compares the <em>text</em> of the current page and shows exactly where each change sits.</p>
+
+      <h3>Change highlights on the page</h3>
+      <p>Both pages are rendered side by side with every change boxed, numbered, and colour-coded:</p>
+      <table>
+        <thead><tr><th>Colour</th><th>Meaning</th><th>Shown on</th></tr></thead>
+        <tbody>
+          <tr><td><span class="swatch sw-red"></span>Red</td><td>Removed — text present only in the original (A)</td><td>Side A</td></tr>
+          <tr><td><span class="swatch sw-green"></span>Green</td><td>Added — text present only in the recreation (B)</td><td>Side B</td></tr>
+          <tr><td><span class="swatch sw-violet"></span>Violet</td><td>Moved — same text, different position</td><td>Both sides</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Changes list &amp; linking</h3>
+      <p>Below the pages, the <b>Changes on this page</b> list names each change, its type, and its location — the
+        region (e.g. <span class="ui">top-right</span>) plus exact pixel coordinates, or the distance moved. <b>Hover</b>
+        any highlight box, list row, or diff word and the matching items light up together, so you can trace a change
+        from the wording to its spot on the page.</p>
+
+      <h3>Content-match score &amp; word diff</h3>
+      <p>A <b>content-match</b> percentage summarises how much of the text is unchanged (green ≥ 99.9%, amber ≥ 90%,
+        red below). The <b>word-level diff</b> at the bottom reads the page as running text with additions in green and
+        deletions struck through in red.</p>
+
+      <h3>Jump to next change</h3>
+      <p>In a multi-page document, <span class="ui">next change</span> and <span class="ui">prev change</span> skip
+        directly to the next/previous page that actually differs — including pages whose only change is visual (a
+        recoloured header, a moved graphic) — so you never page through identical content.</p>
+    </section>
+
+    <section id="layout-tab">
+      <h2>Layout tab — where it moved</h2>
+      <p>The Layout tab focuses on visual and positional differences. Choose a view from the control bar:</p>
+      <table>
+        <thead><tr><th>View</th><th>What it shows</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ui">Side by side</span></td><td>The two rendered pages next to each other.</td></tr>
+          <tr><td><span class="ui">Overlay</span></td><td>Side B stacked over Side A with an opacity slider — slide to see B fade in over A.</td></tr>
+          <tr><td><span class="ui">Pixel diff</span></td><td>A heat-map where changed pixels are highlighted. A badge shows the percentage of pixels that differ.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Sensitivity &amp; anti-aliasing</h3>
+      <p>In pixel-diff view, the <b>Sensitivity</b> slider controls how different a pixel must be before it's flagged
+        (lower = stricter). <span class="ui">Flag anti-aliasing</span> includes edge-smoothing pixels in the count when
+        you need maximum strictness.</p>
+
+      <h3>Zoom</h3>
+      <p>Use <span class="ui">−</span> / <span class="ui">+</span> to zoom, <span class="ui">Fit</span> to reset to the
+        window, or <span class="ui">1:1</span> for actual pixel size. The view scrolls when zoomed in — handy for
+        inspecting fine detail on dense pages.</p>
+
+      <h3>Measure tool</h3>
+      <p>In Overlay and Pixel-diff views, <b>drag on the page</b> to measure a distance. The readout shows the length
+        plus the horizontal and vertical components in plain language. Click once to clear the measurement.</p>
+
+      <h3>Text-position table</h3>
+      <p>Below the image, every shared text run is listed with its shift expressed as <b>Horizontal</b>
+        (“12px right” / “left” / “aligned”), <b>Vertical</b> (“up” / “down”), and <b>Total shift</b>. Set the
+        <span class="ui">Flag shifts &gt; N px</span> value to highlight rows whose movement exceeds your tolerance.</p>
+    </section>
+
+    <section id="report-tab">
+      <h2>Report tab — pass or fail</h2>
+      <p>The Report tab rolls every page up into a single verdict.</p>
+      <ol class="steps">
+        <li>Set your <b>pass criteria</b> — the defaults are content ≥ <code>99%</code>, pixels ≤ <code>2%</code>, and max offset ≤ <code>3px</code>.</li>
+        <li>Click <span class="ui">Compare all pages</span>. Progress is shown as each page is processed.</li>
+        <li>Read the <b>overall verdict</b> (<span style="color:var(--green);font-weight:600">✓ PASS</span> / <span style="color:var(--red);font-weight:600">✗ FAIL</span>) and the per-page table.</li>
+      </ol>
+      <p>The table lists each page's content match, pixels-different, max offset, and PASS/FAIL result. Pages that exist
+        on only one side are marked <span class="ui">missing</span>. <b>Click any row</b> to jump straight to that page
+        in the Layout tab for a closer look.</p>
+      <div class="note"><b>Tuning the verdict</b>A page can pass even with a small visual change if it's within your pixel threshold. Tighten <span class="ui">pixels ≤</span> to make the report stricter.</div>
+    </section>
+
+    <section id="exporting">
+      <h2>Exporting results</h2>
+      <p>After running a full comparison, use the <span class="ui">Export</span> menu in the Report tab. Three formats
+        are available:</p>
+      <table>
+        <thead><tr><th>Format</th><th>Best for</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr><td><b>HTML report</b></td><td>Sharing / archiving · print to PDF</td><td>Standalone page with the verdict, the metrics table, and every page's annotated A/B images plus its change list.</td></tr>
+          <tr><td><b>JSON</b></td><td>Automation / records</td><td>Machine-readable metrics, thresholds, and per-page pass/fail.</td></tr>
+          <tr><td><b>CSV</b></td><td>Spreadsheets</td><td>Per-page metrics table.</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">The exported HTML report is self-contained — open it in any browser, or use your browser's
+        <span class="ui">Print → Save as PDF</span> to produce a shareable, dated record.</p>
+    </section>
+
+    <section id="edge-cases">
+      <h2>Edge cases &amp; notes</h2>
+      <p>When a page is unusual, the tool flags it with an amber note rather than failing silently.</p>
+      <table>
+        <thead><tr><th>Situation</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td>Different page counts</td><td>Navigation covers the larger count; extra pages show a “exists only in A/B” note and a placeholder on the missing side.</td></tr>
+          <tr><td>Different page size / aspect</td><td>Side B is scaled to fit A and centred (letterboxed); a note explains that reported offsets may look large as a result.</td></tr>
+          <tr><td>Scanned / image-only page</td><td>A “no selectable text layer” note appears. The pixel diff still works, but there's no text diff or position table for that page.</td></tr>
+          <tr><td>Purely visual change</td><td>Changes with no text delta (recoloured header, moved rule, chart graphics) are caught by the pixel diff and by jump-to-change.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="tips">
+      <h2>Tips &amp; FAQ</h2>
+      <h3>Are my documents uploaded anywhere?</h3>
+      <p>No. All parsing, rendering, and comparison happen locally in your browser. Nothing leaves your device.</p>
+      <h3>Why does a page show 100% content match but still fail?</h3>
+      <p>Its text is identical but a visual or positional difference exceeded a threshold — check the Layout tab's pixel diff and position table.</p>
+      <h3>The offsets on one page are huge — is that a real problem?</h3>
+      <p>If that page carries a letterbox note, its size differs from the original, so offsets include the scaling. Compare like-sized pages for meaningful position deltas.</p>
+      <h3>How do I get a single shareable file?</h3>
+      <p>Run <span class="ui">Compare all pages</span>, then <span class="ui">Export → HTML report</span>, and print it to PDF.</p>
+      <a class="launch" href="./index.html">Open PDF Compare →</a>
+      <footer>PDF Compare · Content · Layout · Report · runs entirely in your browser.</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Scrollspy: highlight the current section in the sidebar.
+  const links = [...document.querySelectorAll('#toc a')];
+  const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        map.get(e.target.id)?.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+  document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R 13 0 R] /Count 5 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 2235 >>
+stream
+q
+0.16 0.42 0.38 rg 0 742 612 50 re f
+Q
+q 1 1 1 rg BT /F2 26 Tf 50 758 Td (INVOICE) Tj ET Q
+q 1 1 1 rg BT /F1 11 Tf 474 762 Td (Acme Corporation) Tj ET Q
+q 0.85 0.88 0.95 rg BT /F1 9 Tf 427 748 Td (123 Market Street, Springfield) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 705 Td (BILL TO) Tj ET Q
+q 0 0 0 rg BT /F1 12 Tf 50 688 Td (Globex Industries Inc) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 10 Tf 50 672 Td (Attn: Accounts Payable) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 10 Tf 50 658 Td (500 Enterprise Way, Metropolis) Tj ET Q
+q 0 0 0 rg BT /F2 11 Tf 457.5 705 Td (Invoice #: INV-1042) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 10 Tf 482 690 Td (Date: 2026-06-30) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 10 Tf 487 676 Td (Due: 2026-08-15) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 10 Tf 497 662 Td (Terms: Net 30) Tj ET Q
+q
+0.94 0.95 0.97 rg 50 590 512 22 re f
+Q
+q 0 0 0 rg BT /F2 11 Tf 58 596 Td (Description) Tj ET Q
+q 0 0 0 rg BT /F2 11 Tf 413.5 596 Td (Qty) Tj ET Q
+q 0 0 0 rg BT /F2 11 Tf 521 596 Td (Amount) Tj ET Q
+q 1 w 0.8 0.83 0.87 RG 50 590 m 562 590 l S Q
+q 0 0 0 rg BT /F1 11 Tf 58 566 Td (Consulting services) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 419 566 Td (10) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 504.5 566 Td ($1,500.00) Tj ET Q
+q 0.5 w 0.8 0.83 0.87 RG 50 558 m 562 558 l S Q
+q 0 0 0 rg BT /F1 11 Tf 58 540 Td (Software license) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 424.5 540 Td (1) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 515.5 540 Td ($800.00) Tj ET Q
+q 0.5 w 0.8 0.83 0.87 RG 50 532 m 562 532 l S Q
+q 0 0 0 rg BT /F1 11 Tf 58 514 Td (Support plan) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 424.5 514 Td (1) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 515.5 514 Td ($250.00) Tj ET Q
+q 0.5 w 0.8 0.83 0.87 RG 50 506 m 562 506 l S Q
+q 1.5 w 0.12 0.16 0.23 RG 50 466 m 562 466 l S Q
+q 0 0 0 rg BT /F2 11 Tf 420.5 452 Td (Subtotal:) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 504.5 452 Td ($2,575.00) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 11 Tf 420.5 434 Td (Tax \(8%\):) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 11 Tf 515.5 434 Td ($204.00) Tj ET Q
+q
+1 w 0.12 0.16 0.23 RG 360 404 202 26 re S
+Q
+q 0 0 0 rg BT /F2 13 Tf 370 411 Td (Total) Tj ET Q
+q 0 0 0 rg BT /F2 13 Tf 495.5 411 Td ($2,754.00) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 9 Tf 50 90 Td (Thank you for your business. Payment reference: INV-1042.) Tj ET Q
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 6090 >>
+stream
+q 0 0 0 rg BT /F2 18 Tf 50 748 Td (Itemized Charges) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 10 Tf 50 730 Td (Detailed breakdown of billable items for the period 2026-06.) Tj ET Q
+q
+0.13 0.17 0.28 rg 50 700 512 20 re f
+Q
+q 1 1 1 rg BT /F2 10 Tf 58 705 Td (Item) Tj ET Q
+q 1 1 1 rg BT /F2 10 Tf 130 705 Td (Description) Tj ET Q
+q 1 1 1 rg BT /F2 10 Tf 365 705 Td (Qty) Tj ET Q
+q 1 1 1 rg BT /F2 10 Tf 432 705 Td (Unit) Tj ET Q
+q 1 1 1 rg BT /F2 10 Tf 524 705 Td (Amount) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 686 Td (SKU-1001) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 686 Td (Senior consultant, onsite) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 686 Td (8) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 686 Td ($180) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 519.5 686 Td ($1,440.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 662 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 668 Td (SKU-1002) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 668 Td (Senior consultant, remote) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 371 668 Td (12) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 668 Td ($150) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 519.5 668 Td ($1,800.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 650 Td (SKU-1003) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 650 Td (Junior analyst) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 371 650 Td (24) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 438.5 650 Td ($90) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 519.5 650 Td ($2,160.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 626 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 632 Td (SKU-1004) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 632 Td (Project management) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 632 Td (6) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 632 Td ($160) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 632 Td ($960.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 614 Td (SKU-1005) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 614 Td (Solution architecture) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 614 Td (4) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 614 Td ($200) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 614 Td ($800.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 590 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 596 Td (SKU-1006) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 596 Td (Software license \(annual\)) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 596 Td (1) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 596 Td ($800) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 596 Td ($800.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 578 Td (SKU-1007) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 578 Td (Premium support plan) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 578 Td (1) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 578 Td ($250) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 578 Td ($250.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 554 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 560 Td (SKU-1008) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 560 Td (Onboarding & training) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 560 Td (3) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 560 Td ($300) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 560 Td ($900.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 542 Td (SKU-1009) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 542 Td (Data migration) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 542 Td (5) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 542 Td ($220) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 519.5 542 Td ($1,100.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 518 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 524 Td (SKU-1010) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 524 Td (Custom integration) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 524 Td (7) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 524 Td ($210) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 519.5 524 Td ($1,470.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 506 Td (SKU-1011) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 506 Td (Security audit) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 506 Td (2) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 506 Td ($400) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 506 Td ($800.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 482 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 488 Td (SKU-1012) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 488 Td (Performance tuning) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 488 Td (4) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 488 Td ($190) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 488 Td ($760.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 470 Td (SKU-1013) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 470 Td (Documentation package) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 470 Td (1) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 470 Td ($350) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 470 Td ($350.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 446 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 452 Td (SKU-1014) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 452 Td (Quarterly business review) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 452 Td (2) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 452 Td ($275) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 452 Td ($550.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 434 Td (SKU-1015) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 434 Td (Cloud hosting \(mo.\)) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 434 Td (6) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 434 Td ($120) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 434 Td ($720.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 410 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 416 Td (SKU-1016) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 416 Td (Backup & recovery) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 416 Td (1) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 416 Td ($300) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 416 Td ($300.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 398 Td (SKU-1018) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 398 Td (Monitoring add-on) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 398 Td (3) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 438.5 398 Td ($95) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 398 Td ($285.00) Tj ET Q
+q
+0.97 0.98 0.98 rg 50 374 512 18 re f
+Q
+q 0 0 0 rg BT /F1 9 Tf 58 380 Td (SKU-1019) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 380 Td (Incident response) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 380 Td (2) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 380 Td ($450) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 380 Td ($900.00) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 58 362 Td (SKU-1020) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 130 362 Td (Change management) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 375.5 362 Td (5) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 434 362 Td ($130) Tj ET Q
+q 0 0 0 rg BT /F1 9 Tf 528.5 362 Td ($650.00) Tj ET Q
+q 1 w 0.12 0.16 0.23 RG 50 348 m 562 348 l S Q
+q 0 0 0 rg BT /F2 10 Tf 412 332 Td (Subtotal) Tj ET Q
+q 0 0 0 rg BT /F2 10 Tf 510 332 Td ($16,995.00) Tj ET Q
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 1620 >>
+stream
+q 0 0 0 rg BT /F2 18 Tf 50 748 Td (Terms & Conditions) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 710 Td (1.) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 74 710 Td (Payment is due within thirty \(30\) days of the invoice date unless otherwise agreed in writing.) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 684 Td (2.) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 74 684 Td (Late payments are subject to a finance charge of 1.5% per month on the outstanding balance.) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 658 Td (3.) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 74 658 Td (All amounts are quoted and payable in United States dollars \(USD\).) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 632 Td (4.) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 74 632 Td (Title to goods remains with Acme Corporation until payment is received in full.) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 606 Td (5.) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 74 606 Td (The client shall reference the invoice number on all remittances and correspondence.) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 580 Td (6.) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 74 580 Td (Disputes must be raised in writing within ten \(10\) business days of receipt of this invoice.) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 554 Td (7.) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 74 554 Td (Services are provided under the Master Services Agreement dated 2026-01-15.) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F2 11 Tf 50 528 Td (8.) Tj ET Q
+q 0 0 0 rg BT /F1 11 Tf 74 528 Td (This invoice is governed by the laws of the State of Delaware.) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 9 Tf 50 120 Td (Acme Corporation · EIN 00-0000000 · billing@acme.example) Tj ET Q
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 12 0 R >>
+endobj
+12 0 obj
+<< /Length 494 >>
+stream
+q 1.5 w 0.12 0.16 0.23 RG 80 200 m 80 640 l S Q
+q 1.5 w 0.12 0.16 0.23 RG 80 200 m 540 200 l S Q
+q 0.5 w 0.8 0.83 0.87 RG 80 300 m 540 300 l S Q
+q 0.5 w 0.8 0.83 0.87 RG 80 400 m 540 400 l S Q
+q 0.5 w 0.8 0.83 0.87 RG 80 500 m 540 500 l S Q
+q 0.5 w 0.8 0.83 0.87 RG 80 600 m 540 600 l S Q
+q
+0.2 0.45 0.75 rg 110 200 60 180 re f
+Q
+q
+0.2 0.45 0.75 rg 200 200 60 300 re f
+Q
+q
+0.2 0.45 0.75 rg 290 200 60 300 re f
+Q
+q
+0.2 0.45 0.75 rg 380 200 60 300 re f
+Q
+q
+0.2 0.45 0.75 rg 470 200 60 200 re f
+Q
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 14 0 R >>
+endobj
+14 0 obj
+<< /Length 584 >>
+stream
+q
+0.12 0.16 0.23 rg 0 568 792 44 re f
+Q
+q 1 1 1 rg BT /F2 18 Tf 40 582 Td (Payment Summary) Tj ET Q
+q 0 0 0 rg BT /F2 12 Tf 40 502 Td (Amount due) Tj ET Q
+q 0 0 0 rg BT /F1 12 Tf 180 502 Td ($2,779.00) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 11 Tf 40 477 Td (Method: Credit card) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 11 Tf 40 454 Td (Account: 0012-3456-7890) Tj ET Q
+q
+1 w 0.12 0.16 0.23 RG 40 402 260 34 re S
+Q
+q 0.45 0.5 0.56 rg BT /F1 11 Tf 52 417 Td (Please pay by the due date to avoid late fees.) Tj ET Q
+q 0.45 0.5 0.56 rg BT /F1 9 Tf 40 60 Td (Questions? billing@acme.example) Tj ET Q
+endstream
+endobj
+xref
+0 15
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000141 00000 n 
+0000000211 00000 n 
+0000000286 00000 n 
+0000000422 00000 n 
+0000002708 00000 n 
+0000002844 00000 n 
+0000008985 00000 n 
+0000009122 00000 n 
+0000010794 00000 n 
+0000010932 00000 n 
+0000011477 00000 n 
+0000011615 00000 n 
+trailer
+<< /Size 15 /Root 1 0 R >>
+startxref
+12250
+%%EOF
