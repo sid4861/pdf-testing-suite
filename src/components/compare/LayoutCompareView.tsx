@@ -1,4 +1,5 @@
-import type { LayoutViewMode } from '../../types/compare';
+import { useRef, useState } from 'react';
+import type { LayoutViewMode, MatchedPair, RenderedPageImage, TextItem } from '../../types/compare';
 import { useCompareStore } from '../../store/compareStore';
 import MeasureOverlay from './MeasureOverlay';
 
@@ -28,6 +29,58 @@ const viewLabels: [LayoutViewMode, string][] = [
   ['diff', 'Pixel diff'],
 ];
 
+// Display-only box marking the hovered run on a page image.
+function RunHighlight({ box, image }: { box: TextItem | undefined; image: RenderedPageImage }) {
+  if (!box) return null;
+  return (
+    <div
+      className="run-hl"
+      style={{
+        left: `${(box.x / image.width) * 100}%`,
+        top: `${(box.y / image.height) * 100}%`,
+        width: `${(box.w / image.width) * 100}%`,
+        height: `${(box.h / image.height) * 100}%`,
+      }}
+    />
+  );
+}
+
+// Transparent hover targets over each run (used in side-by-side, where there is no measure overlay).
+function RunHotspots({
+  runs,
+  side,
+  image,
+  onHover,
+}: {
+  runs: MatchedPair[];
+  side: 'A' | 'B';
+  image: RenderedPageImage;
+  onHover: (i: number | null) => void;
+}) {
+  return (
+    <>
+      {runs.map((p, i) => {
+        const t = side === 'A' ? p.a : p.b;
+        return (
+          <div
+            key={i}
+            className="run-hotspot"
+            title={p.str}
+            style={{
+              left: `${(t.x / image.width) * 100}%`,
+              top: `${(t.y / image.height) * 100}%`,
+              width: `${(t.w / image.width) * 100}%`,
+              height: `${(t.h / image.height) * 100}%`,
+            }}
+            onMouseEnter={() => onHover(i)}
+            onMouseLeave={() => onHover(null)}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 export default function LayoutCompareView() {
   const currentPage = useCompareStore((s) => s.currentPage);
   const pc = useCompareStore((s) => s.pageCache[s.currentPage]);
@@ -47,6 +100,15 @@ export default function LayoutCompareView() {
   const setOffsetThreshold = useCompareStore((s) => s.setOffsetThreshold);
   const setLayoutZoom = useCompareStore((s) => s.setLayoutZoom);
 
+  // Hovered run — links the geometry table and the page image both ways.
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const rowsRef = useRef<(HTMLTableRowElement | null)[]>([]);
+
+  const hoverFromImage = (i: number | null) => {
+    setHoveredIdx(i);
+    if (i != null) rowsRef.current[i]?.scrollIntoView({ block: 'nearest' });
+  };
+
   if (computing && !pc) {
     return (
       <div className="loading-center">
@@ -64,6 +126,7 @@ export default function LayoutCompareView() {
   const zoomPct = Math.round(dispScale * 100);
 
   const matched = [...pc.match.matched].sort((a, b) => b.offset - a.offset).slice(0, 200);
+  const hovered = hoveredIdx != null ? matched[hoveredIdx] : undefined;
 
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -155,14 +218,22 @@ export default function LayoutCompareView() {
           {viewMode === 'side-by-side' && (
             <div className="stage-sbs">
               {pc.imageA ? (
-                <img src={pc.imageA.dataUrl} alt="A" style={{ width: dispW, height: dispH }} />
+                <div className="lay-img-wrap" style={{ width: dispW, height: dispH }}>
+                  <img src={pc.imageA.dataUrl} alt="A" style={{ width: dispW, height: dispH }} />
+                  <RunHotspots runs={matched} side="A" image={pc.imageA} onHover={hoverFromImage} />
+                  <RunHighlight box={hovered?.a} image={pc.imageA} />
+                </div>
               ) : (
                 <div className="page-missing" style={{ width: dispW, height: dispH }}>
                   No page {currentPage + 1}
                 </div>
               )}
               {pc.imageB ? (
-                <img src={pc.imageB.dataUrl} alt="B" style={{ width: dispW, height: dispH }} />
+                <div className="lay-img-wrap" style={{ width: dispW, height: dispH }}>
+                  <img src={pc.imageB.dataUrl} alt="B" style={{ width: dispW, height: dispH }} />
+                  <RunHotspots runs={matched} side="B" image={pc.imageB} onHover={hoverFromImage} />
+                  <RunHighlight box={hovered?.b} image={pc.imageB} />
+                </div>
               ) : (
                 <div className="page-missing" style={{ width: dispW, height: dispH }}>
                   No page {currentPage + 1}
@@ -183,6 +254,7 @@ export default function LayoutCompareView() {
                   style={{ width: dispW, height: dispH, opacity: overlayOpacity }}
                 />
               )}
+              <RunHighlight box={hovered?.b ?? hovered?.a} image={refImg} />
               <MeasureOverlay naturalWidth={refImg.width} />
             </div>
           )}
@@ -191,6 +263,7 @@ export default function LayoutCompareView() {
             (pc.pixel ? (
               <div className="stack" style={{ width: dispW, height: dispH }}>
                 <img className="base" src={pc.pixel.diffDataUrl} alt="diff" style={{ width: dispW, height: dispH }} />
+                <RunHighlight box={hovered?.b ?? hovered?.a} image={refImg!} />
                 <MeasureOverlay naturalWidth={refImg!.width} />
               </div>
             ) : (
@@ -237,7 +310,13 @@ export default function LayoutCompareView() {
               </thead>
               <tbody>
                 {matched.map((p, i) => (
-                  <tr key={i} className={p.offset > offsetThresholdPx ? 'flagged' : ''}>
+                  <tr
+                    key={i}
+                    ref={(el) => (rowsRef.current[i] = el)}
+                    className={`${p.offset > offsetThresholdPx ? 'flagged' : ''} ${hoveredIdx === i ? 'hl' : ''}`}
+                    onMouseEnter={() => setHoveredIdx(i)}
+                    onMouseLeave={() => setHoveredIdx(null)}
+                  >
                     <td style={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {p.str}
                     </td>

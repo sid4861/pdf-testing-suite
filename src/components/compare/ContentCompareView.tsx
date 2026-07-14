@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useCompareStore } from '../../store/compareStore';
 import type { CompareSide, RenderedPageImage } from '../../types/compare';
-import { buildChanges, isOnSide, region, TYPE_LABEL, type Change } from '../../services/changes';
+import { buildChanges, isOnSide, region, TYPE_LABEL, type Change, type ChangeType } from '../../services/changes';
+
+const TYPE_ORDER: ChangeType[] = ['removed', 'added', 'moved'];
 
 function scoreClass(m: number): string {
   if (m >= 0.999) return 'good';
@@ -72,21 +74,34 @@ export default function ContentCompareView() {
   const movedThreshold = useCompareStore((s) => s.offsetThresholdPx);
 
   const [highlighted, setHighlighted] = useState<number | null>(null);
+  const [enabled, setEnabled] = useState<Record<ChangeType, boolean>>({
+    removed: true,
+    added: true,
+    moved: true,
+  });
 
   const changes = useMemo(
     () => (pc ? buildChanges(pc, movedThreshold) : []),
     [pc, movedThreshold],
   );
 
+  const counts = useMemo(() => {
+    const c: Record<ChangeType, number> = { removed: 0, added: 0, moved: 0 };
+    for (const ch of changes) c[ch.type]++;
+    return c;
+  }, [changes]);
+
+  const visible = useMemo(() => changes.filter((c) => enabled[c.type]), [changes, enabled]);
+
   // Map normalized change text → change id, so word-diff spans can link to a box.
   const textToChange = useMemo(() => {
     const m = new Map<string, number>();
-    for (const c of changes) {
+    for (const c of visible) {
       const key = normalize(c.text);
       if (key && !m.has(key)) m.set(key, c.id);
     }
     return m;
-  }, [changes]);
+  }, [visible]);
 
   if (computing && !pc) {
     return (
@@ -105,17 +120,25 @@ export default function ContentCompareView() {
       {/* Rendered pages with change highlights */}
       <div className="card section-pad">
         <div className="overlay-legend">
-          <span><i className="dot removed" /> Removed (only in A)</span>
-          <span><i className="dot added" /> Added (only in B)</span>
-          <span><i className="dot moved" /> Moved</span>
-          <span className="legend-hint">Hover a highlight or a list row to link them.</span>
+          {TYPE_ORDER.map((t) => (
+            <button
+              key={t}
+              className={`legend-toggle ${enabled[t] ? 'on' : 'off'}`}
+              disabled={counts[t] === 0}
+              onClick={() => setEnabled((p) => ({ ...p, [t]: !p[t] }))}
+              title={`Show / hide ${TYPE_LABEL[t].toLowerCase()} changes`}
+            >
+              <i className={`dot ${t}`} /> {TYPE_LABEL[t]} <span className="cnt">{counts[t]}</span>
+            </button>
+          ))}
+          <span className="legend-hint">Click a type to filter · hover to link a change to the page.</span>
         </div>
         <div className="pages-row">
           <PageWithBoxes
             image={pc.imageA}
             side="A"
             label="A · Original"
-            changes={changes}
+            changes={visible}
             highlighted={highlighted}
             setHighlighted={setHighlighted}
             currentPage={currentPage}
@@ -124,7 +147,7 @@ export default function ContentCompareView() {
             image={pc.imageB}
             side="B"
             label="B · Recreated"
-            changes={changes}
+            changes={visible}
             highlighted={highlighted}
             setHighlighted={setHighlighted}
             currentPage={currentPage}
@@ -163,13 +186,16 @@ export default function ContentCompareView() {
       {/* Changes on this page — the "where" */}
       <div className="card section-pad">
         <div className="plabel" style={{ marginBottom: 10 }}>
-          Changes on this page {changes.length > 0 && `· ${changes.length}`}
+          Changes on this page
+          {changes.length > 0 && ` · ${visible.length}${visible.length !== changes.length ? ` of ${changes.length}` : ''}`}
         </div>
         {changes.length === 0 ? (
           <div className="chg-empty">✓ No positional text changes detected on page {currentPage + 1}.</div>
+        ) : visible.length === 0 ? (
+          <div className="chg-empty muted-empty">All change types are hidden — enable a filter above.</div>
         ) : (
           <div className="chg-list">
-            {changes.map((c) => {
+            {visible.map((c) => {
               const box = (c.a ?? c.b)!;
               return (
                 <div

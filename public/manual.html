@@ -116,6 +116,8 @@
       <a href="#content-tab">Content tab</a>
       <a href="#layout-tab">Layout tab</a>
       <a href="#report-tab">Report tab</a>
+      <div class="grp">Test new pages</div>
+      <a href="#spec">Validate against a spec</a>
       <div class="grp">Reference</div>
       <a href="#exporting">Exporting results</a>
       <a href="#edge-cases">Edge cases &amp; notes</a>
@@ -248,6 +250,47 @@
         on only one side are marked <span class="ui">missing</span>. <b>Click any row</b> to jump straight to that page
         in the Layout tab for a closer look.</p>
       <div class="note"><b>Tuning the verdict</b>A page can pass even with a small visual change if it's within your pixel threshold. Tighten <span class="ui">pixels ≤</span> to make the report stricter.</div>
+    </section>
+
+    <section id="spec">
+      <h2>Test new pages — validate against a spec</h2>
+      <p>Use the <span class="ui">Test new pages</span> workspace (top of the window) when there is no
+        reference PDF to compare against — only a <b>design spec</b>. Instead of diffing two documents,
+        the tool checks a single generated PDF against a JSON description of what each page should contain.</p>
+
+      <ol class="steps">
+        <li><b>Upload the PDF</b> to test and a <b>JSON spec</b> file (or click <span class="ui">Load example spec + PDF</span>).</li>
+        <li>The check runs automatically and lists every element with a <b>PASS</b> / <b>FAIL</b> / <b>NOT FOUND</b> result.</li>
+        <li>On the rendered page, the <b>expected</b> position is drawn as a dashed box and the <b>actual</b> position as a solid box — green if it passes, red if it fails — so deviations are visible at a glance. Hover a result to locate it.</li>
+        <li>Export the outcome as an <b>HTML report</b> or <b>JSON</b>.</li>
+      </ol>
+
+      <h3>What the spec describes</h3>
+      <p>The spec is JSON with a <code>pages</code> array; each page lists <code>elements</code>. Positions and
+        sizes are in inches (set <code>"units"</code> to <code>"pt"</code> or <code>"mm"</code> to change).</p>
+      <table>
+        <thead><tr><th>Element</th><th>Fields</th><th>Checks performed</th></tr></thead>
+        <tbody>
+          <tr><td><code>text</code></td><td><code>text, top, left, fontSize?, match?</code></td><td>present · left · top · font size</td></tr>
+          <tr><td><code>image</code></td><td><code>top, left, width, height</code></td><td>present · left · top · width · height</td></tr>
+          <tr><td><code>table</code></td><td><code>top, left, width, rows?, columns?</code></td><td>present · left · top · width · rows · columns</td></tr>
+          <tr><td><code>paragraph</code></td><td><code>text, top, left, lineSpacing</code></td><td>present · left · top · line spacing</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Tolerances</h3>
+      <p>A value passes when it is within tolerance of the spec. Defaults are <b>0.06″</b> position,
+        <b>0.06″</b> size, <b>0.03″</b> spacing, <b>2pt</b> font size. Override them globally with a
+        top-level <code>"tolerance"</code> object, or per element with a <code>"tolerance"</code> field.</p>
+
+      <div class="note"><b>Example</b>The bundled example (<span class="ui">Load example spec + PDF</span>) is a 2-page
+        statement with deliberate deviations — a logo that's too tall, a table narrower than specified, wrong
+        paragraph line spacing, and a missing “CONFIDENTIAL” watermark — so you can see each kind of failure.</div>
+
+      <h3>How elements are located</h3>
+      <p>Text and paragraphs are matched by their content (then by nearest position). Images are read from the
+        PDF's draw operations. Tables are detected as aligned multi-column text blocks. A spec element that
+        can't be found in the PDF is reported as <b>NOT FOUND</b> rather than silently passing.</p>
     </section>
 
     <section id="exporting">

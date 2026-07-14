@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PDF Compare — Demo &amp; Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #eef1f6; --panel: #fff; --border: #e2e8f0; --border-strong: #cbd5e1;
+    --text: #1e293b; --muted: #64748b; --faint: #94a3b8;
+    --indigo: #4f46e5; --indigo-soft: #eef2ff;
+    --emerald: #059669; --emerald-soft: #ecfdf5;
+    --amber: #d97706; --amber-soft: #fffbeb;
+    --red: #dc2626; --red-soft: #fef2f2;
+    --violet: #7c3aed; --violet-soft: #f5f3ff;
+    --green-bg: #dcfce7; --green-tx: #166534;
+    --shadow: 0 1px 2px rgba(15,23,42,.05), 0 10px 30px -12px rgba(15,23,42,.18);
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+  a { color: var(--indigo); }
+
+  /* hero */
+  .hero { text-align: center; padding: 64px 24px 40px; }
+  .hero .kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--indigo); }
+  .hero h1 { font-size: 40px; margin: 12px 0 8px; letter-spacing: -.02em; }
+  .hero p { color: var(--muted); max-width: 60ch; margin: 8px auto 0; font-size: 17px; }
+  .note-band { background: #fff8e6; border: 1px solid #fcd34d; color: #92400e; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; max-width: 720px; margin: 24px auto 0; }
+  .note-band b { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+
+  /* section */
+  section { padding: 40px 0; }
+  h2 { font-size: 26px; letter-spacing: -.01em; margin: 0 0 6px; }
+  h2 .num { font-family: var(--mono); color: var(--indigo); font-size: 16px; margin-right: 10px; }
+  .lede { color: var(--muted); margin: 0 0 26px; max-width: 70ch; }
+  h3 { font-size: 17px; margin: 30px 0 10px; }
+
+  /* two workspace cards */
+  .ws-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 720px) { .ws-cards { grid-template-columns: 1fr; } }
+  .ws-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 22px; box-shadow: var(--shadow); }
+  .ws-card .tag { display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; margin-bottom: 12px; }
+  .ws-card.compare .tag { background: var(--indigo-soft); color: var(--indigo); }
+  .ws-card.spec .tag { background: var(--emerald-soft); color: var(--emerald); }
+  .ws-card h3 { margin: 0 0 6px; font-size: 20px; }
+  .ws-card p { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  .ws-card ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .ws-card li { margin: 5px 0; }
+
+  /* feature grid */
+  .feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .feat-grid { grid-template-columns: 1fr; } }
+  .feat { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .feat .ic { font-size: 18px; }
+  .feat b { display: block; margin: 8px 0 3px; }
+  .feat span { color: var(--muted); font-size: 13.5px; }
+
+  /* walkthrough step */
+  .step { margin: 0 0 44px; }
+  .step-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+  .step-no { font-family: var(--mono); font-weight: 600; font-size: 13px; color: #fff; background: var(--indigo); width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex-shrink: 0; }
+  .step.sp .step-no { background: var(--emerald); }
+  .step-head h3 { margin: 0; font-size: 19px; }
+
+  /* device frame — mimics a browser window holding the app UI */
+  .device { border: 1px solid var(--border-strong); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); background: var(--panel); }
+  .device-bar { display: flex; align-items: center; gap: 7px; padding: 9px 14px; background: #f1f3f7; border-bottom: 1px solid var(--border); }
+  .device-bar i { width: 11px; height: 11px; border-radius: 50%; background: #d3d7de; display: inline-block; }
+  .device-bar .url { margin-left: 10px; font-family: var(--mono); font-size: 11.5px; color: var(--faint); background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 2px 10px; }
+  .device-body { background: var(--bg); }
+
+  /* caption */
+  .cap { display: flex; gap: 12px; margin-top: 14px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--indigo); border-radius: 0 10px 10px 0; }
+  .step.sp .cap { border-left-color: var(--emerald); }
+  .cap .cap-ic { font-size: 20px; flex-shrink: 0; }
+  .cap b { font-size: 14px; }
+  .cap p { margin: 3px 0 0; color: var(--muted); font-size: 13.5px; }
+  .cap ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; }
+  .cap li { margin: 3px 0; }
+
+  /* ============ APP UI RECONSTRUCTION (real classes) ============ */
+  .app-ui { font-size: 13px; color: var(--text); }
+  .app-ui .app-header { display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+  .app-ui .app-title { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .app-ui .badge { font-size: 10px; font-weight: 600; color: var(--indigo); background: var(--indigo-soft); padding: 2px 7px; border-radius: 999px; }
+  .app-ui .ws-tabs { display: flex; gap: 4px; background: #eef1f5; padding: 4px; border-radius: 9px; }
+  .app-ui .ws-t { border: none; background: transparent; color: var(--muted); font-weight: 600; padding: 6px 13px; border-radius: 7px; font-size: 12.5px; cursor: pointer; }
+  .app-ui .ws-t.on { background: var(--panel); color: var(--indigo); box-shadow: var(--shadow); }
+  .app-ui .uploads { display: flex; gap: 10px; flex: 1; min-width: 0; }
+  .app-ui .slot { flex: 1; min-width: 0; border: 1.5px dashed var(--border-strong); border-radius: 8px; padding: 6px 10px; display: flex; align-items: center; gap: 8px; }
+  .app-ui .slot.loaded.a { border-style: solid; border-color: var(--indigo); background: var(--indigo-soft); }
+  .app-ui .slot.loaded.b { border-style: solid; border-color: var(--emerald); background: var(--emerald-soft); }
+  .app-ui .slot.loaded.pdf { border-style: solid; border-color: var(--indigo); background: var(--indigo-soft); }
+  .app-ui .slot.loaded.json { border-style: solid; border-color: var(--emerald); background: var(--emerald-soft); }
+  .app-ui .stag { font-weight: 700; width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; color: #fff; font-size: 11px; flex-shrink: 0; }
+  .app-ui .a .stag, .app-ui .pdf .stag { background: var(--indigo); }
+  .app-ui .b .stag, .app-ui .json .stag { background: var(--emerald); }
+  .app-ui .slabel { font-weight: 600; font-size: 11px; }
+  .app-ui .sname { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-ui .shint { color: var(--faint); font-size: 11px; }
+  .app-ui .pcount { font-size: 10px; font-weight: 600; color: var(--muted); background: rgba(255,255,255,.7); padding: 1px 6px; border-radius: 999px; margin-left: auto; }
+
+  .app-ui .subbar { display: flex; align-items: center; gap: 14px; padding: 9px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+  .app-ui .tabs { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 9px; }
+  .app-ui .tab { border: none; background: transparent; color: var(--muted); font-weight: 500; padding: 5px 12px; border-radius: 7px; font-size: 12.5px; cursor: pointer; }
+  .app-ui .tab.on { background: var(--panel); color: var(--indigo); box-shadow: var(--shadow); }
+  .app-ui .spacer { flex: 1; }
+  .app-ui .chip2 { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 999px; border: 1px solid transparent; }
+  .app-ui .chip2.warn { background: var(--amber-soft); color: var(--amber); border-color: #fcd34d; }
+  .app-ui .chip2.pass { background: var(--emerald-soft); color: var(--emerald); border-color: #a7d9c4; }
+  .app-ui .nav { display: flex; align-items: center; gap: 7px; }
+  .app-ui .navb { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--panel); display: grid; place-items: center; }
+  .app-ui .navlbl { font-weight: 600; font-size: 12px; }
+  .app-ui .jumpb { border: 1px solid var(--border-strong); background: var(--panel); color: var(--indigo); border-radius: 7px; padding: 4px 9px; font-size: 12px; font-weight: 500; }
+
+  .app-ui .strip { display: flex; align-items: center; gap: 9px; padding: 7px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+  .app-ui .strip .cap2 { font-size: 11.5px; font-weight: 600; color: var(--muted); }
+  .app-ui .dots { display: flex; gap: 5px; }
+  .app-ui .pdot { min-width: 17px; height: 17px; padding: 0 3px; border-radius: 5px; border: 1px solid var(--border-strong); background: var(--panel); font-size: 9.5px; font-weight: 600; color: var(--muted); display: grid; place-items: center; }
+  .app-ui .pdot.diff { background: var(--red-soft); border-color: #f0a8a0; color: var(--red); }
+  .app-ui .pdot.same { background: var(--emerald-soft); border-color: #a7d9c4; color: var(--emerald); }
+  .app-ui .pdot.missing { background: var(--amber-soft); border-color: #fcd34d; color: var(--amber); }
+  .app-ui .pdot.cur { outline: 2px solid var(--indigo); outline-offset: 1px; }
+
+  .app-ui .body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .app-ui .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); }
+  .app-ui .card.pad { padding: 14px; }
+
+  .app-ui .legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
+  .app-ui .lt { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--border-strong); background: var(--panel); padding: 3px 9px; border-radius: 999px; font-weight: 500; }
+  .app-ui .lt.off { opacity: .45; }
+  .app-ui .dot { width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid; }
+  .app-ui .dot.rm { border-color: var(--red); background: rgba(220,38,38,.15); }
+  .app-ui .dot.ad { border-color: var(--emerald); background: rgba(5,150,105,.15); }
+  .app-ui .dot.mv { border-color: var(--violet); background: rgba(124,58,237,.15); }
+  .app-ui .lt .cnt { color: var(--faint); font-weight: 600; }
+  .app-ui .hint { color: var(--faint); font-style: italic; }
+
+  .app-ui .pages2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .app-ui .pframe { text-align: center; }
+  .app-ui .plab { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+  .app-ui .pgwrap { position: relative; display: inline-block; width: 100%; }
+
+  /* a stylised PDF page (invoice / statement) */
+  .doc { position: relative; border: 1px solid var(--border); border-radius: 5px; background: #fff; padding: 14px 14px; text-align: left; aspect-ratio: 8.5/11; font-size: 8px; line-height: 1.5; overflow: hidden; }
+  .doc .h { height: 22px; margin: -14px -14px 10px; display: flex; align-items: center; padding: 0 12px; color: #fff; font-weight: 700; font-size: 12px; letter-spacing: .04em; }
+  .doc .h.indigo { background: #3a3f7a; }
+  .doc .h.green { background: #1f6f57; }
+  .doc .row { display: flex; justify-content: space-between; margin: 2px 0; }
+  .doc .muted { color: #7b8190; }
+  .doc .b { font-weight: 700; }
+  .doc table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 7.5px; }
+  .doc td, .doc th { text-align: left; padding: 2px 0; }
+  .doc th { border-bottom: 1px solid #d7dbe2; }
+  .doc td.r, .doc th.r { text-align: right; }
+  .doc .logo { position: absolute; top: 30px; right: 14px; width: 74px; height: 36px; border-radius: 3px; background: linear-gradient(120deg,#c0392b,#8e44ad,#2980b9); }
+
+  .box { position: absolute; box-sizing: border-box; border: 1.5px solid; border-radius: 2px; }
+  .box .n { position: absolute; top: -7px; left: -7px; width: 13px; height: 13px; border-radius: 7px; color: #fff; font-size: 8px; font-weight: 700; display: grid; place-items: center; font-family: var(--mono); }
+  .box.rm { border-color: var(--red); background: rgba(220,38,38,.14); } .box.rm .n { background: var(--red); }
+  .box.ad { border-color: var(--emerald); background: rgba(5,150,105,.14); } .box.ad .n { background: var(--emerald); }
+  .box.mv { border-color: var(--violet); background: rgba(124,58,237,.14); } .box.mv .n { background: var(--violet); }
+  .box.diff { border-color: transparent; background: rgba(220,38,38,.42); }
+  .box.exp { border-style: dashed; border-color: var(--indigo); }
+  .box.act-pass { border-color: var(--emerald); background: rgba(5,150,105,.1); }
+  .box.act-fail { border-color: var(--red); background: rgba(220,38,38,.1); }
+
+  .app-ui .score { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .app-ui .pctbad { font-weight: 700; font-size: 18px; color: var(--red); }
+  .app-ui .cchip { font-weight: 600; font-size: 12px; }
+  .app-ui .cchip.rm { color: var(--red); } .app-ui .cchip.ad { color: var(--emerald); }
+
+  .app-ui .chglist { display: flex; flex-direction: column; gap: 2px; }
+  .app-ui .chgi { display: flex; align-items: center; gap: 9px; padding: 5px 7px; border-radius: 6px; }
+  .app-ui .chgi:hover { background: #f1f5f9; }
+  .app-ui .cn { width: 18px; height: 18px; border-radius: 5px; color: #fff; font-size: 10px; font-weight: 700; display: grid; place-items: center; flex-shrink: 0; }
+  .app-ui .cn.rm { background: var(--red); } .app-ui .cn.ad { background: var(--emerald); } .app-ui .cn.mv { background: var(--violet); }
+  .app-ui .cchip2 { font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; flex-shrink: 0; }
+  .app-ui .cchip2.rm { color: var(--red); background: var(--red-soft); } .app-ui .cchip2.ad { color: var(--emerald); background: var(--emerald-soft); } .app-ui .cchip2.mv { color: var(--violet); background: var(--violet-soft); }
+  .app-ui .ctext { flex: 1; font-family: var(--mono); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-ui .cpos { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+  .app-ui .diffbox { font-family: var(--mono); font-size: 12px; line-height: 1.7; background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--muted); }
+  .app-ui .diffbox .ad { background: #dcfce7; color: #166534; border-radius: 2px; }
+  .app-ui .diffbox .rm { background: #fee2e2; color: #991b1b; text-decoration: line-through; border-radius: 2px; }
+
+  .app-ui .lctrl { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .app-ui .pixbadge { font-weight: 700; padding: 3px 11px; border-radius: 999px; font-size: 12px; background: var(--red-soft); color: var(--red); }
+  .app-ui .zoom { display: flex; align-items: center; gap: 6px; }
+  .app-ui .zb { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--panel); display: grid; place-items: center; font-size: 15px; }
+  .app-ui .zlbl { font-weight: 600; font-size: 12px; color: var(--muted); min-width: 42px; text-align: center; }
+  .app-ui .stage { background: #e5e7eb; padding: 16px; display: flex; justify-content: center; }
+
+  table.geo { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.geo th, table.geo td { padding: 5px 14px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+  table.geo th { background: #f8fafc; font-weight: 600; font-size: 11px; }
+  table.geo td.rr { text-align: right; font-variant-numeric: tabular-nums; }
+  table.geo tr.flag { background: var(--red-soft); } table.geo tr.flag td.off { color: var(--red); font-weight: 700; }
+  table.geo .aln { color: var(--faint); }
+
+  .app-ui .rctrl { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .app-ui .rbtn { background: var(--indigo); color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 500; font-size: 12.5px; }
+  .app-ui .thr { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .app-ui .thr input { width: 42px; border: 1px solid var(--border-strong); border-radius: 5px; padding: 3px 5px; font-family: inherit; }
+  .app-ui .verdict { font-weight: 700; padding: 5px 14px; border-radius: 999px; }
+  .app-ui .verdict.fail { background: var(--red-soft); color: var(--red); }
+  .app-ui .drop { position: relative; }
+  .app-ui .dropm { position: absolute; right: 0; top: calc(100% + 6px); background: var(--panel); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); min-width: 210px; overflow: hidden; z-index: 3; }
+  .app-ui .dropm button { display: block; width: 100%; text-align: left; padding: 9px 13px; border: none; background: transparent; font-size: 12.5px; }
+  .app-ui .dropm button + button { border-top: 1px solid var(--border); }
+  .app-ui .dropm small { display: block; color: var(--faint); font-size: 10.5px; }
+  table.rep { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.rep th, table.rep td { padding: 8px 13px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.rep th { background: #f8fafc; font-weight: 600; font-size: 11px; }
+  table.rep td.ps { color: var(--emerald); font-weight: 700; } table.rep td.fl { color: var(--red); font-weight: 700; }
+  .bmiss { font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-soft); padding: 2px 8px; border-radius: 999px; }
+
+  /* spec */
+  .app-ui .spec-grid { display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+  @media (max-width: 680px) { .app-ui .spec-grid { grid-template-columns: 1fr; } }
+  .app-ui .specel { border: 1px solid var(--border); border-left: 3px solid var(--border-strong); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+  .app-ui .specel.pass { border-left-color: var(--emerald); }
+  .app-ui .specel.fail { border-left-color: var(--red); }
+  .app-ui .specel.nf { border-left-color: var(--amber); }
+  .app-ui .selhead { display: flex; align-items: center; gap: 9px; padding: 9px 12px; }
+  .app-ui .selhead b { font-size: 13px; } .app-ui .selhead small { display: block; color: var(--faint); font-size: 11px; }
+  .app-ui .selt { flex: 1; }
+  .app-ui .sbadge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .app-ui .sbadge.pass { background: var(--emerald-soft); color: var(--emerald); }
+  .app-ui .sbadge.fail { background: var(--red-soft); color: var(--red); }
+  .app-ui .sbadge.nf { background: var(--amber-soft); color: var(--amber); }
+  table.sck { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  table.sck td { padding: 3px 12px; border-top: 1px solid #f1f5f9; }
+  table.sck td.k { color: var(--muted); width: 26%; }
+  table.sck td.v { font-family: var(--mono); }
+  table.sck td.ck { text-align: right; width: 20px; }
+  table.sck tr.ok td.ck { color: var(--emerald); } table.sck tr.no td.ck { color: var(--red); font-weight: 700; } table.sck tr.no td.va { color: var(--red); }
+
+  footer { text-align: center; padding: 40px 24px; color: var(--faint); font-size: 13px; border-top: 1px solid var(--border); margin-top: 20px; }
+  .toc { position: sticky; top: 0; background: rgba(238,241,246,.9); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); z-index: 10; }
+  .toc .wrap { display: flex; gap: 6px; padding: 10px 24px; overflow-x: auto; }
+  .toc a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 11px; border-radius: 7px; white-space: nowrap; font-weight: 500; }
+  .toc a:hover { background: var(--panel); color: var(--indigo); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="kicker">PDF Compare · QA Toolkit</div>
+  <h1>Demo &amp; Walkthrough</h1>
+  <p>Everything the tool does, and how to use it — step by step. Two workspaces: <b>Compare PDFs</b> (against a reference) and <b>Test new pages</b> (against a JSON spec).</p>
+  <div class="note-band"><b>Note</b> &nbsp;The panels below faithfully mirror the live application — they use the app's own styles, layout, and real example data, so this file explains the app even when you can't run it.</div>
+</div>
+
+<nav class="toc"><div class="wrap">
+  <a href="#overview">Overview</a>
+  <a href="#feat-compare">Compare features</a>
+  <a href="#feat-spec">Spec features</a>
+  <a href="#flow-compare">Walkthrough · Compare</a>
+  <a href="#flow-spec">Walkthrough · Test new pages</a>
+</div></nav>
+
+<!-- OVERVIEW -->
+<section id="overview"><div class="wrap">
+  <h2><span class="num">01</span>Two workspaces</h2>
+  <p class="lede">Pick a workspace from the tabs at the top of the app.</p>
+  <div class="ws-cards">
+    <div class="ws-card compare">
+      <span class="tag">Compare PDFs</span>
+      <h3>Reference vs recreation</h3>
+      <p>You have an original PDF and a recreated one, and want to prove they match.</p>
+      <ul>
+        <li><b>Content</b> — text diff, in-place change highlights</li>
+        <li><b>Layout</b> — pixel diff + exact position offsets</li>
+        <li><b>Report</b> — pass/fail across all pages, exportable</li>
+      </ul>
+    </div>
+    <div class="ws-card spec">
+      <span class="tag">Test new pages</span>
+      <h3>PDF vs JSON spec</h3>
+      <p>There's no reference PDF — only a spec describing what the page should contain.</p>
+      <ul>
+        <li>Checks <b>static text</b>, <b>images</b>, <b>tables</b>, <b>paragraph spacing</b></li>
+        <li>Positions/sizes verified in inches, with tolerances</li>
+        <li>Annotated pass/fail report, exportable</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- COMPARE FEATURES -->
+<section id="feat-compare"><div class="wrap">
+  <h2><span class="num">02</span>Compare PDFs — features</h2>
+  <p class="lede">Three lenses on the same pair of documents, plus review aids for long files.</p>
+  <div class="feat-grid">
+    <div class="feat"><div class="ic">📝</div><b>Word-level content diff</b><span>Added / removed / moved text on every page, reconstructed in reading order.</span></div>
+    <div class="feat"><div class="ic">🎯</div><b>In-place highlights</b><span>Each change is boxed &amp; numbered on the page (red removed, green added, violet moved) and linked to a list.</span></div>
+    <div class="feat"><div class="ic">🖼️</div><b>Pixel diff heat-map</b><span>Catches visual differences even when no character changed — with adjustable sensitivity.</span></div>
+    <div class="feat"><div class="ic">📏</div><b>Position offsets</b><span>Every shared text run's shift in plain words: “12px right, 4px down”.</span></div>
+    <div class="feat"><div class="ic">🔍</div><b>Zoom &amp; measure</b><span>Zoom any page; drag to measure distances directly on it.</span></div>
+    <div class="feat"><div class="ic">⤻</div><b>Jump to next change</b><span>Skip straight to the next differing page in long documents.</span></div>
+    <div class="feat"><div class="ic">●</div><b>Summary chip &amp; page strip</b><span>“5 of 6 pages differ” + a coloured dot per page, click to jump.</span></div>
+    <div class="feat"><div class="ic">📊</div><b>Pass/fail report + export</b><span>Roll-up against your thresholds; export HTML / JSON / CSV.</span></div>
+  </div>
+</div></section>
+
+<!-- SPEC FEATURES -->
+<section id="feat-spec"><div class="wrap">
+  <h2><span class="num">03</span>Test new pages — features</h2>
+  <p class="lede">Validate a generated PDF against a JSON spec, element by element.</p>
+  <div class="feat-grid">
+    <div class="feat"><div class="ic">📝</div><b>Text checks</b><span>Present · left · top · font size · exact/contains match.</span></div>
+    <div class="feat"><div class="ic">🖼️</div><b>Image checks</b><span>Present · left · top · width · height (read from the PDF's draw ops).</span></div>
+    <div class="feat"><div class="ic">▦</div><b>Table checks</b><span>Present · left · top · width · row &amp; column count.</span></div>
+    <div class="feat"><div class="ic">¶</div><b>Paragraph checks</b><span>Present · left · top · measured line spacing.</span></div>
+    <div class="feat"><div class="ic">🎯</div><b>Overlay visualisation</b><span>Expected box (dashed) vs actual box (green pass / red fail) drawn on the page.</span></div>
+    <div class="feat"><div class="ic">⚖️</div><b>Tolerances</b><span>Defaults 0.06″ position / 0.06″ size / 0.03″ spacing — overridable per element.</span></div>
+    <div class="feat"><div class="ic">🔎</div><b>Missing = flagged</b><span>A spec element absent from the PDF is reported NOT FOUND, never silently passed.</span></div>
+    <div class="feat"><div class="ic">📤</div><b>Export</b><span>Annotated HTML report or JSON.</span></div>
+  </div>
+</div></section>
+
+<!-- WALKTHROUGH: COMPARE -->
+<section id="flow-compare"><div class="wrap">
+  <h2><span class="num">04</span>Walkthrough — Compare PDFs</h2>
+  <p class="lede">The example loads a deliberately complex 6-page invoice (Side A) vs a 5-page recreation (Side B).</p>
+
+  <!-- step 1 -->
+  <div class="step">
+    <div class="step-head"><span class="step-no">1</span><h3>Load the two PDFs</h3></div>
+    <div class="device"><div class="device-bar"><i></i><i></i><i></i><span class="url">pdf-compare · localhost:5173</span></div>
+      <div class="device-body"><div class="app-ui">
+        <div class="app-header">
+          <div class="app-title">🔍 PDF Compare <span class="badge">QA</span></div>
+          <div class="ws-tabs"><button class="ws-t on">Compare PDFs</button><button class="ws-t">Test new pages</button></div>
+          <div class="uploads">
+            <div class="slot a"><span class="stag">A</span><div><div class="slabel">Side A · Original</div><div class="shint">Drop the reference PDF · browse</div></div></div>
+            <div class="slot b"><span class="stag">B</span><div><div class="slabel">Side B · Recreated</div><div class="shint">Drop the generated PDF · browse</div></div></div>
+          </div>
+        </div>
+        <div class="body" style="align-items:center;text-align:center;padding:44px 16px;">
+          <div style="font-size:34px">📄🆚📄</div>
+          <div style="font-size:18px;font-weight:600;margin-top:6px">Compare two PDFs</div>
+          <div style="color:var(--muted);max-width:52ch;margin-top:6px">Drop an <b>original</b> into Side A and a <b>recreated</b> PDF into Side B. Or click below to try the bundled example.</div>
+          <button class="rbtn" style="margin-top:14px">Load example invoices</button>
+        </div>
+      </div></div>
+    </div>
+    <div class="cap"><span class="cap-ic">⬆️</span><div><b>Upload slots</b><p>Drag &amp; drop or browse for each side — indigo for A (original), emerald for B (recreated). “Load example invoices” fills both with the bundled sample so you can explore every feature immediately.</p></div></div>
+  </div>
+
+  <!-- step 2 -->
+  <div class="step">
+    <div class="step-head"><span class="step-no">2</span><h3>Content tab — see what changed &amp; where</h3></div>
+    <div class="device"><div class="device-bar"><i></i><i></i><i></i><span class="url">pdf-compare · localhost:5173</span></div>
+      <div class="device-body"><div class="app-ui">
+        <div class="app-header" style="padding:8px 16px">
+          <div class="app-title">🔍 PDF Compare <span class="badge">QA</span></div>
+          <div class="uploads">
+            <div class="slot loaded a"><span class="stag">A</span><div><div class="slabel">Side A · Original</div><div class="sname">invoice-original.pdf</div></div><span class="pcount">6p</span></div>
+            <div class="slot loaded b"><span class="stag">B</span><div><div class="slabel">Side B · Recreated</div><div class="sname">invoice-recreated.pdf</div></div><span class="pcount">5p</span></div>
+          </div>
+        </div>
+        <div class="subbar">
+          <div class="tabs"><button class="tab on">📝 Content</button><button class="tab">📐 Layout</button><button class="tab">📊 Report</button></div>
+          <span class="chip2 warn">● 5 of 6 pages differ</span>
+          <span class="spacer"></span>
+          <div class="nav"><button class="jumpb">⤺ prev change</button><button class="navb">‹</button><span class="navlbl">Page 1 of 6</span><button class="navb">›</button><button class="jumpb">next change ⤻</button></div>
+        </div>
+        <div class="strip"><span class="cap2">Pages</span><div class="dots">
+          <span class="pdot diff cur">1</span><span class="pdot diff">2</span><span class="pdot same">3</span><span class="pdot diff">4</span><span class="pdot diff">5</span><span class="pdot missing">6</span>
+        </div></div>
+        <div class="body">
+          <div class="card pad">
+            <div class="legend">
+              <button class="lt"><i class="dot rm"></i> Removed <span class="cnt">3</span></button>
+              <button class="lt"><i class="dot ad"></i> Added <span class="cnt">3</span></button>
+              <button class="lt off"><i class="dot mv"></i> Moved <span class="cnt">0</span></button>
+              <span class="hint">Click a type to filter · hover to link a change to the page.</span>
+            </div>
+            <div class="pages2">
+              <div class="pframe"><div class="plab">A · Original</div><div class="pgwrap">
+                <div class="doc">
+                  <div class="h indigo">INVOICE</div>
+                  <div class="logo"></div>
+                  <div class="muted">BILL TO</div><div class="b">Globex Industries</div>
+                  <div class="row" style="margin-top:6px"><span></span><span class="muted">Invoice #: INV-1042</span></div>
+                  <div class="row"><span></span><span class="muted">Due: 2026-07-30</span></div>
+                  <table><tr><th>Description</th><th class="r">Amount</th></tr>
+                    <tr><td>Consulting services</td><td class="r">$1,500.00</td></tr>
+                    <tr><td>Software license</td><td class="r">$800.00</td></tr>
+                    <tr><td>Support plan</td><td class="r">$250.00</td></tr></table>
+                  <div class="row" style="margin-top:8px"><span class="b">Subtotal:</span><span>$2,550.00</span></div>
+                  <div class="row"><span>Total</span><span class="b">$2,754.00</span></div>
+                  <!-- highlights (removed on A) -->
+                  <span class="box rm" style="left:9%;top:30%;width:46%;height:5%"><span class="n">1</span></span>
+                  <span class="box rm" style="left:56%;top:22%;width:36%;height:5%"><span class="n">3</span></span>
+                  <span class="box rm" style="left:64%;top:60%;width:28%;height:5%"><span class="n">5</span></span>
+                </div>
+              </div></div>
+              <div class="pframe"><div class="plab">B · Recreated</div><div class="pgwrap">
+                <div class="doc">
+                  <div class="h green">INVOICE</div>
+                  <div class="logo"></div>
+                  <div class="muted">BILL TO</div><div class="b">Globex Industries Inc</div>
+                  <div class="row" style="margin-top:6px"><span></span><span class="muted">Invoice #: INV-1042</span></div>
+                  <div class="row"><span></span><span class="muted">Due: 2026-08-15</span></div>
+                  <table><tr><th>Description</th><th class="r">Amount</th></tr>
+                    <tr><td>Consulting services</td><td class="r">$1,500.00</td></tr>
+                    <tr><td>Software license</td><td class="r">$800.00</td></tr>
+                    <tr><td>Support plan</td><td class="r">$250.00</td></tr></table>
+                  <div class="row" style="margin-top:8px"><span class="b">Subtotal:</span><span>$2,575.00</span></div>
+                  <div class="row"><span>Total</span><span class="b">$2,754.00</span></div>
+                  <span class="box ad" style="left:9%;top:30%;width:56%;height:5%"><span class="n">2</span></span>
+                  <span class="box ad" style="left:56%;top:22%;width:36%;height:5%"><span class="n">4</span></span>
+                  <span class="box ad" style="left:64%;top:60%;width:28%;height:5%"><span class="n">6</span></span>
+                </div>
+              </div></div>
+            </div>
+          </div>
+          <div class="card pad">
+            <div class="score"><span>Content match</span><span class="pctbad">95.8%</span><span class="cchip rm">− 3 removed</span><span class="cchip ad">+ 3 added</span></div>
+          </div>
+          <div class="card pad">
+            <div class="plab" style="margin-bottom:8px">Changes on this page · 6</div>
+            <div class="chglist">
+              <div class="chgi"><span class="cn rm">1</span><span class="cchip2 rm">Removed</span><span class="ctext">Globex Industries</span><span class="cpos">top-left · 144,320px</span></div>
+              <div class="chgi"><span class="cn ad">2</span><span class="cchip2 ad">Added</span><span class="ctext">Globex Industries Inc</span><span class="cpos">top-left · 144,320px</span></div>
+              <div class="chgi"><span class="cn rm">3</span><span class="cchip2 rm">Removed</span><span class="ctext">Due: 2026-07-30</span><span class="cpos">top-right · 800,188px</span></div>
+              <div class="chgi"><span class="cn ad">4</span><span class="cchip2 ad">Added</span><span class="ctext">Due: 2026-08-15</span><span class="cpos">top-right · 800,188px</span></div>
+              <div class="chgi"><span class="cn rm">5</span><span class="cchip2 rm">Removed</span><span class="ctext">$2,550.00</span><span class="cpos">middle-right · 800,660px</span></div>
+              <div class="chgi"><span class="cn ad">6</span><span class="cchip2 ad">Added</span><span class="ctext">$2,575.00</span><span class="cpos">middle-right · 800,660px</span></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="cap"><span class="cap-ic">🎯</span><div><b>Content tab — the “where”</b>
+      <ul>
+        <li><b>Highlights on the page:</b> every change is boxed &amp; numbered — red on A (removed), green on B (added), violet for moved.</li>
+        <li><b>Summary chip &amp; page strip</b> (top): “5 of 6 pages differ”, with a dot per page (red = differs, green = identical, amber = missing). Click to jump.</li>
+        <li><b>Filter toggles</b> (Removed / Added / Moved) hide change types; counts shown.</li>
+        <li><b>Changes list</b> gives each change's type, text and location; hovering links it to its box on the page.</li>
+        <li><b>Jump to next / prev change</b> skips identical pages.</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <!-- step 3 -->
+  <div class="step">
+    <div class="step-head"><span class="step-no">3</span><h3>Word-level diff</h3></div>
+    <div class="device"><div class="device-bar"><i></i><i></i><i></i><span class="url">pdf-compare · localhost:5173</span></div>
+      <div class="device-body"><div class="app-ui"><div class="body">
+        <div class="card pad">
+          <div class="plab" style="margin-bottom:8px">Word-level diff</div>
+          <div class="diffbox">INVOICE<br>Invoice #: INV-1042<br>Bill To: Globex Industries<span class="ad"> Inc</span><br>Due: 2026-<span class="rm">07-30</span><span class="ad">08-15</span><br>Consulting services $1,500.00<br>Subtotal: $2,<span class="rm">550</span><span class="ad">575</span>.00<br>Total: $2,754.00</div>
+        </div>
+      </div></div></div>
+    </div>
+    <div class="cap"><span class="cap-ic">📝</span><div><b>Reading-order word diff</b><p>The same page as running text with insertions in <span style="color:#166534;font-weight:600">green</span> and deletions <span style="color:#991b1b;text-decoration:line-through">struck through in red</span>. Where a change maps cleanly to a run, hovering the word highlights its box on the page above.</p></div></div>
+  </div>
+
+  <!-- step 4 -->
+  <div class="step">
+    <div class="step-head"><span class="step-no">4</span><h3>Layout tab — pixel diff &amp; position offsets</h3></div>
+    <div class="device"><div class="device-bar"><i></i><i></i><i></i><span class="url">pdf-compare · localhost:5173</span></div>
+      <div class="device-body"><div class="app-ui">
+        <div class="subbar">
+          <div class="tabs"><button class="tab">📝 Content</button><button class="tab on">📐 Layout</button><button class="tab">📊 Report</button></div>
+          <span class="spacer"></span><div class="nav"><button class="navb">‹</button><span class="navlbl">Page 2 of 6</span><button class="navb">›</button></div>
+        </div>
+        <div class="card" style="margin:14px;overflow:hidden">
+          <div class="lctrl">
+            <div class="tabs"><button class="tab">Side by side</button><button class="tab">Overlay</button><button class="tab on">Pixel diff</button></div>
+            <span style="font-size:12px;color:var(--muted)">Sensitivity <b>0.10</b></span>
+            <span class="spacer"></span>
+            <div class="zoom"><button class="zb">−</button><span class="zlbl">57%</span><button class="zb">+</button><button class="zb" style="width:auto;padding:0 8px;font-size:12px">Fit</button></div>
+            <span class="pixbadge">1.0% different</span>
+          </div>
+          <div class="stage">
+            <div class="doc" style="width:200px;font-size:7px">
+              <div class="h indigo" style="background:#b3b3b3">INVOICE</div>
+              <div class="muted">Itemized charges</div>
+              <table>
+                <tr><th>Item</th><th class="r">Amount</th></tr>
+                <tr><td>Consulting</td><td class="r">$1,440.00</td></tr>
+                <tr><td>Support</td><td class="r">$1,800.00</td></tr>
+                <tr><td>Hosting</td><td class="r">$720.00</td></tr>
+              </table>
+              <span class="box diff" style="left:64%;top:34%;width:28%;height:4%"></span>
+              <span class="box diff" style="left:64%;top:40%;width:28%;height:4%"></span>
+              <span class="box diff" style="left:64%;top:46%;width:28%;height:4%"></span>
+            </div>
+          </div>
+          <div>
+            <div style="padding:8px 14px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)">Text position shifts · 100 runs matched · largest shift 38px &nbsp;·&nbsp; <span style="color:var(--muted)">Flag shifts &gt; 2 px</span></div>
+            <table class="geo">
+              <tr><th>Text</th><th>Horizontal</th><th>Vertical</th><th class="rr">Total shift</th></tr>
+              <tr class="flag"><td>$285.00</td><td>12px right</td><td>36px up</td><td class="rr off">38px</td></tr>
+              <tr class="flag"><td>$900.00</td><td>12px right</td><td>36px up</td><td class="rr off">38px</td></tr>
+              <tr class="flag"><td>consulting services</td><td>12px right</td><td>4px down</td><td class="rr off">13px</td></tr>
+              <tr><td>invoice</td><td class="aln">aligned</td><td class="aln">aligned</td><td class="rr">0px</td></tr>
+            </table>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="cap"><span class="cap-ic">📐</span><div><b>Layout tab</b>
+      <ul>
+        <li><b>Pixel diff</b> heat-map shows exactly which pixels changed (here: shifted amounts), with a % badge and a sensitivity slider. <em>Side-by-side</em> and <em>Overlay</em> views are also available.</li>
+        <li><b>Zoom</b> (− / % / + / Fit / 1:1) for close inspection; drag on the page to <b>measure</b> distances.</li>
+        <li><b>Position-shift table</b> lists every shared run in plain words (“12px right, 36px up”); rows above the flag threshold are highlighted. Hovering a row marks the run on the page, and vice-versa.</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <!-- step 5 -->
+  <div class="step">
+    <div class="step-head"><span class="step-no">5</span><h3>Report tab — verdict &amp; export</h3></div>
+    <div class="device"><div class="device-bar"><i></i><i></i><i></i><span class="url">pdf-compare · localhost:5173</span></div>
+      <div class="device-body"><div class="app-ui">
+        <div class="subbar"><div class="tabs"><button class="tab">📝 Content</button><button class="tab">📐 Layout</button><button class="tab on">📊 Report</button></div></div>
+        <div class="body">
+          <div class="card pad">
+            <div class="rctrl">
+              <button class="rbtn">Re-run all pages</button>
+              <span style="font-size:12px;color:var(--muted)">PASS if</span>
+              <span class="thr">content ≥ <input value="99" readonly>%</span>
+              <span class="thr">pixels ≤ <input value="2" readonly>%</span>
+              <span class="thr">offset ≤ <input value="3" readonly>px</span>
+              <span class="spacer"></span>
+              <span class="verdict fail">✗ FAIL</span>
+              <div class="drop"><button class="jumpb" style="padding:7px 12px">⬇ Export ▾</button>
+                <div class="dropm">
+                  <button>HTML report<small>Annotated pages + change lists</small></button>
+                  <button>JSON data<small>Full metrics + verdict</small></button>
+                  <button>CSV spreadsheet<small>Per-page metrics</small></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="overflow:hidden">
+            <table class="rep">
+              <tr><th>Page</th><th>Content match</th><th>Pixels different</th><th>Max offset</th><th>Result</th></tr>
+              <tr><td>1</td><td>95.8%</td><td>6.2%</td><td>0px</td><td class="fl">✗</td></tr>
+              <tr><td>2</td><td>92.9%</td><td>1.0%</td><td>38px</td><td class="fl">✗</td></tr>
+              <tr><td>3</td><td>100.0%</td><td>0.0%</td><td>0px</td><td class="ps">✓</td></tr>
+              <tr><td>4</td><td>100.0%</td><td>1.5%</td><td>0px</td><td class="ps">✓</td></tr>
+              <tr><td>5</td><td>83.9%</td><td>9.8%</td><td>314px</td><td class="fl">✗</td></tr>
+              <tr><td>6</td><td>—</td><td>—</td><td>—</td><td><span class="bmiss">missing</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="cap"><span class="cap-ic">📊</span><div><b>Report tab</b>
+      <ul>
+        <li>Set your own <b>PASS thresholds</b> (content ≥, pixels ≤, offset ≤), then run all pages for an <b>overall verdict</b>.</li>
+        <li>The per-page table shows content match, pixels different, max offset and PASS/FAIL. <b>Click a row</b> to drill into that page's Layout view. Missing pages are flagged.</li>
+        <li><b>Export</b> the result as an HTML report (annotated pages + change lists), JSON, or CSV.</li>
+      </ul>
+    </div></div>
+  </div>
+</div></section>
+
+<!-- WALKTHROUGH: SPEC -->
+<section id="flow-spec"><div class="wrap">
+  <h2><span class="num">05</span>Walkthrough — Test new pages</h2>
+  <p class="lede">The example checks a 2-page statement (spec-sample.pdf) against spec-sample.json, with intentional deviations so every check type is shown.</p>
+
+  <!-- step 1 -->
+  <div class="step sp">
+    <div class="step-head"><span class="step-no">1</span><h3>Upload the PDF and the JSON spec</h3></div>
+    <div class="device"><div class="device-bar"><i></i><i></i><i></i><span class="url">pdf-compare · localhost:5173</span></div>
+      <div class="device-body"><div class="app-ui">
+        <div class="app-header">
+          <div class="app-title">🔍 PDF Compare <span class="badge">QA</span></div>
+          <div class="ws-tabs"><button class="ws-t">Compare PDFs</button><button class="ws-t on">Test new pages</button></div>
+        </div>
+        <div class="subbar">
+          <div class="uploads" style="max-width:480px">
+            <div class="slot loaded pdf"><span class="stag">⇩</span><div><div class="slabel">PDF to test</div><div class="sname">spec-sample.pdf</div></div></div>
+            <div class="slot loaded json"><span class="stag">{}</span><div><div class="slabel">JSON spec</div><div class="sname">spec-sample.json</div></div></div>
+          </div>
+          <span class="spacer"></span>
+          <span class="chip2 warn">✗ 8/12 elements pass</span>
+          <button class="jumpb" style="padding:7px 12px">⬇ Export ▾</button>
+        </div>
+        <div class="strip"><span class="cap2">Pages</span><div class="dots"><span class="pdot diff cur">1</span><span class="pdot same">2</span></div></div>
+      </div></div>
+    </div>
+    <div class="cap"><span class="cap-ic">🧾</span><div><b>Two inputs: the PDF + the spec</b><p>Upload the generated <b>PDF</b> and a <b>JSON spec</b> describing the expected content. The check runs automatically; the chip summarises how many spec elements pass (here 8 of 12), and the page strip marks which pages have failures.</p></div></div>
+  </div>
+
+  <!-- step 2 -->
+  <div class="step sp">
+    <div class="step-head"><span class="step-no">2</span><h3>Results — overlays &amp; per-element checks</h3></div>
+    <div class="device"><div class="device-bar"><i></i><i></i><i></i><span class="url">pdf-compare · localhost:5173</span></div>
+      <div class="device-body"><div class="app-ui"><div class="body">
+        <div class="spec-grid">
+          <div class="card pad">
+            <div class="legend">
+              <span><i class="dot exp" style="border:1.5px dashed var(--indigo);background:transparent"></i> Expected (spec)</span>
+              <span><i class="dot" style="border-color:var(--emerald);background:var(--emerald-soft)"></i> Actual · pass</span>
+              <span><i class="dot" style="border-color:var(--red);background:var(--red-soft)"></i> Actual · fail</span>
+            </div>
+            <div class="pgwrap">
+              <div class="doc">
+                <div class="h indigo">MONTHLY STATEMENT</div>
+                <div class="logo" style="top:26px;height:30px"></div>
+                <div class="muted">Account: 100482-7</div>
+                <div class="muted">Statement period: June 2026</div>
+                <table style="margin-top:26px"><tr><th>Service</th><th class="r">Amount</th></tr>
+                  <tr><td>Consulting hours</td><td class="r">$1,800.00</td></tr>
+                  <tr><td>Support plan</td><td class="r">$250.00</td></tr>
+                  <tr><td>Cloud hosting</td><td class="r">$720.00</td></tr></table>
+                <div style="margin-top:22px;color:#7b8190;font-size:7px">Payment is due within thirty (30) days of the statement date. Late payments accrue a finance charge…</div>
+                <!-- overlays -->
+                <span class="box act-pass" style="left:9%;top:12%;width:56%;height:5%"></span>
+                <span class="box exp" style="left:66%;top:9%;width:22%;height:8%"></span>
+                <span class="box act-fail" style="left:66%;top:9%;width:22%;height:11%"></span>
+                <span class="box act-fail" style="left:9%;top:44%;width:80%;height:15%"></span>
+                <span class="box exp" style="left:9%;top:44%;width:88%;height:15%"></span>
+                <span class="box exp" style="left:34%;top:64%;width:10%;height:4%"></span>
+                <span class="box act-fail" style="left:9%;top:78%;width:70%;height:9%"></span>
+              </div>
+            </div>
+          </div>
+          <div class="spec-results">
+            <div class="card pad" style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><b>Page 1</b><span class="cchip rm">10 passed · 5 failed</span></div>
+            <div class="specel pass"><div class="selhead"><span>📝</span><div class="selt"><b>Statement title</b><small>“MONTHLY STATEMENT”</small></div><span class="sbadge pass">PASS</span></div>
+              <table class="sck"><tr class="ok"><td class="k">Left</td><td class="v">0.75″</td><td class="v">0.75″</td><td class="ck">✓</td></tr><tr class="ok"><td class="k">Font size</td><td class="v">20pt</td><td class="v">20pt</td><td class="ck">✓</td></tr></table>
+            </div>
+            <div class="specel fail"><div class="selhead"><span>🖼️</span><div class="selt"><b>Brand logo</b><small>image 1.6×0.6</small></div><span class="sbadge fail">FAIL</span></div>
+              <table class="sck"><tr class="ok"><td class="k">Width</td><td class="v">1.60″</td><td class="v">1.60″</td><td class="ck">✓</td></tr><tr class="no"><td class="k">Height</td><td class="v">0.60″</td><td class="v va">0.80″</td><td class="ck">✗</td></tr></table>
+            </div>
+            <div class="specel fail"><div class="selhead"><span>▦</span><div class="selt"><b>Charges table</b><small>table 7 wide</small></div><span class="sbadge fail">FAIL</span></div>
+              <table class="sck"><tr class="ok"><td class="k">Top</td><td class="v">3.00″</td><td class="v">3.00″</td><td class="ck">✓</td></tr><tr class="no"><td class="k">Width</td><td class="v">7.00″</td><td class="v va">6.61″</td><td class="ck">✗</td></tr><tr class="ok"><td class="k">Columns</td><td class="v">4</td><td class="v">4</td><td class="ck">✓</td></tr></table>
+            </div>
+            <div class="specel nf"><div class="selhead"><span>📝</span><div class="selt"><b>Confidential watermark</b><small>“CONFIDENTIAL”</small></div><span class="sbadge nf">NOT FOUND</span></div>
+              <table class="sck"><tr class="no"><td class="k">Present</td><td class="v">found</td><td class="v va">not found</td><td class="ck">✗</td></tr></table>
+            </div>
+          </div>
+        </div>
+      </div></div></div>
+    </div>
+    <div class="cap"><span class="cap-ic">🎯</span><div><b>Spec results — expected vs actual</b>
+      <ul>
+        <li>The page shows each element's <b>expected</b> position (dashed indigo) and <b>actual</b> (solid — green pass / red fail), so deviations are obvious. The lone dashed box marks where a <b>missing</b> element should have been.</li>
+        <li>Each result card lists every check with <b>expected | actual | ✓/✗</b>. Here: the logo is too tall (0.60″→0.80″), the charges table too narrow (7.00″→6.61″), and the “CONFIDENTIAL” watermark is <b>NOT FOUND</b>.</li>
+        <li>Export the whole thing as an annotated <b>HTML report</b> or <b>JSON</b>.</li>
+      </ul>
+    </div></div>
+  </div>
+</div></section>
+
+<footer>
+  PDF Compare · Demo &amp; Walkthrough &nbsp;·&nbsp; Compare PDFs + Test new pages &nbsp;·&nbsp; runs entirely in your browser.
+</footer>
+
+</body>
+</html>

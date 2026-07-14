@@ -1,16 +1,21 @@
 # PDF Comparison Suite
 
-A React app for comparing two PDFs — by **content** (text on every page), **layout** (pixel-level
-visual diff + precise text-position offsets), and a roll-up **pass/fail report** — then **exporting**
-the results.
+A React app with two workspaces:
+
+- **Compare PDFs** — compare a recreated PDF against a reference by **content** (text on every page),
+  **layout** (pixel-level visual diff + precise text-position offsets), and a roll-up **pass/fail
+  report** — then **export** the results.
+- **Test new pages** — when there's no reference PDF, only a **JSON spec**, validate a generated PDF
+  against the spec (expected static text, image sizes/positions, table position/width, paragraph line
+  spacing) with an annotated pass/fail report.
 
 Built from the spec in [`comparison.md`](comparison.md).
 
-## Executive overview
+## User manual
 
-A polished, non-technical overview page for leadership lives at [public/overview.html](public/overview.html).
-Run the app and open [`/overview.html`](http://localhost:5173/overview.html) (or open the file directly),
-and its "Launch PDF Compare" button links straight into the tool.
+A full user manual with a feature reference lives at [public/manual.html](public/manual.html).
+Run the app and open [`/manual.html`](http://localhost:5173/manual.html) (or open the file directly);
+its "Open PDF Compare" links point straight into the tool.
 
 ## Quick start
 
@@ -57,6 +62,31 @@ Report tab to see it flip to FAIL.
   (content ≥ %, pixels ≤ %, offset ≤ px), and shows an overall PASS/FAIL verdict. Rows drill into
   the Layout view.
 
+## Test new pages (validate against a JSON spec)
+
+Switch to the **Test new pages** workspace when you don't have a reference PDF — only a design spec.
+Upload the generated **PDF** and a **JSON spec**, and the checker validates the PDF against it,
+element by element, with an annotated pass/fail report you can export.
+
+The spec describes, per page, the elements a page should contain, positioned in inches:
+
+| Element | Checks |
+|---------|--------|
+| `text` | present, left/top position, optional font size, exact/contains match |
+| `image` | present, left/top position, width, height |
+| `table` | present, left/top position, width, optional row/column count |
+| `paragraph` | present, left/top position, **line spacing** |
+
+Each element gets expected-vs-actual values with deltas and a per-check ✓/✗; the rendered page shows
+the **expected** box (dashed) and the **actual** box (green pass / red fail) so deviations are visible
+at a glance. Tolerances default to 0.06″ position / 0.06″ size / 0.03″ spacing and can be overridden
+globally or per element.
+
+Click **Load example spec + PDF** to try it: a 2-page statement (`spec-sample.pdf`) checked against
+[`spec-sample.json`](public/samples/spec-sample.json), with intentional deviations (a too-tall logo,
+a too-narrow table, wrong line spacing, and a missing watermark) so every check type is demonstrated.
+Export the result as an **HTML report** (annotated pages + checks) or **JSON**.
+
 ## Export
 
 From the Report tab, the **Export** menu produces:
@@ -72,11 +102,16 @@ From the Report tab, the **Export** menu produces:
 ```
 src/
   types/compare.ts              Shared interfaces (no React)
-  services/pdfCompare.ts        Engine: loadPdf, comparePage, diff/match/pixel helpers
-  services/exportReport.ts      JSON / CSV / HTML report exporters
-  store/compareStore.ts         Zustand store (sides, cache, controls, report)
-  components/compare/           UI: upload slots, navigator, content/layout/report views, measure overlay
-public/samples/                 Bundled example invoice PDFs
+  types/spec.ts                 Spec + result interfaces for "Test new pages"
+  services/pdfCompare.ts        Compare engine: loadPdf, comparePage, diff/match/pixel helpers
+  services/exportReport.ts      Compare JSON / CSV / HTML exporters
+  services/specCheck.ts         Spec engine: extract text/images (points), evaluate elements
+  services/specExport.ts        Spec JSON / HTML exporters
+  store/compareStore.ts         Zustand store (compare: sides, cache, controls, report)
+  store/specStore.ts            Zustand store (spec: pdf + spec + results)
+  components/compare/           Compare UI: slots, navigator, content/layout/report, measure overlay
+  components/spec/              Spec UI: SpecTestView (upload, overlay viz, results, export)
+public/samples/                 Bundled examples: invoice PDFs + spec-sample.pdf/.json
 ```
 
 The engine is framework-agnostic and touches the DOM only for `<canvas>` work. All rendering,

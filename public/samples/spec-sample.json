@@ -1,0 +1,30 @@
+{
+  "title": "Monthly Statement Template v3",
+  "units": "in",
+  "pageSize": { "width": 8.5, "height": 11 },
+  "tolerance": { "position": 0.06, "size": 0.06, "spacing": 0.03, "fontSize": 2 },
+  "pages": [
+    {
+      "page": 1,
+      "elements": [
+        { "type": "text", "id": "title", "label": "Statement title", "text": "MONTHLY STATEMENT", "match": "exact", "top": 0.75, "left": 0.75, "fontSize": 20 },
+        { "type": "text", "id": "account", "label": "Account number", "text": "Account: 100482-7", "top": 1.20, "left": 0.75 },
+        { "type": "text", "id": "period", "label": "Statement period", "text": "Statement period: June 2026", "top": 1.42, "left": 0.75 },
+        { "type": "image", "id": "logo", "label": "Brand logo", "top": 0.55, "left": 6.40, "width": 1.60, "height": 0.60 },
+        { "type": "table", "id": "charges", "label": "Charges table", "top": 3.0, "left": 0.75, "width": 7.0, "rows": 5, "columns": 4 },
+        { "type": "paragraph", "id": "terms", "label": "Payment terms", "text": "Payment is due within", "top": 6.20, "left": 0.75, "lineSpacing": 0.18 },
+        { "type": "text", "id": "watermark", "label": "Confidential watermark", "text": "CONFIDENTIAL", "top": 5.0, "left": 3.0 },
+        { "type": "text", "id": "footer1", "label": "Footer", "text": "Page 1 of 2", "top": 10.40, "left": 0.75 }
+      ]
+    },
+    {
+      "page": 2,
+      "elements": [
+        { "type": "text", "id": "title2", "label": "Section title", "text": "TRANSACTION DETAIL", "match": "exact", "top": 0.75, "left": 0.75, "fontSize": 16 },
+        { "type": "table", "id": "transactions", "label": "Transactions table", "top": 1.5, "left": 0.75, "width": 6.76, "rows": 6, "columns": 3 },
+        { "type": "paragraph", "id": "notes", "label": "Notes paragraph", "text": "These transactions reflect", "top": 8.0, "left": 0.75, "lineSpacing": 0.20 },
+        { "type": "text", "id": "footer2", "label": "Footer", "text": "Page 2 of 2", "top": 10.40, "left": 0.75 }
+      ]
+    }
+  ]
+}

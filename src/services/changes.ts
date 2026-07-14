@@ -1,7 +1,7 @@
 // Shared change-derivation logic used by both the Content view and the HTML export,
 // so the on-screen highlights and the exported report stay in sync.
 
-import type { PageComparison, TextItem } from '../types/compare';
+import type { PageComparison, PageSummary, TextItem } from '../types/compare';
 
 export type ChangeType = 'removed' | 'added' | 'moved';
 
@@ -56,6 +56,16 @@ export function buildChanges(pc: PageComparison, movedThreshold: number): Change
     return b1.y - b2.y || b1.x - b2.x;
   });
   return raw.map((r, i) => ({ ...r, id: i + 1 }));
+}
+
+/** Same "does this page differ?" test, but from a rolled-up PageSummary row. */
+export function summaryPageDiffers(p: PageSummary): boolean {
+  return (
+    p.missing ||
+    p.contentMatch < 0.9999 ||
+    p.pixelRatio > 0.002 ||
+    p.maxOffset > 2
+  );
 }
 
 /** True when a page has any notable content/layout/visual change (used by jump-to-change). */
