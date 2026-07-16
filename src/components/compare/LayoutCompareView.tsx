@@ -25,7 +25,6 @@ function vShift(dy: number): string {
 
 const viewLabels: [LayoutViewMode, string][] = [
   ['side-by-side', 'Side by side'],
-  ['overlay', 'Overlay'],
   ['diff', 'Pixel diff'],
 ];
 
@@ -87,14 +86,12 @@ export default function LayoutCompareView() {
   const computing = useCompareStore((s) => s.computing);
 
   const viewMode = useCompareStore((s) => s.viewMode);
-  const overlayOpacity = useCompareStore((s) => s.overlayOpacity);
   const pixelThreshold = useCompareStore((s) => s.pixelThreshold);
   const includeAA = useCompareStore((s) => s.includeAA);
   const offsetThresholdPx = useCompareStore((s) => s.offsetThresholdPx);
   const layoutZoom = useCompareStore((s) => s.layoutZoom);
 
   const setViewMode = useCompareStore((s) => s.setViewMode);
-  const setOverlayOpacity = useCompareStore((s) => s.setOverlayOpacity);
   const setPixelThreshold = useCompareStore((s) => s.setPixelThreshold);
   const setIncludeAA = useCompareStore((s) => s.setIncludeAA);
   const setOffsetThreshold = useCompareStore((s) => s.setOffsetThreshold);
@@ -144,21 +141,6 @@ export default function LayoutCompareView() {
           ))}
         </div>
 
-        {viewMode === 'overlay' && (
-          <div className="range-control">
-            <span>B opacity</span>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={overlayOpacity}
-              onChange={(e) => setOverlayOpacity(Number(e.target.value))}
-            />
-            <span>{Math.round(overlayOpacity * 100)}%</span>
-          </div>
-        )}
-
         {viewMode === 'diff' && (
           <>
             <div className="range-control">
@@ -181,6 +163,7 @@ export default function LayoutCompareView() {
               />
               Flag anti-aliasing
             </label>
+            <span className="diff-hint">Hover a change for before → after</span>
           </>
         )}
 
@@ -242,29 +225,12 @@ export default function LayoutCompareView() {
             </div>
           )}
 
-          {viewMode === 'overlay' && refImg && (
-            <div className="stack" style={{ width: dispW, height: dispH }}>
-              {pc.imageA && (
-                <img className="base" src={pc.imageA.dataUrl} alt="A" style={{ width: dispW, height: dispH }} />
-              )}
-              {pc.imageB && (
-                <img
-                  src={pc.imageB.dataUrl}
-                  alt="B"
-                  style={{ width: dispW, height: dispH, opacity: overlayOpacity }}
-                />
-              )}
-              <RunHighlight box={hovered?.b ?? hovered?.a} image={refImg} />
-              <MeasureOverlay naturalWidth={refImg.width} />
-            </div>
-          )}
-
           {viewMode === 'diff' &&
             (pc.pixel ? (
               <div className="stack" style={{ width: dispW, height: dispH }}>
                 <img className="base" src={pc.pixel.diffDataUrl} alt="diff" style={{ width: dispW, height: dispH }} />
                 <RunHighlight box={hovered?.b ?? hovered?.a} image={refImg!} />
-                <MeasureOverlay naturalWidth={refImg!.width} />
+                <MeasureOverlay naturalWidth={refImg!.width} onlyA={pc.match.onlyA} onlyB={pc.match.onlyB} />
               </div>
             ) : (
               <div className="stage-notice">

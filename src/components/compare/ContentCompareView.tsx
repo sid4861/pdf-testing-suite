@@ -19,7 +19,7 @@ function PageWithBoxes({
   side,
   label,
   changes,
-  highlighted,
+  hlGroup,
   setHighlighted,
   currentPage,
 }: {
@@ -27,7 +27,7 @@ function PageWithBoxes({
   side: CompareSide;
   label: string;
   changes: Change[];
-  highlighted: number | null;
+  hlGroup: number | null;
   setHighlighted: (id: number | null) => void;
   currentPage: number;
 }) {
@@ -44,7 +44,7 @@ function PageWithBoxes({
             return (
               <div
                 key={c.id}
-                className={`chg-box chg-${c.type} ${highlighted === c.id ? 'hl' : ''}`}
+                className={`chg-box chg-${c.type} ${c.group === hlGroup ? 'hl' : ''}`}
                 style={{
                   left: `${(box.x / image.width) * 100}%`,
                   top: `${(box.y / image.height) * 100}%`,
@@ -93,6 +93,11 @@ export default function ContentCompareView() {
 
   const visible = useMemo(() => changes.filter((c) => enabled[c.type]), [changes, enabled]);
 
+  // The highlight group of the hovered change — paired removed/added share a group,
+  // so hovering either half lights up both.
+  const groupById = useMemo(() => new Map(changes.map((c) => [c.id, c.group])), [changes]);
+  const hlGroup = highlighted != null ? groupById.get(highlighted) ?? null : null;
+
   // Map normalized change text → change id, so word-diff spans can link to a box.
   const textToChange = useMemo(() => {
     const m = new Map<string, number>();
@@ -139,7 +144,7 @@ export default function ContentCompareView() {
             side="A"
             label="A · Original"
             changes={visible}
-            highlighted={highlighted}
+            hlGroup={hlGroup}
             setHighlighted={setHighlighted}
             currentPage={currentPage}
           />
@@ -148,7 +153,7 @@ export default function ContentCompareView() {
             side="B"
             label="B · Recreated"
             changes={visible}
-            highlighted={highlighted}
+            hlGroup={hlGroup}
             setHighlighted={setHighlighted}
             currentPage={currentPage}
           />
@@ -200,7 +205,7 @@ export default function ContentCompareView() {
               return (
                 <div
                   key={c.id}
-                  className={`chg-item ${highlighted === c.id ? 'hl' : ''}`}
+                  className={`chg-item ${c.group === hlGroup ? 'hl' : ''}`}
                   onMouseEnter={() => setHighlighted(c.id)}
                   onMouseLeave={() => setHighlighted(null)}
                 >
@@ -230,11 +235,12 @@ export default function ContentCompareView() {
             {pc.diff.map((seg, i) => {
               const kind = seg.added ? 'added' : seg.removed ? 'removed' : '';
               const linkId = kind ? textToChange.get(normalize(seg.value)) : undefined;
+              const linkGroup = linkId != null ? groupById.get(linkId) ?? null : null;
               return (
                 <span
                   key={i}
                   className={`${kind} ${linkId != null ? 'locatable' : ''} ${
-                    linkId != null && highlighted === linkId ? 'hl' : ''
+                    linkGroup != null && linkGroup === hlGroup ? 'hl' : ''
                   }`}
                   onMouseEnter={linkId != null ? () => setHighlighted(linkId) : undefined}
                   onMouseLeave={linkId != null ? () => setHighlighted(null) : undefined}

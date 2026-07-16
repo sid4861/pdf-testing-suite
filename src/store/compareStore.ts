@@ -46,13 +46,11 @@ interface CompareState {
 
   // Layout controls
   viewMode: LayoutViewMode;
-  overlayOpacity: number;
   pixelThreshold: number;
   includeAA: boolean;
   offsetThresholdPx: number;
   layoutZoom: number; // display zoom multiplier for the Layout stage (1 = fit)
   setViewMode: (v: LayoutViewMode) => void;
-  setOverlayOpacity: (n: number) => void;
   setPixelThreshold: (n: number) => void;
   setIncludeAA: (b: boolean) => void;
   setOffsetThreshold: (n: number) => void;
@@ -182,16 +180,12 @@ export const useCompareStore = create<CompareState>((set, get) => ({
   },
 
   viewMode: 'side-by-side',
-  overlayOpacity: 0.5,
   pixelThreshold: 0.1,
   includeAA: false,
   offsetThresholdPx: 2,
   layoutZoom: 1,
   setViewMode(v) {
     set({ viewMode: v });
-  },
-  setOverlayOpacity(n) {
-    set({ overlayOpacity: n });
   },
   setPixelThreshold(n) {
     set({ pixelThreshold: n, pageCache: {}, summary: null });

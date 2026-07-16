@@ -1,7 +1,12 @@
 import { useRef, useState } from 'react';
+import type { TextItem } from '../../types/compare';
 
 interface Props {
   naturalWidth: number;
+  // When provided (pixel-diff view), hovering a changed region shows the
+  // before/after text at that spot.
+  onlyA?: TextItem[];
+  onlyB?: TextItem[];
 }
 
 interface Pt {
@@ -9,11 +14,58 @@ interface Pt {
   y: number;
 }
 
-export default function MeasureOverlay({ naturalWidth }: Props) {
+interface Tip {
+  x: number; // css, relative to overlay
+  y: number;
+  before: string | null;
+  after: string | null;
+}
+
+// Item whose box contains the point (nearest to its centre wins).
+function itemAt(items: TextItem[], nx: number, ny: number): TextItem | null {
+  let best: TextItem | null = null;
+  let bestD = Infinity;
+  const pad = 2;
+  for (const it of items) {
+    if (nx >= it.x - pad && nx <= it.x + it.w + pad && ny >= it.y - pad && ny <= it.y + it.h + pad) {
+      const cx = it.x + it.w / 2;
+      const cy = it.y + it.h / 2;
+      const d = (nx - cx) ** 2 + (ny - cy) ** 2;
+      if (d < bestD) {
+        bestD = d;
+        best = it;
+      }
+    }
+  }
+  return best;
+}
+
+// Nearest counterpart to a found item, if close enough to be its replacement.
+function counterpart(items: TextItem[], ref: TextItem): TextItem | null {
+  const cx = ref.x + ref.w / 2;
+  const cy = ref.y + ref.h / 2;
+  let best: TextItem | null = null;
+  let bestD = Infinity;
+  for (const it of items) {
+    const d = Math.hypot(it.x + it.w / 2 - cx, it.y + it.h / 2 - cy);
+    if (d < bestD) {
+      bestD = d;
+      best = it;
+    }
+  }
+  // Only pair when on roughly the same line and near the same spot.
+  if (best && bestD <= Math.max(ref.h * 2.2, ref.w * 0.9)) return best;
+  return null;
+}
+
+export default function MeasureOverlay({ naturalWidth, onlyA, onlyB }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [start, setStart] = useState<Pt | null>(null);
   const [end, setEnd] = useState<Pt | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [tip, setTip] = useState<Tip | null>(null);
+
+  const hasText = !!(onlyA?.length || onlyB?.length);
 
   const toCss = (e: React.PointerEvent): Pt => {
     const rect = ref.current!.getBoundingClientRect();
@@ -27,16 +79,38 @@ export default function MeasureOverlay({ naturalWidth }: Props) {
     return naturalWidth / el.clientWidth;
   };
 
+  const updateTip = (css: Pt) => {
+    if (!hasText) return;
+    const s = scale();
+    const nx = css.x * s;
+    const ny = css.y * s;
+    let before = itemAt(onlyA ?? [], nx, ny);
+    let after = itemAt(onlyB ?? [], nx, ny);
+    // Pair a lone removed/added run with its in-place replacement.
+    if (before && !after) after = counterpart(onlyB ?? [], before);
+    if (after && !before) before = counterpart(onlyA ?? [], after);
+    if (before || after) {
+      setTip({ x: css.x, y: css.y, before: before?.str ?? null, after: after?.str ?? null });
+    } else {
+      setTip(null);
+    }
+  };
+
   const onDown = (e: React.PointerEvent) => {
     (e.target as Element).setPointerCapture(e.pointerId);
     const p = toCss(e);
     setStart(p);
     setEnd(p);
     setDragging(true);
+    setTip(null);
   };
   const onMove = (e: React.PointerEvent) => {
-    if (!dragging) return;
-    setEnd(toCss(e));
+    const css = toCss(e);
+    if (dragging) {
+      setEnd(css);
+    } else {
+      updateTip(css);
+    }
   };
   const onUp = (e: React.PointerEvent) => {
     setDragging(false);
@@ -53,6 +127,7 @@ export default function MeasureOverlay({ naturalWidth }: Props) {
       /* ignore */
     }
   };
+  const onLeave = () => setTip(null);
 
   const s = scale();
   const hasLine = start && end;
@@ -69,7 +144,35 @@ export default function MeasureOverlay({ naturalWidth }: Props) {
       onPointerDown={onDown}
       onPointerMove={onMove}
       onPointerUp={onUp}
+      onPointerLeave={onLeave}
     >
+      {/* before/after text tooltip (pixel-diff hover) */}
+      {tip && !dragging && (
+        <div
+          className="diff-tip"
+          style={{ left: Math.min(tip.x + 12, (ref.current?.clientWidth ?? 0) - 8), top: tip.y + 14 }}
+        >
+          {tip.before && tip.after ? (
+            <>
+              <span className="tt-lbl">was</span>
+              <span className="tt-before">{tip.before}</span>
+              <span className="tt-arrow">→</span>
+              <span className="tt-after">{tip.after}</span>
+            </>
+          ) : tip.before ? (
+            <>
+              <span className="tt-lbl rm">removed</span>
+              <span className="tt-before">{tip.before}</span>
+            </>
+          ) : (
+            <>
+              <span className="tt-lbl ad">added</span>
+              <span className="tt-after">{tip.after}</span>
+            </>
+          )}
+        </div>
+      )}
+
       {hasLine && (
         <>
           <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>

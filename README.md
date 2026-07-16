@@ -11,11 +11,13 @@ A React app with two workspaces:
 
 Built from the spec in [`comparison.md`](comparison.md).
 
-## User manual
+## User manual &amp; demo
 
-A full user manual with a feature reference lives at [public/manual.html](public/manual.html).
-Run the app and open [`/manual.html`](http://localhost:5173/manual.html) (or open the file directly);
-its "Open PDF Compare" links point straight into the tool.
+- **User manual** — a full feature reference at [public/manual.html](public/manual.html)
+  (open [`/manual.html`](http://localhost:5173/manual.html) or the file directly).
+- **Demo &amp; walkthrough** — a self-contained, offline explainer at [public/demo.html](public/demo.html)
+  ([`/demo.html`](http://localhost:5173/demo.html)) that lists every feature and walks the full flow of
+  both workspaces with faithful UI panels and captions — useful when you can't run the app.
 
 ## Quick start
 
@@ -93,7 +95,7 @@ From the Report tab, the **Export** menu produces:
 
 | Format | Contents |
 |--------|----------|
-| **HTML report** | Standalone, printable page with the metrics table, the overall verdict, and for every page an annotated A/B pair with the change highlights + a per-page change list. Open it and *Print → Save as PDF* for a shareable report. |
+| **HTML report** | Standalone, printable page with the metrics table, the overall verdict, and for every page an annotated A/B pair with the change highlights, the pixel-diff heatmap with always-on *before → after* labels on each replaced text, and a per-page change list. Open it and *Print → Save as PDF* for a shareable report. |
 | **JSON** | Full machine-readable metrics, thresholds, and per-page pass/fail. |
 | **CSV** | Per-page metrics table for spreadsheets. |
 

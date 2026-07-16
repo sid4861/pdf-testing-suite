@@ -89,4 +89,4 @@ export interface CompareSummary {
 
 export type CompareSide = 'A' | 'B';
 export type CompareMode = 'content' | 'layout' | 'report';
-export type LayoutViewMode = 'side-by-side' | 'overlay' | 'diff';
+export type LayoutViewMode = 'side-by-side' | 'diff';

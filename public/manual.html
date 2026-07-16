@@ -193,7 +193,9 @@
       <p>Below the pages, the <b>Changes on this page</b> list names each change, its type, and its location — the
         region (e.g. <span class="ui">top-right</span>) plus exact pixel coordinates, or the distance moved. <b>Hover</b>
         any highlight box, list row, or diff word and the matching items light up together, so you can trace a change
-        from the wording to its spot on the page.</p>
+        from the wording to its spot on the page. When text was <b>replaced</b>, the removed (red, on A) and added
+        (green, on B) boxes are paired — hovering either one highlights <em>both</em>, so you can see the old and new
+        text in the same place on each side at once.</p>
 
       <h3>Content-match score &amp; word diff</h3>
       <p>A <b>content-match</b> percentage summarises how much of the text is unchanged (green ≥ 99.9%, amber ≥ 90%,
@@ -213,8 +215,7 @@
         <thead><tr><th>View</th><th>What it shows</th></tr></thead>
         <tbody>
           <tr><td><span class="ui">Side by side</span></td><td>The two rendered pages next to each other.</td></tr>
-          <tr><td><span class="ui">Overlay</span></td><td>Side B stacked over Side A with an opacity slider — slide to see B fade in over A.</td></tr>
-          <tr><td><span class="ui">Pixel diff</span></td><td>A heat-map where changed pixels are highlighted. A badge shows the percentage of pixels that differ.</td></tr>
+          <tr><td><span class="ui">Pixel diff</span></td><td>A heat-map where changed pixels are highlighted. A badge shows the percentage of pixels that differ. <b>Hover a changed region</b> where text was replaced to see a <em>before → after</em> tooltip of the old and new text.</td></tr>
         </tbody>
       </table>
 
@@ -229,7 +230,7 @@
         inspecting fine detail on dense pages.</p>
 
       <h3>Measure tool</h3>
-      <p>In Overlay and Pixel-diff views, <b>drag on the page</b> to measure a distance. The readout shows the length
+      <p>In Pixel-diff view, <b>drag on the page</b> to measure a distance. The readout shows the length
         plus the horizontal and vertical components in plain language. Click once to clear the measurement.</p>
 
       <h3>Text-position table</h3>
@@ -300,7 +301,7 @@
       <table>
         <thead><tr><th>Format</th><th>Best for</th><th>Contents</th></tr></thead>
         <tbody>
-          <tr><td><b>HTML report</b></td><td>Sharing / archiving · print to PDF</td><td>Standalone page with the verdict, the metrics table, and every page's annotated A/B images plus its change list.</td></tr>
+          <tr><td><b>HTML report</b></td><td>Sharing / archiving · print to PDF</td><td>Standalone page with the verdict, the metrics table, and for every page: annotated A/B images, the pixel-diff heatmap with always-on <em>before → after</em> labels on each replaced text, and the change list.</td></tr>
           <tr><td><b>JSON</b></td><td>Automation / records</td><td>Machine-readable metrics, thresholds, and per-page pass/fail.</td></tr>
           <tr><td><b>CSV</b></td><td>Spreadsheets</td><td>Per-page metrics table.</td></tr>
         </tbody>

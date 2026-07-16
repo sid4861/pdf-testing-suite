@@ -2,7 +2,7 @@
 // Produces JSON, CSV, and a standalone printable HTML report (print → Save as PDF).
 
 import type { CompareSummary, PageComparison, RenderedPageImage } from '../types/compare';
-import { buildChanges, isOnSide, region, TYPE_LABEL, CHANGE_COLOR, type Change } from './changes';
+import { buildChanges, diffHotspots, isOnSide, region, TYPE_LABEL, CHANGE_COLOR, type Change } from './changes';
 
 export interface ExportThresholds {
   contentPct: number; // e.g. 99  → content match must be ≥ 99%
@@ -153,6 +153,34 @@ export function exportHtmlReport(
         </div>`;
       };
 
+      // Pixel-diff pane with before → after hover tooltips over each changed region.
+      const diffImg = pc.pixel;
+      const diffDims = pc.imageA ?? pc.imageB;
+      const diffPane =
+        diffImg && diffDims
+          ? (() => {
+              // Only label in-place replacements (text swapped for text): those carry a
+              // meaningful before → after. Pure add/remove is already in the panes + list.
+              const spots = diffHotspots(pc.match.onlyA, pc.match.onlyB)
+                .filter((s) => s.before && s.after)
+                .map((s) => {
+                  const b = s.box;
+                  const cx = ((b.x + b.w / 2) / diffDims.width) * 100;
+                  const cy = ((b.y + b.h / 2) / diffDims.height) * 100;
+                  const anchor = cx > 55 ? ' r' : ''; // anchor right-half labels to the right so they don't overflow
+                  const below = cy < 90 ? ' below' : ' above';
+                  const style = `left:${(b.x / diffDims.width) * 100}%;top:${(b.y / diffDims.height) * 100}%;width:${(b.w / diffDims.width) * 100}%;height:${(b.h / diffDims.height) * 100}%`;
+                  const tip = `<span class="tl">was</span><span class="tb">${escapeHtml(s.before!)}</span><span class="tar">→</span><span class="ta">${escapeHtml(s.after!)}</span>`;
+                  return `<div class="dspot" style="${style}"><span class="dtip${anchor}${below}">${tip}</span></div>`;
+                })
+                .join('');
+              return `<div class="diffpane">
+                <div class="pane-label">Pixel diff · ${pct(diffImg.ratio)} of pixels changed — before → after labels shown for each replaced text</div>
+                <div class="rwrap dwrap"><img src="${diffImg.diffDataUrl}" alt="pixel diff" />${spots}</div>
+              </div>`;
+            })()
+          : '';
+
       const changeList = changes.length
         ? `<ul class="rchanges">${changes
             .map((c: Change) => {
@@ -180,6 +208,7 @@ export function exportHtmlReport(
         </div>
         ${notes}
         <div class="rpanes">${pane(pc.imageA, 'A', 'A · Original')}${pane(pc.imageB, 'B', 'B · Recreated')}</div>
+        ${diffPane}
         ${changeList}
       </section>`;
     })
@@ -227,6 +256,21 @@ export function exportHtmlReport(
   .rtext { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, Menlo, Consolas, monospace; }
   .rpos { flex-shrink: 0; color: #94a3b8; font-variant-numeric: tabular-nums; }
   .rnochange { color: #059669; font-size: 13px; margin: 12px 0 0; }
+  /* pixel-diff pane with always-visible before → after labels */
+  .diffpane { margin-top: 16px; }
+  .diffpane .pane-label { text-align: left; }
+  .dwrap { max-width: 520px; }
+  .dspot { position: absolute; box-sizing: border-box; outline: 1.5px solid rgba(15,23,42,.55); border-radius: 2px; }
+  .dtip { position: absolute; z-index: 5; display: inline-flex; align-items: center; gap: 5px; line-height: 1.3;
+    background: #0f172a; color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 6px; white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(0,0,0,.3); }
+  .dtip.below { top: 100%; margin-top: 3px; } .dtip.above { bottom: 100%; margin-bottom: 3px; }
+  .dtip:not(.r) { left: 0; } .dtip.r { right: 0; }
+  .dtip .tl { font-size: 8px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #94a3b8; }
+  .dtip .tl.rm { color: #fca5a5; } .dtip .tl.ad { color: #86efac; }
+  .dtip .tb { color: #fca5a5; text-decoration: line-through; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .dtip .ta { color: #86efac; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .dtip .tar { color: #64748b; }
   footer { margin-top: 32px; color: #94a3b8; font-size: 12px; }
   @media print { body { padding: 0; } }
 </style>

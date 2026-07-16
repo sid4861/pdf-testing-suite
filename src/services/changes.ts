@@ -7,6 +7,7 @@ export type ChangeType = 'removed' | 'added' | 'moved';
 
 export interface Change {
   id: number;
+  group: number;      // paired removed+added (an in-place replacement) share a group
   type: ChangeType;
   text: string;
   a: TextItem | null; // box on side A
@@ -42,7 +43,7 @@ export function region(box: TextItem, w: number, h: number): string {
 }
 
 export function buildChanges(pc: PageComparison, movedThreshold: number): Change[] {
-  const raw: Omit<Change, 'id'>[] = [];
+  const raw: Omit<Change, 'id' | 'group'>[] = [];
   for (const it of pc.match.onlyA) raw.push({ type: 'removed', text: it.str, a: it, b: null });
   for (const it of pc.match.onlyB) raw.push({ type: 'added', text: it.str, a: null, b: it });
   for (const p of pc.match.matched) {
@@ -55,7 +56,32 @@ export function buildChanges(pc: PageComparison, movedThreshold: number): Change
     const b2 = (r2.a ?? r2.b)!;
     return b1.y - b2.y || b1.x - b2.x;
   });
-  return raw.map((r, i) => ({ ...r, id: i + 1 }));
+  const changes: Change[] = raw.map((r, i) => ({ ...r, id: i + 1, group: i + 1 }));
+
+  // Pair each removed run with its nearest added run at the same spot (an in-place
+  // replacement) so they share a highlight group — hovering one lights up both.
+  const added = changes.filter((c) => c.type === 'added');
+  const usedAdded = new Set<number>();
+  for (const rem of changes) {
+    if (rem.type !== 'removed') continue;
+    const a = rem.a!;
+    let best: Change | null = null;
+    let bestD = Infinity;
+    for (const add of added) {
+      if (usedAdded.has(add.id)) continue;
+      const b = add.b!;
+      const d = Math.hypot(b.x + b.w / 2 - (a.x + a.w / 2), b.y + b.h / 2 - (a.y + a.h / 2));
+      if (d < bestD) {
+        bestD = d;
+        best = add;
+      }
+    }
+    if (best && bestD <= Math.max(a.h * 2.2, a.w * 0.9)) {
+      usedAdded.add(best.id);
+      best.group = rem.group;
+    }
+  }
+  return changes;
 }
 
 /** Same "does this page differ?" test, but from a rolled-up PageSummary row. */
@@ -66,6 +92,46 @@ export function summaryPageDiffers(p: PageSummary): boolean {
     p.pixelRatio > 0.002 ||
     p.maxOffset > 2
   );
+}
+
+/** A hoverable diff region: a removed/added run paired with its in-place replacement. */
+export interface DiffHotspot {
+  box: TextItem;         // the region to hover
+  before: string | null; // text in A (removed / replaced-from)
+  after: string | null;  // text in B (added / replaced-to)
+}
+
+/**
+ * Pair removed and added runs into before/after hotspots, matching the interactive
+ * pixel-diff tooltip: a removed run is paired with its nearest added counterpart when
+ * they sit at roughly the same spot (an in-place text replacement).
+ */
+export function diffHotspots(onlyA: TextItem[], onlyB: TextItem[]): DiffHotspot[] {
+  const usedB = new Set<number>();
+  const spots: DiffHotspot[] = [];
+  for (const a of onlyA) {
+    let bestIdx = -1;
+    let bestD = Infinity;
+    for (let i = 0; i < onlyB.length; i++) {
+      if (usedB.has(i)) continue;
+      const b = onlyB[i];
+      const d = Math.hypot(b.x + b.w / 2 - (a.x + a.w / 2), b.y + b.h / 2 - (a.y + a.h / 2));
+      if (d < bestD) {
+        bestD = d;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx >= 0 && bestD <= Math.max(a.h * 2.2, a.w * 0.9)) {
+      usedB.add(bestIdx);
+      spots.push({ box: a, before: a.str, after: onlyB[bestIdx].str });
+    } else {
+      spots.push({ box: a, before: a.str, after: null });
+    }
+  }
+  for (let i = 0; i < onlyB.length; i++) {
+    if (!usedB.has(i)) spots.push({ box: onlyB[i], before: null, after: onlyB[i].str });
+  }
+  return spots;
 }
 
 /** True when a page has any notable content/layout/visual change (used by jump-to-change). */
