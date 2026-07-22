@@ -5,9 +5,9 @@ import type { CompareSummary, PageComparison, RenderedPageImage } from '../types
 import { buildChanges, diffHotspots, isOnSide, region, TYPE_LABEL, CHANGE_COLOR, type Change } from './changes';
 
 export interface ExportThresholds {
-  contentPct: number; // e.g. 99  → content match must be ≥ 99%
-  pixelPct: number;   // e.g. 2   → pixels different must be ≤ 2%
-  offsetPx: number;   // e.g. 3   → max offset must be ≤ 3px
+  contentPct: number; // e.g. 99   → content match must be ≥ 99%
+  pixelPct: number;   // e.g. 2    → pixels different must be ≤ 2%
+  offsetIn: number;   // e.g. 0.03 → max offset must be ≤ 0.03 inches
 }
 
 export interface ExportMeta {
@@ -21,14 +21,14 @@ export interface ExportMeta {
 const pct = (n: number) => (n * 100).toFixed(1) + '%';
 
 function judgePage(
-  p: { contentMatch: number; pixelRatio: number; maxOffset: number; missing: boolean },
+  p: { contentMatch: number; pixelRatio: number; maxOffset: number; pxPerInch: number; missing: boolean },
   t: ExportThresholds,
 ): boolean {
   if (p.missing) return false;
   return (
     p.contentMatch * 100 >= t.contentPct &&
     p.pixelRatio * 100 <= t.pixelPct &&
-    p.maxOffset <= t.offsetPx
+    p.maxOffset / p.pxPerInch <= t.offsetIn
   );
 }
 
@@ -57,7 +57,7 @@ export function exportJson(
     page: p.pageIndex + 1,
     contentMatch: p.contentMatch,
     pixelRatio: p.pixelRatio,
-    maxOffsetPx: p.maxOffset,
+    maxOffsetInches: Number((p.maxOffset / p.pxPerInch).toFixed(3)),
     missing: p.missing,
     pass: judgePage(p, thresholds),
   }));
@@ -88,12 +88,12 @@ export function exportCsv(
   summary: CompareSummary,
   thresholds: ExportThresholds,
 ) {
-  const header = ['Page', 'ContentMatch%', 'PixelsDifferent%', 'MaxOffsetPx', 'Missing', 'Result'];
+  const header = ['Page', 'ContentMatch%', 'PixelsDifferent%', 'MaxOffsetInches', 'Missing', 'Result'];
   const rows = summary.pages.map((p) => [
     p.pageIndex + 1,
     (p.contentMatch * 100).toFixed(2),
     (p.pixelRatio * 100).toFixed(2),
-    p.maxOffset.toFixed(0),
+    (p.maxOffset / p.pxPerInch).toFixed(3),
     p.missing ? 'yes' : 'no',
     judgePage(p, thresholds) ? 'PASS' : 'FAIL',
   ]);
@@ -119,7 +119,7 @@ export function exportHtmlReport(
         <td>${p.pageIndex + 1}</td>
         <td>${missing ? '—' : pct(p.contentMatch)}</td>
         <td>${missing ? '—' : pct(p.pixelRatio)}</td>
-        <td>${missing ? '—' : Math.round(p.maxOffset) + 'px'}</td>
+        <td>${missing ? '—' : (p.maxOffset / p.pxPerInch).toFixed(2) + '″'}</td>
         <td class="result">${missing ? 'MISSING' : pass ? '✓ PASS' : '✗ FAIL'}</td>
       </tr>`;
     })
@@ -130,7 +130,7 @@ export function exportHtmlReport(
     .map((p) => {
       const pc = pageCache[p.pageIndex];
       if (!pc) return '';
-      const changes = buildChanges(pc, thresholds.offsetPx);
+      const changes = buildChanges(pc, thresholds.offsetIn);
 
       const notes = pc.notes.length
         ? `<ul class="notes">${pc.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join('')}</ul>`
@@ -186,10 +186,11 @@ export function exportHtmlReport(
             .map((c: Change) => {
               const box = (c.a ?? c.b)!;
               const dims = pc.imageA ?? pc.imageB;
+              const ii = (px: number) => (px / pc.pxPerInch).toFixed(2) + '″';
               const pos =
                 c.type === 'moved' && c.offset != null
-                  ? `moved ${Math.round(c.offset)}px`
-                  : `${Math.round(box.x)},${Math.round(box.y)}px`;
+                  ? `moved ${ii(c.offset)}`
+                  : `${ii(box.x)}, ${ii(box.y)}`;
               const where = dims ? region(box, dims.width, dims.height) : '';
               return `<li><span class="rnum" style="background:${CHANGE_COLOR[c.type]}">${c.id}</span>
                 <span class="rtype" style="color:${CHANGE_COLOR[c.type]}">${TYPE_LABEL[c.type]}</span>
@@ -204,7 +205,7 @@ export function exportHtmlReport(
         <div class="metrics">
           <span>Content match: <b>${p.missing ? '—' : pct(p.contentMatch)}</b></span>
           <span>Pixels different: <b>${p.missing ? '—' : pct(p.pixelRatio)}</b></span>
-          <span>Max shift: <b>${p.missing ? '—' : Math.round(p.maxOffset) + 'px'}</b></span>
+          <span>Max shift: <b>${p.missing ? '—' : (p.maxOffset / p.pxPerInch).toFixed(2) + '″'}</b></span>
         </div>
         ${notes}
         <div class="rpanes">${pane(pc.imageA, 'A', 'A · Original')}${pane(pc.imageB, 'B', 'B · Recreated')}</div>
@@ -284,7 +285,7 @@ export function exportHtmlReport(
     <div><span>Side B (recreated):</span> <b>${escapeHtml(meta.nameB)}</b> (${meta.pageCountB} pages)</div>
     <div><span>Pages passing:</span> <b>${passCount} / ${summary.pages.length}</b></div>
     <div><span>Generated:</span> <b>${new Date(meta.generatedAt).toLocaleString()}</b></div>
-    <div><span>Thresholds:</span> <b>content ≥ ${thresholds.contentPct}% · pixels ≤ ${thresholds.pixelPct}% · offset ≤ ${thresholds.offsetPx}px</b></div>
+    <div><span>Thresholds:</span> <b>content ≥ ${thresholds.contentPct}% · pixels ≤ ${thresholds.pixelPct}% · offset ≤ ${thresholds.offsetIn}″</b></div>
   </div>
   <table>
     <thead>

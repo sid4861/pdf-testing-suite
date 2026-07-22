@@ -27,6 +27,11 @@ export const CHANGE_COLOR: Record<ChangeType, string> = {
   moved: '#7c3aed',   // violet — kept well clear of red so the two never blur together
 };
 
+/** Convert a target-box pixel distance to inches. */
+export const pxToInch = (px: number, pxPerInch: number) => px / pxPerInch;
+/** Format a target-box pixel distance as inches, e.g. `0.26″`. */
+export const fmtInch = (px: number, pxPerInch: number) => `${(px / pxPerInch).toFixed(2)}″`;
+
 /** Which side(s) a change is drawn on. */
 export function isOnSide(c: Change, side: 'A' | 'B'): boolean {
   return side === 'A'
@@ -42,12 +47,13 @@ export function region(box: TextItem, w: number, h: number): string {
   return `${vert}-${horz}`;
 }
 
-export function buildChanges(pc: PageComparison, movedThreshold: number): Change[] {
+export function buildChanges(pc: PageComparison, movedThresholdIn: number): Change[] {
+  const thresholdPx = movedThresholdIn * pc.pxPerInch;
   const raw: Omit<Change, 'id' | 'group'>[] = [];
   for (const it of pc.match.onlyA) raw.push({ type: 'removed', text: it.str, a: it, b: null });
   for (const it of pc.match.onlyB) raw.push({ type: 'added', text: it.str, a: null, b: it });
   for (const p of pc.match.matched) {
-    if (p.offset > movedThreshold) {
+    if (p.offset > thresholdPx) {
       raw.push({ type: 'moved', text: p.a.str, a: p.a, b: p.b, offset: p.offset });
     }
   }
@@ -135,10 +141,10 @@ export function diffHotspots(onlyA: TextItem[], onlyB: TextItem[]): DiffHotspot[
 }
 
 /** True when a page has any notable content/layout/visual change (used by jump-to-change). */
-export function pageHasChange(pc: PageComparison, movedThreshold: number): boolean {
+export function pageHasChange(pc: PageComparison, movedThresholdIn: number): boolean {
   if (!pc.imageA || !pc.imageB) return true; // page exists on only one side
   if (pc.match.onlyA.length > 0 || pc.match.onlyB.length > 0) return true;
-  if (pc.match.matched.some((m) => m.offset > movedThreshold)) return true;
+  if (pc.match.matched.some((m) => m.offset > movedThresholdIn * pc.pxPerInch)) return true;
   if (pc.contentMatch < 0.9999) return true;
   // Pixel-only changes (e.g. recoloured header, moved rule, chart graphics) have no
   // text delta — catch them via the pixel diff so purely-visual pages aren't skipped.

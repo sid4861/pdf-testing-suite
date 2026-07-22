@@ -1,6 +1,6 @@
 # PDF Comparison Suite
 
-A React app with two workspaces:
+A React app with three workspaces:
 
 - **Compare PDFs** — compare a recreated PDF against a reference by **content** (text on every page),
   **layout** (pixel-level visual diff + precise text-position offsets), and a roll-up **pass/fail
@@ -8,6 +8,8 @@ A React app with two workspaces:
 - **Test new pages** — when there's no reference PDF, only a **JSON spec**, validate a generated PDF
   against the spec (expected static text, image sizes/positions, table position/width, paragraph line
   spacing) with an annotated pass/fail report.
+- **Measurements** — load a single PDF, hover any text or image to highlight it, and click to measure
+  its distance from the top and left of the page (with guide lines), in inches.
 
 Built from the spec in [`comparison.md`](comparison.md).
 

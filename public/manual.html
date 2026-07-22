@@ -118,6 +118,8 @@
       <a href="#report-tab">Report tab</a>
       <div class="grp">Test new pages</div>
       <a href="#spec">Validate against a spec</a>
+      <div class="grp">Measurements</div>
+      <a href="#measure">Measure elements</a>
       <div class="grp">Reference</div>
       <a href="#exporting">Exporting results</a>
       <a href="#edge-cases">Edge cases &amp; notes</a>
@@ -292,6 +294,22 @@
       <p>Text and paragraphs are matched by their content (then by nearest position). Images are read from the
         PDF's draw operations. Tables are detected as aligned multi-column text blocks. A spec element that
         can't be found in the PDF is reported as <b>NOT FOUND</b> rather than silently passing.</p>
+    </section>
+
+    <section id="measure">
+      <h2>Measurements — position of any element</h2>
+      <p>The <span class="ui">Measurements</span> workspace lets you inspect where any element sits on a page.
+        Load a single PDF, then:</p>
+      <ol class="steps">
+        <li><b>Hover</b> over any text run or image — it highlights, and a tag shows what you're about to select.</li>
+        <li><b>Click</b> to select it. Guide lines are drawn from the top and left edges of the page to the
+          element's top-left corner, each labelled with the distance <b>in inches</b>.</li>
+        <li>The side panel lists the element's distance <b>from left / top / right / bottom</b> and its
+          <b>width</b> and <b>height</b>, all in inches. Click empty space (or <span class="ui">Clear selection</span>) to reset.</li>
+      </ol>
+      <div class="note"><b>Units</b>Positions come straight from the PDF's own geometry (points), so inches are exact
+        — e.g. in the bundled sample, the “MONTHLY STATEMENT” title measures 0.75″ from the top and left.</div>
+      <p>Use the page navigator to measure elements on other pages; the selection resets per page.</p>
     </section>
 
     <section id="exporting">

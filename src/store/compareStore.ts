@@ -48,7 +48,7 @@ interface CompareState {
   viewMode: LayoutViewMode;
   pixelThreshold: number;
   includeAA: boolean;
-  offsetThresholdPx: number;
+  offsetThresholdIn: number; // "moved" flag threshold, in inches
   layoutZoom: number; // display zoom multiplier for the Layout stage (1 = fit)
   setViewMode: (v: LayoutViewMode) => void;
   setPixelThreshold: (n: number) => void;
@@ -150,7 +150,7 @@ export const useCompareStore = create<CompareState>((set, get) => ({
 
   jumpScanning: false,
   async jumpToChange(dir) {
-    const { sideA, sideB, pixelThreshold, includeAA, offsetThresholdPx } = get();
+    const { sideA, sideB, pixelThreshold, includeAA, offsetThresholdIn } = get();
     const total = maxPages(sideA, sideB);
     if (total <= 1) return;
 
@@ -169,7 +169,7 @@ export const useCompareStore = create<CompareState>((set, get) => ({
           });
           set((s) => ({ pageCache: { ...s.pageCache, [i]: pc! } }));
         }
-        if (pageHasChange(pc, offsetThresholdPx)) {
+        if (pageHasChange(pc, offsetThresholdIn)) {
           set({ currentPage: i });
           return;
         }
@@ -182,7 +182,7 @@ export const useCompareStore = create<CompareState>((set, get) => ({
   viewMode: 'side-by-side',
   pixelThreshold: 0.1,
   includeAA: false,
-  offsetThresholdPx: 2,
+  offsetThresholdIn: 0.02,
   layoutZoom: 1,
   setViewMode(v) {
     set({ viewMode: v });
@@ -194,7 +194,7 @@ export const useCompareStore = create<CompareState>((set, get) => ({
     set({ includeAA: b, pageCache: {}, summary: null });
   },
   setOffsetThreshold(n) {
-    set({ offsetThresholdPx: n });
+    set({ offsetThresholdIn: n });
   },
   setLayoutZoom(n) {
     set({ layoutZoom: Math.max(0.25, Math.min(6, n)) });
@@ -248,6 +248,7 @@ export const useCompareStore = create<CompareState>((set, get) => ({
           contentMatch: pc.contentMatch,
           pixelRatio: pc.pixel?.ratio ?? 0,
           maxOffset: pc.maxOffset,
+          pxPerInch: pc.pxPerInch,
           missing,
         });
       } catch {
@@ -256,6 +257,7 @@ export const useCompareStore = create<CompareState>((set, get) => ({
           contentMatch: 0,
           pixelRatio: 0,
           maxOffset: 0,
+          pxPerInch: 144,
           missing: true,
         });
       }

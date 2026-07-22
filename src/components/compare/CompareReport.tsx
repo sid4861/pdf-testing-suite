@@ -21,11 +21,11 @@ export default function CompareReport() {
 
   const [contentPct, setContentPct] = useState(99);
   const [pixelPct, setPixelPct] = useState(2);
-  const [offsetPx, setOffsetPx] = useState(3);
+  const [offsetIn, setOffsetIn] = useState(0.03);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const thresholds: ExportThresholds = { contentPct, pixelPct, offsetPx };
+  const thresholds: ExportThresholds = { contentPct, pixelPct, offsetIn };
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -39,7 +39,7 @@ export default function CompareReport() {
     !p.missing &&
     p.contentMatch * 100 >= contentPct &&
     p.pixelRatio * 100 <= pixelPct &&
-    p.maxOffset <= offsetPx;
+    p.maxOffset / p.pxPerInch <= offsetIn;
 
   const overallPass = summary ? summary.pages.every(judge) : false;
 
@@ -86,7 +86,7 @@ export default function CompareReport() {
             </label>
             <label className="thresh">
               offset ≤
-              <input type="number" value={offsetPx} onChange={(e) => setOffsetPx(Number(e.target.value))} />px
+              <input type="number" step={0.01} value={offsetIn} onChange={(e) => setOffsetIn(Number(e.target.value))} />in
             </label>
           </div>
 
@@ -166,7 +166,7 @@ export default function CompareReport() {
                     <td>{p.pageIndex + 1}</td>
                     <td>{p.missing ? '—' : `${(p.contentMatch * 100).toFixed(1)}%`}</td>
                     <td>{p.missing ? '—' : `${(p.pixelRatio * 100).toFixed(1)}%`}</td>
-                    <td>{p.missing ? '—' : `${Math.round(p.maxOffset)}px`}</td>
+                    <td>{p.missing ? '—' : `${(p.maxOffset / p.pxPerInch).toFixed(2)}″`}</td>
                     <td className={p.missing ? '' : pass ? 'res-pass' : 'res-fail'}>
                       {p.missing ? <span className="badge-missing">missing</span> : pass ? '✓' : '✗'}
                     </td>

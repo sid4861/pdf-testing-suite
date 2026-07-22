@@ -3,6 +3,7 @@ import type { TextItem } from '../../types/compare';
 
 interface Props {
   naturalWidth: number;
+  pxPerInch: number;
   // When provided (pixel-diff view), hovering a changed region shows the
   // before/after text at that spot.
   onlyA?: TextItem[];
@@ -58,7 +59,7 @@ function counterpart(items: TextItem[], ref: TextItem): TextItem | null {
   return null;
 }
 
-export default function MeasureOverlay({ naturalWidth, onlyA, onlyB }: Props) {
+export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [start, setStart] = useState<Pt | null>(null);
   const [end, setEnd] = useState<Pt | null>(null);
@@ -203,7 +204,7 @@ export default function MeasureOverlay({ naturalWidth, onlyA, onlyB }: Props) {
               pointerEvents: 'none',
             }}
           >
-            {ndist}px · {Math.abs(ndx)}px {ndx >= 0 ? 'right' : 'left'} · {Math.abs(ndy)}px {ndy >= 0 ? 'down' : 'up'}
+            {(ndist / pxPerInch).toFixed(2)}″ · {(Math.abs(ndx) / pxPerInch).toFixed(2)}″ {ndx >= 0 ? 'right' : 'left'} · {(Math.abs(ndy) / pxPerInch).toFixed(2)}″ {ndy >= 0 ? 'down' : 'up'}
           </div>
         </>
       )}

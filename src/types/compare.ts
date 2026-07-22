@@ -66,7 +66,8 @@ export interface PageComparison {
   contentMatch: number; // 0–1
 
   match: ItemMatch;
-  maxOffset: number;
+  maxOffset: number;    // px (target-box space)
+  pxPerInch: number;    // px per inch for this page's target box (for inch display)
 
   pixel: PixelDiffResult | null;
 
@@ -78,6 +79,7 @@ export interface PageSummary {
   contentMatch: number; // 0–1
   pixelRatio: number;   // 0–1
   maxOffset: number;    // px
+  pxPerInch: number;    // px per inch for this page
   missing: boolean;
 }
 

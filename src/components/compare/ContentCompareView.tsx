@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useCompareStore } from '../../store/compareStore';
 import type { CompareSide, RenderedPageImage } from '../../types/compare';
-import { buildChanges, isOnSide, region, TYPE_LABEL, type Change, type ChangeType } from '../../services/changes';
+import { buildChanges, fmtInch, isOnSide, region, TYPE_LABEL, type Change, type ChangeType } from '../../services/changes';
 
 const TYPE_ORDER: ChangeType[] = ['removed', 'added', 'moved'];
 
@@ -71,7 +71,7 @@ export default function ContentCompareView() {
   const currentPage = useCompareStore((s) => s.currentPage);
   const pc = useCompareStore((s) => s.pageCache[s.currentPage]);
   const computing = useCompareStore((s) => s.computing);
-  const movedThreshold = useCompareStore((s) => s.offsetThresholdPx);
+  const movedThreshold = useCompareStore((s) => s.offsetThresholdIn);
 
   const [highlighted, setHighlighted] = useState<number | null>(null);
   const [enabled, setEnabled] = useState<Record<ChangeType, boolean>>({
@@ -215,8 +215,8 @@ export default function ContentCompareView() {
                   <span className="chg-pos">
                     {dims ? region(box, dims.width, dims.height) : ''}
                     {c.type === 'moved' && c.offset != null
-                      ? ` · moved ${Math.round(c.offset)}px`
-                      : ` · ${Math.round(box.x)},${Math.round(box.y)}px`}
+                      ? ` · moved ${fmtInch(c.offset, pc.pxPerInch)}`
+                      : ` · ${fmtInch(box.x, pc.pxPerInch)}, ${fmtInch(box.y, pc.pxPerInch)}`}
                   </span>
                 </div>
               );

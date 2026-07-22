@@ -270,12 +270,14 @@ export function matchItems(itemsA: TextItem[], itemsB: TextItem[]): ItemMatch {
 }
 
 // ── target box dimensions ─────────────────────────────────────────────
-function targetBox(page: PDFPageProxy): { w: number; h: number } {
+// `scale` is px-per-point; px-per-inch = scale × 72.
+function targetBox(page: PDFPageProxy): { w: number; h: number; scale: number } {
   const vp1 = page.getViewport({ scale: 1 });
   const scale = Math.min(BASE_SCALE, MAX_PAGE_WIDTH / vp1.width);
   return {
     w: Math.round(vp1.width * scale),
     h: Math.round(vp1.height * scale),
+    scale,
   };
 }
 
@@ -292,7 +294,7 @@ export async function comparePage(
   const notes: string[] = [];
 
   // Side A defines the target box; fall back to B if A is missing.
-  let box: { w: number; h: number };
+  let box: { w: number; h: number; scale: number };
   if (hasA) {
     const pageA = await pdfA!.getPage(pageIndex + 1);
     box = targetBox(pageA);
@@ -300,8 +302,9 @@ export async function comparePage(
     const pageB = await pdfB!.getPage(pageIndex + 1);
     box = targetBox(pageB);
   } else {
-    box = { w: 800, h: 1000 };
+    box = { w: 800, h: 1000, scale: BASE_SCALE };
   }
+  const pxPerInch = box.scale * 72;
 
   let imageA: RenderedPageImage | null = null;
   let imageB: RenderedPageImage | null = null;
@@ -362,6 +365,7 @@ export async function comparePage(
     contentMatch,
     match,
     maxOffset,
+    pxPerInch,
     pixel,
     notes,
   };

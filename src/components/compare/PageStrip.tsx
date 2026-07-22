@@ -9,7 +9,7 @@ export default function PageStrip() {
   const setCurrentPage = useCompareStore((s) => s.setCurrentPage);
   const summary = useCompareStore((s) => s.summary);
   const pageCache = useCompareStore((s) => s.pageCache);
-  const movedThreshold = useCompareStore((s) => s.offsetThresholdPx);
+  const movedThreshold = useCompareStore((s) => s.offsetThresholdIn);
 
   if (total <= 1) return null;
 
