@@ -346,6 +346,8 @@ export async function comparePage(
   if (
     imageA &&
     imageB &&
+    imageA.imageData &&
+    imageB.imageData &&
     imageA.width === imageB.width &&
     imageA.height === imageB.height
   ) {

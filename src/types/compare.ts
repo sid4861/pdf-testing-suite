@@ -47,7 +47,7 @@ export interface PixelDiffResult {
 /** A page rendered to a canvas. */
 export interface RenderedPageImage {
   dataUrl: string;
-  imageData: ImageData;
+  imageData?: ImageData; // raw RGBA — only needed during pixel diff; released afterwards to save memory
   width: number;
   height: number;
   letterboxed: boolean;

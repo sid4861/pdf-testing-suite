@@ -120,6 +120,8 @@
       <a href="#spec">Validate against a spec</a>
       <div class="grp">Measurements</div>
       <a href="#measure">Measure elements</a>
+      <div class="grp">Batch compare</div>
+      <a href="#batch">Compare many at once</a>
       <div class="grp">Reference</div>
       <a href="#exporting">Exporting results</a>
       <a href="#edge-cases">Edge cases &amp; notes</a>
@@ -297,19 +299,57 @@
     </section>
 
     <section id="measure">
-      <h2>Measurements — position of any element</h2>
-      <p>The <span class="ui">Measurements</span> workspace lets you inspect where any element sits on a page.
-        Load a single PDF, then:</p>
-      <ol class="steps">
-        <li><b>Hover</b> over any text run or image — it highlights, and a tag shows what you're about to select.</li>
-        <li><b>Click</b> to select it. Guide lines are drawn from the top and left edges of the page to the
-          element's top-left corner, each labelled with the distance <b>in inches</b>.</li>
-        <li>The side panel lists the element's distance <b>from left / top / right / bottom</b> and its
-          <b>width</b> and <b>height</b>, all in inches. Click empty space (or <span class="ui">Clear selection</span>) to reset.</li>
-      </ol>
+      <h2>Measurements — inspect any element</h2>
+      <p>The <span class="ui">Measurements</span> workspace lets you inspect elements on a page. Load a single PDF;
+        in both sub-tabs you <b>hover</b> to highlight the element under the cursor (a tag shows what you'll select)
+        and <b>click</b> to select it.</p>
+
+      <h3><span class="ui">Position</span> sub-tab</h3>
+      <p>On selecting an element, guide lines are drawn from the top and left edges of the page to its top-left
+        corner, each labelled with the distance <b>in inches</b>. The side panel lists distance
+        <b>from left / top / right / bottom</b> plus <b>width</b> and <b>height</b>, all in inches.</p>
       <div class="note"><b>Units</b>Positions come straight from the PDF's own geometry (points), so inches are exact
         — e.g. in the bundled sample, the “MONTHLY STATEMENT” title measures 0.75″ from the top and left.</div>
-      <p>Use the page navigator to measure elements on other pages; the selection resets per page.</p>
+
+      <h3><span class="ui">Font &amp; paragraph</span> sub-tab</h3>
+      <p>Here only text is selectable. Selecting a text run shows its <b>font</b> (e.g. Helvetica-Bold),
+        <b>font size</b> in points, <b>weight</b> and <b>style</b>, and the <b>line height</b> — the baseline-to-baseline
+        distance to the nearest line in the same block (that adjacent line is outlined dashed), plus the leading ratio.</p>
+
+      <p>Use the page navigator to inspect other pages; the selection resets per page and when you switch sub-tabs.</p>
+    </section>
+
+    <section id="batch">
+      <h2>Batch compare — many pairs at once</h2>
+      <p>Use the <span class="ui">Batch compare</span> workspace when you have several documents to check. Instead of
+        one A-vs-B pair, you build a list of pairs and run them all together.</p>
+      <ol class="steps">
+        <li><b>Add files</b> to <b>Side A</b> and <b>Side B</b> (drop multiple PDFs into each; each shows its page count).</li>
+        <li><b>Build pairs.</b> Each pair picks one Side A file and one Side B file from dropdowns. Click
+          <span class="ui">＋ Add pair</span> to add rows, or <span class="ui">Auto-pair by order</span> to pair the
+          lists 1-to-1. A file may be used in more than one pair.</li>
+        <li>Set the <b>PASS thresholds</b> (content ≥ % · pixels ≤ % · offset ≤ in), then <span class="ui">Run comparisons</span>.
+          Progress shows which pair and page is processing.</li>
+        <li>Read the <b>Results</b> table — one row per pair with differing-page count, worst-case metrics and a
+          PASS/FAIL verdict. Click <span class="ui">Open ↗</span> on any row to load that pair into the
+          <span class="ui">Compare PDFs</span> workspace for the full page-by-page view.</li>
+      </ol>
+      <h3>Exporting the batch</h3>
+      <p>The <span class="ui">Export</span> menu produces a single file covering every pair:</p>
+      <table>
+        <thead><tr><th>Format</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr><td><b>HTML report</b></td><td>An overview table of all pairs, then a full detailed section per pair — annotated A/B pages, the pixel-diff with before → after labels, and each page's change list.</td></tr>
+          <tr><td><b>JSON</b></td><td>Every pair and page with metrics, thresholds and pass/fail.</td></tr>
+          <tr><td><b>CSV</b></td><td>One row per pair × page, for filtering/pivoting in a spreadsheet.</td></tr>
+        </tbody>
+      </table>
+      <div class="note"><b>Example</b>Click <span class="ui">Load example set</span> to load two pairs — a changed invoice
+        (fails) and an identical statement (passes) — so you can see a mixed batch and export it.</div>
+      <div class="note"><b>Large batches stay visual</b>The HTML export remains fully visual — every page's rendered
+        images and the pixel-diff heatmap — even for large batches. Raw pixel buffers are freed right after each page
+        is compared (only the final result is kept), and images are downscaled and compressed at export time, so file
+        size stays reasonable no matter how many pairs or pages you include.</div>
     </section>
 
     <section id="exporting">

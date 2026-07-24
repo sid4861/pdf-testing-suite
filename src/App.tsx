@@ -10,8 +10,9 @@ import LayoutCompareView from './components/compare/LayoutCompareView';
 import CompareReport from './components/compare/CompareReport';
 import SpecTestView from './components/spec/SpecTestView';
 import MeasureView from './components/measure/MeasureView';
+import BatchView from './components/batch/BatchView';
 
-type Workspace = 'compare' | 'spec' | 'measure';
+type Workspace = 'compare' | 'spec' | 'measure' | 'batch';
 
 // Auto-run a full scan on load for documents up to this many pages, so the
 // summary chip and changed-pages strip have data without an explicit click.
@@ -75,6 +76,9 @@ export default function App() {
           <button className={`ws-tab ${workspace === 'measure' ? 'active' : ''}`} onClick={() => setWorkspace('measure')}>
             Measurements
           </button>
+          <button className={`ws-tab ${workspace === 'batch' ? 'active' : ''}`} onClick={() => setWorkspace('batch')}>
+            Batch compare
+          </button>
         </div>
         {workspace === 'compare' && (
           <div className="upload-row">
@@ -88,6 +92,8 @@ export default function App() {
         <SpecTestView />
       ) : workspace === 'measure' ? (
         <MeasureView />
+      ) : workspace === 'batch' ? (
+        <BatchView onOpenCompare={() => setWorkspace('compare')} />
       ) : (
         <>
           {bothLoaded && (

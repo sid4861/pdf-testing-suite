@@ -1,6 +1,6 @@
 // Renders a PDF page and extracts its selectable elements (text runs + images)
-// with bounding boxes in POINTS (1/72 inch), top-left origin. Used by the
-// Measurements tab. Inches = points / 72.
+// with bounding boxes in POINTS (1/72 inch), top-left origin, plus font info for
+// text. Used by the Measurements tab. Inches = points / 72.
 
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
@@ -17,7 +17,11 @@ export interface PageElement {
   left: number;   // points from left
   top: number;    // points from top
   width: number;  // points
-  height: number; // points
+  height: number; // points (≈ font size for text)
+  // text only:
+  fontLabel?: string; // resolved font name, e.g. "Helvetica-Bold"
+  bold?: boolean;
+  italic?: boolean;
 }
 
 export interface ElementsPage {
@@ -27,19 +31,58 @@ export interface ElementsPage {
   elements: PageElement[];
 }
 
+const cleanName = (s: string) => s.replace(/^[A-Z]{6}\+/, '').replace(/["']/g, '').trim();
+const looksMangled = (s: string) => /^g_d\d+_f\d+$/.test(s) || /^g_font_/.test(s);
+
+// Resolve a text item's internal fontName to a human font name.
+function resolveFont(page: PDFPageProxy, fontName: string, styles: Record<string, { fontFamily?: string }>): string | undefined {
+  try {
+    const f = page.commonObjs.get(fontName) as { name?: string; loadedName?: string } | null;
+    const nm = f?.name;
+    if (typeof nm === 'string' && nm && !looksMangled(nm)) return cleanName(nm);
+  } catch {
+    /* font not resolved yet — fall back to the text-content style */
+  }
+  const fam = styles?.[fontName]?.fontFamily;
+  if (fam && !looksMangled(fam)) return cleanName(fam);
+  return undefined;
+}
+
 export async function renderElements(pdf: PDFDocumentProxy, pageIndex: number): Promise<ElementsPage> {
   const page: PDFPageProxy = await pdf.getPage(pageIndex + 1);
   const vp1 = page.getViewport({ scale: 1 });
+
+  // Render first so fonts are loaded into commonObjs (needed for real font names).
+  const vp = page.getViewport({ scale: BASE_SCALE });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(vp.width);
+  canvas.height = Math.round(vp.height);
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  const dataUrl = canvas.toDataURL('image/png');
+
   const elements: PageElement[] = [];
 
-  // ── text runs (points, top-left) ──
+  // ── text runs (points, top-left) with font info ──
   const content = await page.getTextContent();
+  const styles = (content.styles ?? {}) as Record<string, { fontFamily?: string }>;
+  const fontCache = new Map<string, string | undefined>();
   let ti = 0;
   for (const raw of content.items) {
-    const it = raw as { str?: string; width?: number; transform?: number[] };
+    const it = raw as { str?: string; width?: number; transform?: number[]; fontName?: string };
     if (typeof it.str !== 'string' || !it.str.trim()) continue;
     const m = pdfjsLib.Util.transform(vp1.transform, it.transform!);
     const fontHeight = Math.hypot(m[2], m[3]);
+
+    let fontLabel: string | undefined;
+    if (it.fontName) {
+      if (!fontCache.has(it.fontName)) fontCache.set(it.fontName, resolveFont(page, it.fontName, styles));
+      fontLabel = fontCache.get(it.fontName);
+    }
+    const lower = (fontLabel ?? '').toLowerCase();
+
     elements.push({
       id: `t${ti++}`,
       kind: 'text',
@@ -48,6 +91,9 @@ export async function renderElements(pdf: PDFDocumentProxy, pageIndex: number): 
       top: m[5] - fontHeight,
       width: it.width ?? 0,
       height: fontHeight,
+      fontLabel,
+      bold: /bold|black|heavy|semibold|demibold/.test(lower),
+      italic: /italic|oblique/.test(lower),
     });
   }
 
@@ -86,15 +132,5 @@ export async function renderElements(pdf: PDFDocumentProxy, pageIndex: number): 
     }
   }
 
-  // ── render for display ──
-  const vp = page.getViewport({ scale: BASE_SCALE });
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(vp.width);
-  canvas.height = Math.round(vp.height);
-  const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  await page.render({ canvasContext: ctx, viewport: vp }).promise;
-
-  return { dataUrl: canvas.toDataURL('image/png'), widthPt: vp1.width, heightPt: vp1.height, elements };
+  return { dataUrl, widthPt: vp1.width, heightPt: vp1.height, elements };
 }

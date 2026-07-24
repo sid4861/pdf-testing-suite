@@ -3,8 +3,14 @@ import { useMeasureStore } from '../../store/measureStore';
 import type { ElementsPage, PageElement } from '../../services/pdfElements';
 
 const inches = (pt: number) => (pt / 72).toFixed(2);
+const fmtPt = (n: number) => {
+  const r = Math.round(n * 10) / 10;
+  return Number.isInteger(r) ? `${r}` : r.toFixed(1);
+};
 
-// Smallest element whose box contains the point (so a text run wins over a big image).
+type Mode = 'position' | 'font';
+
+// Smallest element containing the point (a text run wins over a big image).
 function elementAt(elements: PageElement[], px: number, py: number): PageElement | null {
   let best: PageElement | null = null;
   let bestArea = Infinity;
@@ -18,6 +24,28 @@ function elementAt(elements: PageElement[], px: number, py: number): PageElement
     }
   }
   return best;
+}
+
+const baselineOf = (el: PageElement) => el.top + el.height;
+
+// Nearest text line above/below `sel` that shares horizontal overlap (same column).
+function adjacentLine(elements: PageElement[], sel: PageElement): { el: PageElement; lineHeight: number } | null {
+  const selBase = baselineOf(sel);
+  const minGap = Math.max(1, sel.height * 0.4);
+  let best: PageElement | null = null;
+  let bestGap = Infinity;
+  for (const el of elements) {
+    if (el.kind !== 'text' || el === sel) continue;
+    // must overlap horizontally (same column/paragraph)
+    if (el.left > sel.left + sel.width || el.left + el.width < sel.left) continue;
+    const gap = Math.abs(baselineOf(el) - selBase);
+    if (gap < minGap) continue; // same line
+    if (gap < bestGap) {
+      bestGap = gap;
+      best = el;
+    }
+  }
+  return best ? { el: best, lineHeight: bestGap } : null;
 }
 
 function pctBox(el: PageElement, page: ElementsPage) {
@@ -42,7 +70,7 @@ function PdfSlot() {
     <div>
       <div
         className={`slot a ${pdfName ? 'loaded' : ''} ${drag ? 'drag' : ''}`}
-        style={{ minWidth: 260, cursor: pdfName ? 'default' : 'pointer' }}
+        style={{ minWidth: 240, cursor: pdfName ? 'default' : 'pointer' }}
         onClick={() => !pdfName && !loading && input.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
         onDragLeave={() => setDrag(false)}
@@ -80,19 +108,19 @@ export default function MeasureView() {
   const loadingExample = useMeasureStore((s) => s.loadingExample);
 
   const wrapRef = useRef<HTMLDivElement>(null);
+  const [mode, setMode] = useState<Mode>('position');
   const [hovered, setHovered] = useState<PageElement | null>(null);
   const [selected, setSelected] = useState<PageElement | null>(null);
 
-  // Render current page's elements when it changes.
   useEffect(() => {
     if (pdfDoc) ensurePage(currentPage);
   }, [pdfDoc, currentPage, ensurePage]);
 
-  // Reset selection when the page changes.
+  // Reset selection when the page or mode changes.
   useEffect(() => {
     setSelected(null);
     setHovered(null);
-  }, [currentPage, pdfDoc]);
+  }, [currentPage, pdfDoc, mode]);
 
   const toPoint = (e: React.MouseEvent) => {
     const rect = wrapRef.current!.getBoundingClientRect();
@@ -103,20 +131,29 @@ export default function MeasureView() {
     };
   };
 
+  // In font mode only text is selectable.
+  const pool = page ? (mode === 'font' ? page.elements.filter((el) => el.kind === 'text') : page.elements) : [];
+
   const onMove = (e: React.MouseEvent) => {
     if (!page) return;
     const p = toPoint(e);
     if (!p) return;
-    setHovered(elementAt(page.elements, p.px, p.py));
+    setHovered(elementAt(pool, p.px, p.py));
   };
   const onClick = () => setSelected(hovered);
+
+  const adj = selected && mode === 'font' && page ? adjacentLine(page.elements, selected) : null;
 
   return (
     <>
       <div className="subtoolbar spec-toolbar">
         <PdfSlot />
+        <div className="tabs" style={{ marginLeft: 4 }}>
+          <button className={`tab ${mode === 'position' ? 'active' : ''}`} onClick={() => setMode('position')}>📐 Position</button>
+          <button className={`tab ${mode === 'font' ? 'active' : ''}`} onClick={() => setMode('font')}>🔤 Font &amp; paragraph</button>
+        </div>
         {pdfDoc && pageCount > 1 && (
-          <div className="pagenav" style={{ marginLeft: 8 }}>
+          <div className="pagenav" style={{ marginLeft: 4 }}>
             <button className="navbtn" disabled={currentPage <= 0} onClick={() => setPage(currentPage - 1)}>‹</button>
             <span className="label">Page {currentPage + 1} of {pageCount}</span>
             <button className="navbtn" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)}>›</button>
@@ -129,12 +166,12 @@ export default function MeasureView() {
       <main className="app-body">
         {!pdfDoc ? (
           <div className="empty-state">
-            <div className="icon">📐📄</div>
+            <div className="icon">📐🔤</div>
             <h2>Measure elements on a PDF</h2>
             <p>
-              Load a PDF, then <strong>hover</strong> over any text or image to highlight it and
-              <strong> click</strong> to measure its distance from the top and left of the page — shown with
-              guide lines, in inches.
+              Load a PDF, then <strong>hover</strong> over any element to highlight it and <strong>click</strong> to select it.
+              Use <strong>Position</strong> to measure distance from the page edges in inches, or
+              <strong> Font &amp; paragraph</strong> to read the font and line height of any text.
             </p>
             <p style={{ marginTop: 20 }}>
               <button className="btn primary" onClick={loadExample} disabled={loadingExample}>
@@ -147,13 +184,7 @@ export default function MeasureView() {
         ) : page ? (
           <div className="measure-grid">
             <div className="measure-stage">
-              <div
-                className="measure-wrap"
-                ref={wrapRef}
-                onMouseMove={onMove}
-                onMouseLeave={() => setHovered(null)}
-                onClick={onClick}
-              >
+              <div className="measure-wrap" ref={wrapRef} onMouseMove={onMove} onMouseLeave={() => setHovered(null)} onClick={onClick}>
                 <img src={page.dataUrl} alt={`Page ${currentPage + 1}`} draggable={false} />
 
                 {/* hover highlight */}
@@ -163,22 +194,22 @@ export default function MeasureView() {
                   </div>
                 )}
 
-                {/* selection + guide lines */}
-                {selected && (
+                {/* POSITION mode: guide lines + distance labels */}
+                {mode === 'position' && selected && (
                   <>
-                    {/* horizontal guide: left edge → element, at the element's top */}
                     <div className="guide h" style={{ left: 0, top: `${(selected.top / page.heightPt) * 100}%`, width: `${(selected.left / page.widthPt) * 100}%` }} />
-                    {/* vertical guide: top edge → element, at the element's left */}
                     <div className="guide v" style={{ left: `${(selected.left / page.widthPt) * 100}%`, top: 0, height: `${(selected.top / page.heightPt) * 100}%` }} />
-                    {/* distance labels */}
-                    <div className="guide-label" style={{ left: `${(selected.left / 2 / page.widthPt) * 100}%`, top: `${(selected.top / page.heightPt) * 100}%`, transform: 'translate(-50%, -140%)' }}>
-                      ← {inches(selected.left)}″
-                    </div>
-                    <div className="guide-label" style={{ left: `${(selected.left / page.widthPt) * 100}%`, top: `${(selected.top / 2 / page.heightPt) * 100}%`, transform: 'translate(-115%, -50%)' }}>
-                      ↑ {inches(selected.top)}″
-                    </div>
-                    {/* corner dot + element box */}
+                    <div className="guide-label" style={{ left: `${(selected.left / 2 / page.widthPt) * 100}%`, top: `${(selected.top / page.heightPt) * 100}%`, transform: 'translate(-50%, -140%)' }}>← {inches(selected.left)}″</div>
+                    <div className="guide-label" style={{ left: `${(selected.left / page.widthPt) * 100}%`, top: `${(selected.top / 2 / page.heightPt) * 100}%`, transform: 'translate(-115%, -50%)' }}>↑ {inches(selected.top)}″</div>
                     <div className="guide-dot" style={{ left: `${(selected.left / page.widthPt) * 100}%`, top: `${(selected.top / page.heightPt) * 100}%` }} />
+                    <div className="mel selected" style={pctBox(selected, page)} />
+                  </>
+                )}
+
+                {/* FONT mode: highlight selected + the adjacent line used for line height */}
+                {mode === 'font' && selected && (
+                  <>
+                    {adj && <div className="mel adjacent" style={pctBox(adj.el, page)} />}
                     <div className="mel selected" style={pctBox(selected, page)} />
                   </>
                 )}
@@ -187,31 +218,46 @@ export default function MeasureView() {
 
             {/* readout panel */}
             <div className="measure-panel card section-pad">
-              {selected ? (
-                <>
-                  <div className="mp-head">
-                    <span className="mp-ic">{selected.kind === 'image' ? '🖼' : '📝'}</span>
-                    <div className="mp-title" title={selected.label}>{selected.kind === 'image' ? 'Image' : selected.label}</div>
-                  </div>
-                  <table className="mp-table">
-                    <tbody>
+              {mode === 'position' ? (
+                selected ? (
+                  <>
+                    <div className="mp-head"><span className="mp-ic">{selected.kind === 'image' ? '🖼' : '📝'}</span><div className="mp-title" title={selected.label}>{selected.kind === 'image' ? 'Image' : selected.label}</div></div>
+                    <table className="mp-table"><tbody>
                       <tr><td>From left</td><td>{inches(selected.left)}″</td></tr>
                       <tr><td>From top</td><td>{inches(selected.top)}″</td></tr>
                       <tr className="sep"><td>Width</td><td>{inches(selected.width)}″</td></tr>
                       <tr><td>Height</td><td>{inches(selected.height)}″</td></tr>
                       <tr className="sep"><td>From right</td><td>{inches(page.widthPt - (selected.left + selected.width))}″</td></tr>
                       <tr><td>From bottom</td><td>{inches(page.heightPt - (selected.top + selected.height))}″</td></tr>
-                    </tbody>
-                  </table>
-                  <p className="mp-note">Distances are from the page edges to the element's top-left corner. Page is {inches(page.widthPt)}″ × {inches(page.heightPt)}″.</p>
+                    </tbody></table>
+                    <p className="mp-note">Distances are from the page edges to the element's top-left corner. Page is {inches(page.widthPt)}″ × {inches(page.heightPt)}″.</p>
+                  </>
+                ) : (
+                  <div className="mp-empty"><b>Hover</b> an element to highlight it, then <b>click</b> to measure its position from the top-left, in inches.{hovered && <div className="mp-hoverhint">Selecting: <span>{hovered.kind === 'image' ? 'Image' : hovered.label}</span></div>}</div>
+                )
+              ) : selected ? (
+                <>
+                  <div className="mp-head"><span className="mp-ic">🔤</span><div className="mp-title" title={selected.label}>{selected.label}</div></div>
+                  <table className="mp-table"><tbody>
+                    <tr><td>Font</td><td className="mp-font">{selected.fontLabel ?? 'unknown'}</td></tr>
+                    <tr><td>Font size</td><td>{fmtPt(selected.height)} pt</td></tr>
+                    <tr><td>Weight</td><td>{selected.bold ? 'Bold' : 'Regular'}</td></tr>
+                    <tr><td>Style</td><td>{selected.italic ? 'Italic' : 'Normal'}</td></tr>
+                    <tr className="sep">
+                      <td>Line height</td>
+                      <td>{adj ? `${fmtPt(adj.lineHeight)} pt` : 'single line'}</td>
+                    </tr>
+                    {adj && (
+                      <tr><td>Leading ratio</td><td>{(adj.lineHeight / selected.height).toFixed(2)}×</td></tr>
+                    )}
+                  </tbody></table>
+                  <p className="mp-note">
+                    Font size is in points (1pt = 1/72″).{' '}
+                    {adj ? 'Line height is the baseline-to-baseline distance to the nearest line in this block (shown dashed).' : 'No adjacent line found in this block to measure line height.'}
+                  </p>
                 </>
               ) : (
-                <div className="mp-empty">
-                  <b>Hover</b> an element to highlight it, then <b>click</b> to measure its position from the top-left, in inches.
-                  {hovered && (
-                    <div className="mp-hoverhint">Selecting: <span>{hovered.kind === 'image' ? 'Image' : hovered.label}</span></div>
-                  )}
-                </div>
+                <div className="mp-empty"><b>Hover</b> text to highlight it, then <b>click</b> to read its font and line height.{hovered && <div className="mp-hoverhint">Selecting: <span>{hovered.label}</span></div>}</div>
               )}
             </div>
           </div>

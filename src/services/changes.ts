@@ -140,6 +140,52 @@ export function diffHotspots(onlyA: TextItem[], onlyB: TextItem[]): DiffHotspot[
   return spots;
 }
 
+/** Which of the two heatmap buckets a change belongs to. */
+export type HeatBucket = 'layout' | 'text';
+
+export const HEAT_COLOR: Record<HeatBucket, string> = {
+  layout: '#7c3aed', // violet — matches the 'moved' color used in the Content tab
+  text: '#d97706',   // amber — content added/removed, distinct from the base pixelmatch red
+};
+
+export const HEAT_LABEL: Record<HeatBucket, string> = {
+  layout: 'Layout shift',
+  text: 'Text change',
+};
+
+/** A heatmap region: one per change group, bucketed and boxed as a single union rect. */
+export interface HeatBox {
+  id: number;
+  type: HeatBucket;
+  box: TextItem; // union of every box in the group, in target-box pixel space
+}
+
+function unionBox(items: TextItem[]): TextItem {
+  const x = Math.min(...items.map((i) => i.x));
+  const y = Math.min(...items.map((i) => i.y));
+  const right = Math.max(...items.map((i) => i.x + i.w));
+  const bottom = Math.max(...items.map((i) => i.y + i.h));
+  return { str: '', x, y, w: right - x, h: bottom - y };
+}
+
+/**
+ * Collapse the 3 content-tab change types into 2 heatmap buckets — 'moved' becomes
+ * a 'layout' region, 'removed'/'added' (including paired in-place replacements,
+ * already grouped by buildChanges) become one 'text' region — so the pixel-diff
+ * heatmap can be tinted by cause rather than one flat color.
+ */
+export function heatmapBoxes(changes: Change[]): HeatBox[] {
+  const groups = new Map<number, { type: HeatBucket; items: TextItem[] }>();
+  for (const c of changes) {
+    const bucket: HeatBucket = c.type === 'moved' ? 'layout' : 'text';
+    const g = groups.get(c.group) ?? { type: bucket, items: [] };
+    if (c.a) g.items.push(c.a);
+    if (c.b) g.items.push(c.b);
+    groups.set(c.group, g);
+  }
+  return [...groups.entries()].map(([id, g]) => ({ id, type: g.type, box: unionBox(g.items) }));
+}
+
 /** True when a page has any notable content/layout/visual change (used by jump-to-change). */
 export function pageHasChange(pc: PageComparison, movedThresholdIn: number): boolean {
   if (!pc.imageA || !pc.imageB) return true; // page exists on only one side

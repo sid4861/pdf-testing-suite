@@ -31,6 +31,8 @@ interface CompareState {
   errorB: string | null;
   loadFile: (side: CompareSide, file: File) => Promise<void>;
   clearSide: (side: CompareSide) => void;
+  // Adopt already-parsed docs for both sides (used by the batch "Open in Compare" drill-in).
+  adoptPair: (a: LoadedSide, b: LoadedSide) => void;
 
   // Built-in example
   loadingExample: boolean;
@@ -110,6 +112,19 @@ export const useCompareStore = create<CompareState>((set, get) => ({
       summary: null,
       currentPage: 0,
     } as Partial<CompareState>);
+  },
+
+  adoptPair(a, b) {
+    set({
+      sideA: a,
+      sideB: b,
+      errorA: null,
+      errorB: null,
+      pageCache: {},
+      summary: null,
+      currentPage: 0,
+      mode: 'content',
+    });
   },
 
   loadingExample: false,

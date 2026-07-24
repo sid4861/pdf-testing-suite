@@ -1,7 +1,8 @@
 // Export utilities for comparison results.
 // Produces JSON, CSV, and a standalone printable HTML report (print → Save as PDF).
+// The per-page renderers are exported so the batch report can reuse them.
 
-import type { CompareSummary, PageComparison, RenderedPageImage } from '../types/compare';
+import type { CompareSummary, PageComparison, PageSummary, RenderedPageImage } from '../types/compare';
 import { buildChanges, diffHotspots, isOnSide, region, TYPE_LABEL, CHANGE_COLOR, type Change } from './changes';
 
 export interface ExportThresholds {
@@ -18,12 +19,10 @@ export interface ExportMeta {
   generatedAt: string; // ISO string
 }
 
-const pct = (n: number) => (n * 100).toFixed(1) + '%';
+export const pct = (n: number) => (n * 100).toFixed(1) + '%';
+export const inchStr = (px: number, pxPerInch: number) => (px / pxPerInch).toFixed(2) + '″';
 
-function judgePage(
-  p: { contentMatch: number; pixelRatio: number; maxOffset: number; pxPerInch: number; missing: boolean },
-  t: ExportThresholds,
-): boolean {
+export function judgePage(p: PageSummary, t: ExportThresholds): boolean {
   if (p.missing) return false;
   return (
     p.contentMatch * 100 >= t.contentPct &&
@@ -32,9 +31,8 @@ function judgePage(
   );
 }
 
-function download(filename: string, content: string | Blob, mime: string) {
-  const blob =
-    content instanceof Blob ? content : new Blob([content], { type: mime });
+export function download(filename: string, content: string | Blob, mime: string) {
+  const blob = content instanceof Blob ? content : new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -45,14 +43,18 @@ function download(filename: string, content: string | Blob, mime: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-const stamp = () => new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+export const stamp = () => new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+
+export function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 // ── JSON export ───────────────────────────────────────────────────────
-export function exportJson(
-  summary: CompareSummary,
-  meta: ExportMeta,
-  thresholds: ExportThresholds,
-) {
+export function exportJson(summary: CompareSummary, meta: ExportMeta, thresholds: ExportThresholds) {
   const pages = summary.pages.map((p) => ({
     page: p.pageIndex + 1,
     contentMatch: p.contentMatch,
@@ -76,18 +78,11 @@ export function exportJson(
     pages,
   };
 
-  download(
-    `pdf-comparison-${stamp()}.json`,
-    JSON.stringify(payload, null, 2),
-    'application/json',
-  );
+  download(`pdf-comparison-${stamp()}.json`, JSON.stringify(payload, null, 2), 'application/json');
 }
 
 // ── CSV export ────────────────────────────────────────────────────────
-export function exportCsv(
-  summary: CompareSummary,
-  thresholds: ExportThresholds,
-) {
+export function exportCsv(summary: CompareSummary, thresholds: ExportThresholds) {
   const header = ['Page', 'ContentMatch%', 'PixelsDifferent%', 'MaxOffsetInches', 'Missing', 'Result'];
   const rows = summary.pages.map((p) => [
     p.pageIndex + 1,
@@ -101,133 +96,21 @@ export function exportCsv(
   download(`pdf-comparison-${stamp()}.csv`, csv, 'text/csv');
 }
 
-// ── HTML report export (standalone, printable) ────────────────────────
-export function exportHtmlReport(
-  summary: CompareSummary,
-  meta: ExportMeta,
-  thresholds: ExportThresholds,
-  pageCache: Record<number, PageComparison>,
-) {
-  const judged = summary.pages.map((p) => ({ p, pass: judgePage(p, thresholds) }));
-  const overall = judged.every((j) => j.pass);
-  const passCount = judged.filter((j) => j.pass).length;
+// ── shared HTML report pieces (reused by the batch report) ────────────
 
-  const rowsHtml = judged
-    .map(({ p, pass }) => {
-      const missing = p.missing;
-      return `<tr class="${missing ? 'missing' : pass ? 'pass' : 'fail'}">
-        <td>${p.pageIndex + 1}</td>
-        <td>${missing ? '—' : pct(p.contentMatch)}</td>
-        <td>${missing ? '—' : pct(p.pixelRatio)}</td>
-        <td>${missing ? '—' : (p.maxOffset / p.pxPerInch).toFixed(2) + '″'}</td>
-        <td class="result">${missing ? 'MISSING' : pass ? '✓ PASS' : '✗ FAIL'}</td>
-      </tr>`;
-    })
-    .join('\n');
-
-  // Per-page visual detail: annotated A/B pages with change highlights + a change list.
-  const detailHtml = summary.pages
-    .map((p) => {
-      const pc = pageCache[p.pageIndex];
-      if (!pc) return '';
-      const changes = buildChanges(pc, thresholds.offsetIn);
-
-      const notes = pc.notes.length
-        ? `<ul class="notes">${pc.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join('')}</ul>`
-        : '';
-
-      const pane = (image: RenderedPageImage | null, side: 'A' | 'B', label: string) => {
-        if (!image) {
-          return `<div class="pane"><div class="pane-label">${label}</div><div class="pane-missing">No page ${p.pageIndex + 1}</div></div>`;
-        }
-        const boxes = changes
-          .filter((c) => isOnSide(c, side))
-          .map((c) => {
-            const box = (side === 'A' ? c.a : c.b)!;
-            return `<div class="rbox" style="left:${(box.x / image.width) * 100}%;top:${(box.y / image.height) * 100}%;width:${(box.w / image.width) * 100}%;height:${(box.h / image.height) * 100}%;border-color:${CHANGE_COLOR[c.type]};background:${CHANGE_COLOR[c.type]}22"><span class="rbadge" style="background:${CHANGE_COLOR[c.type]}">${c.id}</span></div>`;
-          })
-          .join('');
-        return `<div class="pane">
-          <div class="pane-label">${label}</div>
-          <div class="rwrap"><img src="${image.dataUrl}" alt="${side}" />${boxes}</div>
-        </div>`;
-      };
-
-      // Pixel-diff pane with before → after hover tooltips over each changed region.
-      const diffImg = pc.pixel;
-      const diffDims = pc.imageA ?? pc.imageB;
-      const diffPane =
-        diffImg && diffDims
-          ? (() => {
-              // Only label in-place replacements (text swapped for text): those carry a
-              // meaningful before → after. Pure add/remove is already in the panes + list.
-              const spots = diffHotspots(pc.match.onlyA, pc.match.onlyB)
-                .filter((s) => s.before && s.after)
-                .map((s) => {
-                  const b = s.box;
-                  const cx = ((b.x + b.w / 2) / diffDims.width) * 100;
-                  const cy = ((b.y + b.h / 2) / diffDims.height) * 100;
-                  const anchor = cx > 55 ? ' r' : ''; // anchor right-half labels to the right so they don't overflow
-                  const below = cy < 90 ? ' below' : ' above';
-                  const style = `left:${(b.x / diffDims.width) * 100}%;top:${(b.y / diffDims.height) * 100}%;width:${(b.w / diffDims.width) * 100}%;height:${(b.h / diffDims.height) * 100}%`;
-                  const tip = `<span class="tl">was</span><span class="tb">${escapeHtml(s.before!)}</span><span class="tar">→</span><span class="ta">${escapeHtml(s.after!)}</span>`;
-                  return `<div class="dspot" style="${style}"><span class="dtip${anchor}${below}">${tip}</span></div>`;
-                })
-                .join('');
-              return `<div class="diffpane">
-                <div class="pane-label">Pixel diff · ${pct(diffImg.ratio)} of pixels changed — before → after labels shown for each replaced text</div>
-                <div class="rwrap dwrap"><img src="${diffImg.diffDataUrl}" alt="pixel diff" />${spots}</div>
-              </div>`;
-            })()
-          : '';
-
-      const changeList = changes.length
-        ? `<ul class="rchanges">${changes
-            .map((c: Change) => {
-              const box = (c.a ?? c.b)!;
-              const dims = pc.imageA ?? pc.imageB;
-              const ii = (px: number) => (px / pc.pxPerInch).toFixed(2) + '″';
-              const pos =
-                c.type === 'moved' && c.offset != null
-                  ? `moved ${ii(c.offset)}`
-                  : `${ii(box.x)}, ${ii(box.y)}`;
-              const where = dims ? region(box, dims.width, dims.height) : '';
-              return `<li><span class="rnum" style="background:${CHANGE_COLOR[c.type]}">${c.id}</span>
-                <span class="rtype" style="color:${CHANGE_COLOR[c.type]}">${TYPE_LABEL[c.type]}</span>
-                <span class="rtext">${escapeHtml(c.text)}</span>
-                <span class="rpos">${where} · ${pos}</span></li>`;
-            })
-            .join('')}</ul>`
-        : `<p class="rnochange">No positional text changes on this page.</p>`;
-
-      return `<section class="page-detail">
-        <h3>Page ${p.pageIndex + 1}</h3>
-        <div class="metrics">
-          <span>Content match: <b>${p.missing ? '—' : pct(p.contentMatch)}</b></span>
-          <span>Pixels different: <b>${p.missing ? '—' : pct(p.pixelRatio)}</b></span>
-          <span>Max shift: <b>${p.missing ? '—' : (p.maxOffset / p.pxPerInch).toFixed(2) + '″'}</b></span>
-        </div>
-        ${notes}
-        <div class="rpanes">${pane(pc.imageA, 'A', 'A · Original')}${pane(pc.imageB, 'B', 'B · Recreated')}</div>
-        ${diffPane}
-        ${changeList}
-      </section>`;
-    })
-    .join('\n');
-
-  const html = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>PDF Comparison Report — ${escapeHtml(meta.nameA)} vs ${escapeHtml(meta.nameB)}</title>
-<style>
+/** Inner CSS for the report (no <style> tags). */
+export const REPORT_CSS = `
   * { box-sizing: border-box; }
   body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #1e293b; margin: 0; padding: 40px; background: #fff; }
   h1 { font-size: 24px; margin: 0 0 4px; }
+  h2 { font-size: 19px; }
   .sub { color: #64748b; margin: 0 0 24px; font-size: 14px; }
   .verdict { display: inline-block; padding: 8px 20px; border-radius: 999px; font-weight: 700; font-size: 16px; margin-bottom: 24px; }
   .verdict.pass { background: #dcfce7; color: #166534; }
   .verdict.fail { background: #fee2e2; color: #991b1b; }
+  .chip { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: 12px; }
+  .chip.pass { background: #dcfce7; color: #166534; }
+  .chip.fail { background: #fee2e2; color: #991b1b; }
   .meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px 32px; margin-bottom: 24px; font-size: 14px; }
   .meta-grid span { color: #64748b; }
   .meta-grid b { color: #1e293b; }
@@ -238,6 +121,7 @@ export function exportHtmlReport(
   tr.pass td.result { color: #166534; }
   tr.fail td.result { color: #991b1b; }
   tr.missing td.result { color: #b45309; }
+  a.jump { color: #4f46e5; text-decoration: none; }
   .page-detail { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; page-break-inside: avoid; }
   .page-detail h3 { margin: 0 0 8px; }
   .metrics { display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; color: #64748b; margin-bottom: 8px; }
@@ -257,7 +141,6 @@ export function exportHtmlReport(
   .rtext { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, Menlo, Consolas, monospace; }
   .rpos { flex-shrink: 0; color: #94a3b8; font-variant-numeric: tabular-nums; }
   .rnochange { color: #059669; font-size: 13px; margin: 12px 0 0; }
-  /* pixel-diff pane with always-visible before → after labels */
   .diffpane { margin-top: 16px; }
   .diffpane .pane-label { text-align: left; }
   .dwrap { max-width: 520px; }
@@ -272,9 +155,162 @@ export function exportHtmlReport(
   .dtip .tb { color: #fca5a5; text-decoration: line-through; font-family: ui-monospace, Menlo, Consolas, monospace; }
   .dtip .ta { color: #86efac; font-family: ui-monospace, Menlo, Consolas, monospace; }
   .dtip .tar { color: #64748b; }
+  .pair-block { border: 1px solid #cbd5e1; border-radius: 12px; padding: 22px; margin-bottom: 26px; }
+  .pair-block > h2 { margin: 0 0 4px; }
   footer { margin-top: 32px; color: #94a3b8; font-size: 12px; }
   @media print { body { padding: 0; } }
-</style>
+`;
+
+/** The per-page metric rows (<tr>…) for the summary table. */
+export function reportPageRows(summary: CompareSummary, thresholds: ExportThresholds): string {
+  return summary.pages
+    .map((p) => {
+      const missing = p.missing;
+      const pass = judgePage(p, thresholds);
+      return `<tr class="${missing ? 'missing' : pass ? 'pass' : 'fail'}">
+        <td>${p.pageIndex + 1}</td>
+        <td>${missing ? '—' : pct(p.contentMatch)}</td>
+        <td>${missing ? '—' : pct(p.pixelRatio)}</td>
+        <td>${missing ? '—' : inchStr(p.maxOffset, p.pxPerInch)}</td>
+        <td class="result">${missing ? 'MISSING' : pass ? '✓ PASS' : '✗ FAIL'}</td>
+      </tr>`;
+    })
+    .join('\n');
+}
+
+// Downscale + JPEG-recompress an image dataURL so reports stay small even for big
+// batches. Positioning of overlays is unaffected (it's percentage-based).
+const REPORT_IMG_MAX_W = 720;
+const REPORT_IMG_QUALITY = 0.72;
+function shrinkDataUrl(dataUrl: string, maxW = REPORT_IMG_MAX_W, quality = REPORT_IMG_QUALITY): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const iw = img.width || maxW;
+      const ih = img.height || maxW;
+      const scale = Math.min(1, maxW / iw);
+      const w = Math.max(1, Math.round(iw * scale));
+      const h = Math.max(1, Math.round(ih * scale));
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext('2d');
+      if (!ctx) { resolve(dataUrl); return; }
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+/** Per-page annotated visual detail (A/B panes, pixel diff, change list). Async: images are shrunk. */
+export async function reportPageDetail(
+  summary: CompareSummary,
+  pageCache: Record<number, PageComparison>,
+  thresholds: ExportThresholds,
+): Promise<string> {
+  const sections: string[] = [];
+  for (const p of summary.pages) {
+    const pc = pageCache[p.pageIndex];
+    if (!pc) continue;
+    const changes = buildChanges(pc, thresholds.offsetIn);
+
+    const notes = pc.notes.length
+      ? `<ul class="notes">${pc.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join('')}</ul>`
+      : '';
+
+    const srcA = pc.imageA ? await shrinkDataUrl(pc.imageA.dataUrl) : null;
+    const srcB = pc.imageB ? await shrinkDataUrl(pc.imageB.dataUrl) : null;
+    const srcDiff = pc.pixel ? await shrinkDataUrl(pc.pixel.diffDataUrl) : null;
+
+    const pane = (image: RenderedPageImage | null, side: 'A' | 'B', label: string, src: string | null) => {
+      if (!image || !src) {
+        return `<div class="pane"><div class="pane-label">${label}</div><div class="pane-missing">No page ${p.pageIndex + 1}</div></div>`;
+      }
+      const boxes = changes
+        .filter((c) => isOnSide(c, side))
+        .map((c) => {
+          const box = (side === 'A' ? c.a : c.b)!;
+          return `<div class="rbox" style="left:${(box.x / image.width) * 100}%;top:${(box.y / image.height) * 100}%;width:${(box.w / image.width) * 100}%;height:${(box.h / image.height) * 100}%;border-color:${CHANGE_COLOR[c.type]};background:${CHANGE_COLOR[c.type]}22"><span class="rbadge" style="background:${CHANGE_COLOR[c.type]}">${c.id}</span></div>`;
+        })
+        .join('');
+      return `<div class="pane"><div class="pane-label">${label}</div><div class="rwrap"><img src="${src}" alt="${side}" />${boxes}</div></div>`;
+    };
+
+    const diffImg = pc.pixel;
+    const diffDims = pc.imageA ?? pc.imageB;
+    const diffPane =
+      diffImg && diffDims && srcDiff
+        ? (() => {
+            const spots = diffHotspots(pc.match.onlyA, pc.match.onlyB)
+              .filter((s) => s.before && s.after)
+              .map((s) => {
+                const b = s.box;
+                const cx = ((b.x + b.w / 2) / diffDims.width) * 100;
+                const cy = ((b.y + b.h / 2) / diffDims.height) * 100;
+                const anchor = cx > 55 ? ' r' : '';
+                const below = cy < 90 ? ' below' : ' above';
+                const style = `left:${(b.x / diffDims.width) * 100}%;top:${(b.y / diffDims.height) * 100}%;width:${(b.w / diffDims.width) * 100}%;height:${(b.h / diffDims.height) * 100}%`;
+                const tip = `<span class="tl">was</span><span class="tb">${escapeHtml(s.before!)}</span><span class="tar">→</span><span class="ta">${escapeHtml(s.after!)}</span>`;
+                return `<div class="dspot" style="${style}"><span class="dtip${anchor}${below}">${tip}</span></div>`;
+              })
+              .join('');
+            return `<div class="diffpane"><div class="pane-label">Pixel diff · ${pct(diffImg.ratio)} of pixels changed — before → after labels shown for each replaced text</div><div class="rwrap dwrap"><img src="${srcDiff}" alt="pixel diff" />${spots}</div></div>`;
+          })()
+        : '';
+
+    const changeList = changes.length
+      ? `<ul class="rchanges">${changes
+          .map((c: Change) => {
+            const box = (c.a ?? c.b)!;
+            const dims = pc.imageA ?? pc.imageB;
+            const ii = (px: number) => inchStr(px, pc.pxPerInch);
+            const pos = c.type === 'moved' && c.offset != null ? `moved ${ii(c.offset)}` : `${ii(box.x)}, ${ii(box.y)}`;
+            const where = dims ? region(box, dims.width, dims.height) : '';
+            return `<li><span class="rnum" style="background:${CHANGE_COLOR[c.type]}">${c.id}</span>
+              <span class="rtype" style="color:${CHANGE_COLOR[c.type]}">${TYPE_LABEL[c.type]}</span>
+              <span class="rtext">${escapeHtml(c.text)}</span>
+              <span class="rpos">${where} · ${pos}</span></li>`;
+          })
+          .join('')}</ul>`
+      : `<p class="rnochange">No positional text changes on this page.</p>`;
+
+    sections.push(`<section class="page-detail">
+      <h3>Page ${p.pageIndex + 1}</h3>
+      <div class="metrics">
+        <span>Content match: <b>${p.missing ? '—' : pct(p.contentMatch)}</b></span>
+        <span>Pixels different: <b>${p.missing ? '—' : pct(p.pixelRatio)}</b></span>
+        <span>Max shift: <b>${p.missing ? '—' : inchStr(p.maxOffset, p.pxPerInch)}</b></span>
+      </div>
+      ${notes}
+      <div class="rpanes">${pane(pc.imageA, 'A', 'A · Original', srcA)}${pane(pc.imageB, 'B', 'B · Recreated', srcB)}</div>
+      ${diffPane}
+      ${changeList}
+    </section>`);
+  }
+  return sections.join('\n');
+}
+
+// ── single HTML report ────────────────────────────────────────────────
+export async function exportHtmlReport(
+  summary: CompareSummary,
+  meta: ExportMeta,
+  thresholds: ExportThresholds,
+  pageCache: Record<number, PageComparison>,
+) {
+  const overall = summary.pages.every((p) => judgePage(p, thresholds));
+  const passCount = summary.pages.filter((p) => judgePage(p, thresholds)).length;
+  const detail = await reportPageDetail(summary, pageCache, thresholds);
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>PDF Comparison Report — ${escapeHtml(meta.nameA)} vs ${escapeHtml(meta.nameB)}</title>
+<style>${REPORT_CSS}</style>
 </head>
 <body>
   <h1>PDF Comparison Report</h1>
@@ -288,26 +324,14 @@ export function exportHtmlReport(
     <div><span>Thresholds:</span> <b>content ≥ ${thresholds.contentPct}% · pixels ≤ ${thresholds.pixelPct}% · offset ≤ ${thresholds.offsetIn}″</b></div>
   </div>
   <table>
-    <thead>
-      <tr><th>Page</th><th>Content match</th><th>Pixels different</th><th>Max offset</th><th>Result</th></tr>
-    </thead>
-    <tbody>
-      ${rowsHtml}
-    </tbody>
+    <thead><tr><th>Page</th><th>Content match</th><th>Pixels different</th><th>Max offset</th><th>Result</th></tr></thead>
+    <tbody>${reportPageRows(summary, thresholds)}</tbody>
   </table>
   <h2>Per-page detail</h2>
-  ${detailHtml}
+  ${detail}
   <footer>Generated by PDF Comparison Suite · ${new Date(meta.generatedAt).toLocaleString()}</footer>
 </body>
 </html>`;
 
   download(`pdf-comparison-report-${stamp()}.html`, html, 'text/html');
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }

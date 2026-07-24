@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { TextItem } from '../../types/compare';
+import type { Change } from '../../services/changes';
 
 interface Props {
   naturalWidth: number;
@@ -8,6 +9,9 @@ interface Props {
   // before/after text at that spot.
   onlyA?: TextItem[];
   onlyB?: TextItem[];
+  // 'moved' changes (layout shifts) — hovering shows before/after position in inches
+  // instead of text.
+  moved?: Change[];
 }
 
 interface Pt {
@@ -18,8 +22,15 @@ interface Pt {
 interface Tip {
   x: number; // css, relative to overlay
   y: number;
+  kind: 'text' | 'layout';
   before: string | null;
   after: string | null;
+  // layout-only, in inches:
+  leftA?: number;
+  leftB?: number;
+  topA?: number;
+  topB?: number;
+  offsetIn?: number;
 }
 
 // Item whose box contains the point (nearest to its centre wins).
@@ -59,7 +70,36 @@ function counterpart(items: TextItem[], ref: TextItem): TextItem | null {
   return null;
 }
 
-export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB }: Props) {
+// Bounding rect covering both the before (a) and after (b) position of a moved run.
+function movedUnion(a: TextItem, b: TextItem): TextItem {
+  const x = Math.min(a.x, b.x);
+  const y = Math.min(a.y, b.y);
+  const right = Math.max(a.x + a.w, b.x + b.w);
+  const bottom = Math.max(a.y + a.h, b.y + b.h);
+  return { str: '', x, y, w: right - x, h: bottom - y };
+}
+
+// The moved change whose before/after footprint contains the point (nearest centre wins).
+function movedAt(items: Change[], nx: number, ny: number): Change | null {
+  let best: Change | null = null;
+  let bestD = Infinity;
+  const pad = 2;
+  for (const c of items) {
+    const u = movedUnion(c.a!, c.b!);
+    if (nx >= u.x - pad && nx <= u.x + u.w + pad && ny >= u.y - pad && ny <= u.y + u.h + pad) {
+      const cx = u.x + u.w / 2;
+      const cy = u.y + u.h / 2;
+      const d = (nx - cx) ** 2 + (ny - cy) ** 2;
+      if (d < bestD) {
+        bestD = d;
+        best = c;
+      }
+    }
+  }
+  return best;
+}
+
+export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB, moved }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [start, setStart] = useState<Pt | null>(null);
   const [end, setEnd] = useState<Pt | null>(null);
@@ -67,6 +107,7 @@ export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB }
   const [tip, setTip] = useState<Tip | null>(null);
 
   const hasText = !!(onlyA?.length || onlyB?.length);
+  const hasMoved = !!moved?.length;
 
   const toCss = (e: React.PointerEvent): Pt => {
     const rect = ref.current!.getBoundingClientRect();
@@ -81,17 +122,41 @@ export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB }
   };
 
   const updateTip = (css: Pt) => {
-    if (!hasText) return;
+    if (!hasText && !hasMoved) return;
     const s = scale();
     const nx = css.x * s;
     const ny = css.y * s;
+
+    if (hasMoved) {
+      const m = movedAt(moved!, nx, ny);
+      if (m) {
+        setTip({
+          x: css.x,
+          y: css.y,
+          kind: 'layout',
+          before: null,
+          after: null,
+          leftA: m.a!.x / pxPerInch,
+          leftB: m.b!.x / pxPerInch,
+          topA: m.a!.y / pxPerInch,
+          topB: m.b!.y / pxPerInch,
+          offsetIn: (m.offset ?? 0) / pxPerInch,
+        });
+        return;
+      }
+    }
+
+    if (!hasText) {
+      setTip(null);
+      return;
+    }
     let before = itemAt(onlyA ?? [], nx, ny);
     let after = itemAt(onlyB ?? [], nx, ny);
     // Pair a lone removed/added run with its in-place replacement.
     if (before && !after) after = counterpart(onlyB ?? [], before);
     if (after && !before) before = counterpart(onlyA ?? [], after);
     if (before || after) {
-      setTip({ x: css.x, y: css.y, before: before?.str ?? null, after: after?.str ?? null });
+      setTip({ x: css.x, y: css.y, kind: 'text', before: before?.str ?? null, after: after?.str ?? null });
     } else {
       setTip(null);
     }
@@ -147,13 +212,20 @@ export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB }
       onPointerUp={onUp}
       onPointerLeave={onLeave}
     >
-      {/* before/after text tooltip (pixel-diff hover) */}
+      {/* before/after tooltip (pixel-diff hover) — text content or, for a layout shift, position in inches */}
       {tip && !dragging && (
         <div
-          className="diff-tip"
+          className={`diff-tip ${tip.kind === 'layout' ? 'layout' : ''}`}
           style={{ left: Math.min(tip.x + 12, (ref.current?.clientWidth ?? 0) - 8), top: tip.y + 14 }}
         >
-          {tip.before && tip.after ? (
+          {tip.kind === 'layout' ? (
+            <>
+              <span className="tt-lbl mv">layout shift</span>
+              <span className="tt-row">left {tip.leftA!.toFixed(2)}″ → {tip.leftB!.toFixed(2)}″</span>
+              <span className="tt-row">top {tip.topA!.toFixed(2)}″ → {tip.topB!.toFixed(2)}″</span>
+              <span className="tt-row">moved {tip.offsetIn!.toFixed(2)}″ total</span>
+            </>
+          ) : tip.before && tip.after ? (
             <>
               <span className="tt-lbl">was</span>
               <span className="tt-before">{tip.before}</span>

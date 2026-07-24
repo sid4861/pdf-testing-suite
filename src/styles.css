@@ -431,9 +431,28 @@ button.summary-chip { cursor: pointer; }
 }
 .diff-tip .tt-lbl { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #94a3b8; }
 .diff-tip .tt-lbl.rm { color: #fca5a5; } .diff-tip .tt-lbl.ad { color: #86efac; }
+.diff-tip .tt-lbl.mv { color: #c4b5fd; }
 .diff-tip .tt-before { color: #fca5a5; text-decoration: line-through; font-family: ui-monospace, Menlo, Consolas, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .diff-tip .tt-after { color: #86efac; font-family: ui-monospace, Menlo, Consolas, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .diff-tip .tt-arrow { color: #64748b; }
+/* layout-shift variant: stacked rows of before → after distances instead of one text line */
+.diff-tip.layout { flex-direction: column; align-items: flex-start; gap: 2px; }
+.diff-tip .tt-row { color: #e2e8f0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Heatmap classification: violet = layout shift, amber = text change */
+.heat-legend {
+  display: flex; gap: 18px; align-items: center;
+  padding: 8px 16px 0; font-size: 12px; color: var(--muted);
+}
+.heat-item { display: inline-flex; align-items: center; gap: 6px; }
+.heat-dot {
+  display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+  border: 1.5px solid; font-style: normal;
+}
+.heat-box {
+  position: absolute; box-sizing: border-box; border: 1.5px solid;
+  border-radius: 2px; pointer-events: none;
+}
 .stack { position: relative; }
 .stack img { position: absolute; top: 0; left: 0; }
 .stack img.base { position: relative; }
@@ -558,6 +577,7 @@ table.spec-checks tr.no td.ca { color: var(--red); }
 .mel { position: absolute; box-sizing: border-box; pointer-events: none; border-radius: 2px; }
 .mel.hover { border: 1.5px solid var(--indigo); background: rgba(79, 70, 229, 0.12); }
 .mel.selected { border: 1.5px solid var(--emerald); background: rgba(5, 150, 105, 0.12); box-shadow: 0 0 0 1px rgba(255,255,255,0.6); }
+.mel.adjacent { border: 1.5px dashed var(--indigo); background: rgba(79, 70, 229, 0.06); }
 .mel-tag {
   position: absolute; bottom: 100%; left: 0; margin-bottom: 3px;
   background: var(--indigo); color: #fff; font-size: 11px; font-weight: 500; line-height: 1.3;
@@ -591,3 +611,34 @@ table.mp-table tr.sep td { border-top: 1px solid var(--border); padding-top: 8px
 .mp-empty { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
 .mp-hoverhint { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 13px; }
 .mp-hoverhint span { font-weight: 600; color: var(--indigo); }
+.mp-font { font-family: var(--mono, ui-monospace); font-size: 12.5px !important; }
+
+/* ── Batch compare ─────────────────────────────────────── */
+.batch-uploads { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .batch-uploads { grid-template-columns: 1fr; } }
+.batch-col-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+.batch-col-head .stag { width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; }
+.batch-col-head .stag.a { background: var(--indigo); }
+.batch-col-head .stag.b { background: var(--emerald); }
+.batch-col-head .cnt { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted); background: #f1f5f9; padding: 1px 9px; border-radius: 999px; }
+.batch-drop { border: 1.5px dashed var(--border-strong); border-radius: 9px; padding: 18px; text-align: center; color: var(--muted); font-size: 13px; cursor: pointer; transition: border-color .12s, background .12s; }
+.batch-drop:hover { border-color: var(--faint); }
+.batch-drop.a.drag { border-color: var(--indigo); background: var(--indigo-soft); }
+.batch-drop.b.drag { border-color: var(--emerald); background: var(--emerald-soft); }
+.batch-drop .browse { color: var(--indigo); font-weight: 600; }
+.batch-filelist { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.batch-filelist li { display: flex; align-items: center; gap: 8px; font-size: 13px; background: #f8fafc; border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; }
+.batch-filelist .fn { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.batch-filelist .pc { font-size: 11px; font-weight: 600; color: var(--muted); }
+
+.bp-head { display: flex; align-items: center; gap: 8px; }
+.pair-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.pair-row { display: flex; align-items: center; gap: 10px; }
+.pr-idx { width: 22px; height: 22px; border-radius: 6px; background: #334155; color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; flex-shrink: 0; }
+.pr-sel { flex: 1; min-width: 0; padding: 7px 10px; border: 1px solid var(--border-strong); border-radius: 8px; font-family: inherit; font-size: 13px; background: var(--panel); }
+.pr-sel.a { border-left: 3px solid var(--indigo); }
+.pr-sel.b { border-left: 3px solid var(--emerald); }
+.pr-arrow { color: var(--faint); font-weight: 700; }
+
+table.batch-overview td.muted { color: var(--faint); }
+table.batch-overview td .btn.sm { padding: 3px 10px; }

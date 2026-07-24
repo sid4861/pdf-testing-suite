@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { LayoutViewMode, MatchedPair, RenderedPageImage, TextItem } from '../../types/compare';
 import { useCompareStore } from '../../store/compareStore';
-import { fmtInch } from '../../services/changes';
+import { buildChanges, fmtInch, heatmapBoxes, HEAT_COLOR, HEAT_LABEL, type HeatBox } from '../../services/changes';
 import MeasureOverlay from './MeasureOverlay';
 
 const MAX_DISPLAY_H = 460;
@@ -79,6 +79,29 @@ function RunHotspots({
   );
 }
 
+// Translucent colored regions on the pixel-diff heatmap — violet for layout shifts,
+// amber for text changes — so the two causes are visually distinguishable.
+function HeatBoxOverlay({ boxes, image }: { boxes: HeatBox[]; image: RenderedPageImage }) {
+  return (
+    <>
+      {boxes.map((b) => (
+        <div
+          key={b.id}
+          className="heat-box"
+          style={{
+            left: `${(b.box.x / image.width) * 100}%`,
+            top: `${(b.box.y / image.height) * 100}%`,
+            width: `${(b.box.w / image.width) * 100}%`,
+            height: `${(b.box.h / image.height) * 100}%`,
+            borderColor: HEAT_COLOR[b.type],
+            background: `${HEAT_COLOR[b.type]}26`,
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
 export default function LayoutCompareView() {
   const currentPage = useCompareStore((s) => s.currentPage);
   const pc = useCompareStore((s) => s.pageCache[s.currentPage]);
@@ -104,6 +127,19 @@ export default function LayoutCompareView() {
     setHoveredIdx(i);
     if (i != null) rowsRef.current[i]?.scrollIntoView({ block: 'nearest' });
   };
+
+  // Heatmap classification: 'moved' runs become layout regions, added/removed runs
+  // become text regions — reused for both the colored overlay and the hover tooltip.
+  const changes = useMemo(() => (pc ? buildChanges(pc, offsetThresholdIn) : []), [pc, offsetThresholdIn]);
+  const heatBoxes = useMemo(() => heatmapBoxes(changes), [changes]);
+  const movedChanges = useMemo(() => changes.filter((c) => c.type === 'moved'), [changes]);
+  const heatCounts = useMemo(
+    () => ({
+      layout: heatBoxes.filter((b) => b.type === 'layout').length,
+      text: heatBoxes.filter((b) => b.type === 'text').length,
+    }),
+    [heatBoxes],
+  );
 
   if (computing && !pc) {
     return (
@@ -194,6 +230,22 @@ export default function LayoutCompareView() {
         )}
       </div>
 
+      {/* Heatmap legend */}
+      {viewMode === 'diff' && pc.pixel && (heatCounts.layout > 0 || heatCounts.text > 0) && (
+        <div className="heat-legend">
+          <span className="heat-item">
+            <i className="heat-dot" style={{ borderColor: HEAT_COLOR.layout, background: `${HEAT_COLOR.layout}33` }} />
+            {HEAT_LABEL.layout}
+            {heatCounts.layout > 0 ? ` · ${heatCounts.layout}` : ''}
+          </span>
+          <span className="heat-item">
+            <i className="heat-dot" style={{ borderColor: HEAT_COLOR.text, background: `${HEAT_COLOR.text}33` }} />
+            {HEAT_LABEL.text}
+            {heatCounts.text > 0 ? ` · ${heatCounts.text}` : ''}
+          </span>
+        </div>
+      )}
+
       {/* Image stage */}
       <div className="stage">
         <div className="stage-content">
@@ -228,8 +280,15 @@ export default function LayoutCompareView() {
             (pc.pixel ? (
               <div className="stack" style={{ width: dispW, height: dispH }}>
                 <img className="base" src={pc.pixel.diffDataUrl} alt="diff" style={{ width: dispW, height: dispH }} />
+                <HeatBoxOverlay boxes={heatBoxes} image={refImg!} />
                 <RunHighlight box={hovered?.b ?? hovered?.a} image={refImg!} />
-                <MeasureOverlay naturalWidth={refImg!.width} pxPerInch={pc.pxPerInch} onlyA={pc.match.onlyA} onlyB={pc.match.onlyB} />
+                <MeasureOverlay
+                  naturalWidth={refImg!.width}
+                  pxPerInch={pc.pxPerInch}
+                  onlyA={pc.match.onlyA}
+                  onlyB={pc.match.onlyB}
+                  moved={movedChanges}
+                />
               </div>
             ) : (
               <div className="stage-notice">

@@ -23,6 +23,7 @@ export default function CompareReport() {
   const [pixelPct, setPixelPct] = useState(2);
   const [offsetIn, setOffsetIn] = useState(0.03);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [exportingHtml, setExportingHtml] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const thresholds: ExportThresholds = { contentPct, pixelPct, offsetIn };
@@ -102,18 +103,23 @@ export default function CompareReport() {
           <div className="export-menu" ref={menuRef}>
             <button
               className="btn"
-              disabled={!summary}
+              disabled={!summary || exportingHtml}
               onClick={() => setMenuOpen((o) => !o)}
               title={summary ? 'Export results' : 'Run a comparison first'}
             >
-              ⬇ Export ▾
+              {exportingHtml ? (<><span className="spinner" style={{ width: 12, height: 12 }} /> Building…</>) : '⬇ Export ▾'}
             </button>
             {menuOpen && summary && (
               <div className="export-dropdown">
                 <button
-                  onClick={() => {
-                    exportHtmlReport(summary, meta, thresholds, pageCache);
+                  onClick={async () => {
                     setMenuOpen(false);
+                    setExportingHtml(true);
+                    try {
+                      await exportHtmlReport(summary, meta, thresholds, pageCache);
+                    } finally {
+                      setExportingHtml(false);
+                    }
                   }}
                 >
                   HTML report
