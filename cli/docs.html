@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>pdfsuite CLI — Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --sidebar: #f3f1ea;
+    --card: #ffffff;
+    --ink: #1a1c22;
+    --ink-soft: #52545e;
+    --ink-faint: #8a8c95;
+    --line: #e6e2d8;
+    --line-strong: #d5cfc1;
+    --accent: #0e7c66;
+    --accent-soft: #e6f2ee;
+    --red: #c8402f;
+    --green: #157f5b;
+    --violet: #6d43d6;
+    --amber: #b0741a;
+    --blue: #2f5fa8;
+    --code-bg: #f1efe8;
+    --term-bg: #1c1f26;
+    --term-line: #2c313b;
+    --display: "Fraunces", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15.5px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+
+  /* layout */
+  .shell { display: grid; grid-template-columns: 264px minmax(0, 1fr); max-width: 1240px; margin: 0 auto; }
+  aside { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 30px 22px 40px; border-right: 1px solid var(--line); background: var(--sidebar); }
+  main { padding: 56px 60px 120px; min-width: 0; }
+  @media (max-width: 940px) {
+    .shell { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    main { padding: 36px 26px 80px; }
+  }
+
+  /* sidebar */
+  .brand { display: flex; align-items: center; gap: 11px; font-family: var(--display); font-size: 19px; font-weight: 600; margin-bottom: 4px; }
+  .mark { width: 30px; height: 30px; border-radius: 8px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .brand-sub { font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 26px 41px; }
+  nav.toc { font-size: 14px; }
+  nav.toc .grp { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin: 22px 0 8px; }
+  nav.toc a { display: block; color: var(--ink-soft); text-decoration: none; padding: 5px 10px; border-radius: 7px; border-left: 2px solid transparent; margin-left: -2px; transition: background .15s, color .15s; }
+  nav.toc a:hover { background: #eae7dd; color: var(--ink); }
+  nav.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 500; }
+
+  /* content */
+  h1 { font-family: var(--display); font-weight: 600; font-size: 40px; line-height: 1.1; letter-spacing: -.01em; margin: 0 0 10px; }
+  .lead { font-size: 18px; color: var(--ink-soft); margin: 0 0 14px; max-width: 64ch; }
+  h2 { font-family: var(--display); font-weight: 600; font-size: 27px; margin: 0 0 4px; letter-spacing: -.01em; scroll-margin-top: 24px; }
+  h3 { font-size: 17px; font-weight: 600; margin: 28px 0 6px; }
+  h4 { font-size: 14px; font-weight: 600; margin: 20px 0 4px; }
+  section { padding: 46px 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: none; padding-top: 8px; }
+  p { margin: 12px 0; max-width: 70ch; }
+  .muted { color: var(--ink-soft); }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  a.inline { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+  ul, ol { max-width: 70ch; padding-left: 22px; }
+  li { margin: 6px 0; }
+  ol.steps { counter-reset: s; list-style: none; padding-left: 0; }
+  ol.steps > li { position: relative; padding-left: 42px; margin: 22px 0; }
+  ol.steps > li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: -1px; width: 27px; height: 27px; border-radius: 8px; background: var(--ink); color: var(--bg); font-family: var(--mono); font-size: 13px; font-weight: 600; display: grid; place-items: center; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--code-bg); padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line); }
+  .path { font-family: var(--mono); font-size: .86em; color: var(--violet); }
+
+  /* terminal */
+  .term { background: var(--term-bg); border-radius: 12px; margin: 18px 0; overflow: hidden; box-shadow: 0 2px 14px rgba(26,28,34,.14); position: relative; }
+  .term-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--term-line); }
+  .term-bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .term-bar .r { background: #ec6a5e; } .term-bar .y { background: #f4bf4f; } .term-bar .g { background: #61c554; }
+  .term-title { font-family: var(--mono); font-size: 11px; color: #7d8595; margin-left: 8px; letter-spacing: .04em; }
+  .term-body { padding: 16px 18px; font-family: var(--mono); font-size: 13px; line-height: 1.75; color: #d5dae3; overflow-x: auto; white-space: pre; }
+  .term-body .p { color: #6f7889; user-select: none; }
+  .term-body .cmd { color: #eaeef5; font-weight: 500; }
+  .term-body .flag { color: #7fb3ff; }
+  .term-body .ok { color: #6fd08c; }
+  .term-body .bad { color: #ff8b7a; }
+  .term-body .warnc { color: #f0c060; }
+  .term-body .dim { color: #767f90; }
+  .term-body .hl { color: #c9a6ff; }
+  .copy { position: absolute; top: 9px; right: 10px; background: #2b313b; color: #aeb6c4; border: 1px solid #3a414d; border-radius: 6px; font-family: var(--mono); font-size: 10.5px; padding: 4px 9px; cursor: pointer; letter-spacing: .05em; }
+  .copy:hover { background: #353d49; color: #e6eaf1; }
+  .copy.done { color: #6fd08c; border-color: #3d6b4c; }
+
+  /* cards */
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 22px 0 4px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 22px 0 4px; }
+  @media (max-width: 720px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .card .ic { font-size: 19px; }
+  .card b { display: block; font-size: 15px; margin: 8px 0 3px; }
+  .card span { font-size: 13.5px; color: var(--ink-soft); }
+  .card.tint { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+  /* exit codes */
+  .exits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
+  @media (max-width: 720px) { .exits { grid-template-columns: 1fr; } }
+  .exit { border-radius: 12px; padding: 16px 18px; border: 1px solid; background: var(--card); }
+  .exit .n { font-family: var(--mono); font-size: 30px; font-weight: 600; line-height: 1; }
+  .exit .t { font-weight: 600; font-size: 14.5px; margin: 8px 0 3px; }
+  .exit .d { font-size: 13px; color: var(--ink-soft); }
+  .exit.e0 { border-color: color-mix(in srgb, var(--green) 40%, transparent); background: #eef7f2; } .exit.e0 .n { color: var(--green); }
+  .exit.e1 { border-color: color-mix(in srgb, var(--red) 40%, transparent); background: #fdf0ee; } .exit.e1 .n { color: var(--red); }
+  .exit.e2 { border-color: color-mix(in srgb, var(--amber) 45%, transparent); background: #fbf3e4; } .exit.e2 .n { color: var(--amber); }
+
+  /* callouts */
+  .note { border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 18px 0; font-size: 14.5px; max-width: 76ch; }
+  .note.warn { border-color: var(--amber); background: #fbf3e4; }
+  .note.stop { border-color: var(--red); background: #fdf0ee; }
+  .note b { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: 3px; }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; border-bottom: 1px solid var(--line-strong); }
+  tbody tr:hover { background: #f6f4ee; }
+  td code { white-space: nowrap; }
+
+  /* file tree */
+  .tree { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; font-family: var(--mono); font-size: 13px; line-height: 1.85; margin: 18px 0; overflow-x: auto; white-space: pre; }
+  .tree .d { color: var(--blue); font-weight: 500; }
+  .tree .c { color: var(--ink-faint); }
+  .tree .hl { color: var(--accent); font-weight: 600; }
+
+  /* split: config vs flags */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 22px 0; background: var(--card); }
+  @media (max-width: 720px) { .split { grid-template-columns: 1fr; } }
+  .split > div { padding: 20px 22px; }
+  .split > div:first-child { border-right: 1px solid var(--line); background: var(--accent-soft); }
+  @media (max-width: 720px) { .split > div:first-child { border-right: none; border-bottom: 1px solid var(--line); } }
+  .split h4 { margin: 0 0 4px; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); }
+  .split .big { font-family: var(--display); font-size: 19px; font-weight: 600; margin-bottom: 8px; }
+  .split ul { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; color: var(--ink-soft); }
+
+  .pillrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .pill { font-family: var(--mono); font-size: 12px; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--card); }
+  .pill.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  figure { margin: 26px 0; }
+  figcaption { font-size: 13px; color: var(--ink-faint); text-align: center; margin-top: 10px; font-family: var(--mono); }
+  svg { max-width: 100%; height: auto; display: block; }
+
+  footer { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside>
+    <div class="brand"><span class="mark">&gt;_</span> pdfsuite</div>
+    <div class="brand-sub">CLI Guide</div>
+    <nav class="toc" id="toc">
+      <div class="grp">Start</div>
+      <a href="#overview">What it is</a>
+      <a href="#how">How it works</a>
+      <a href="#setup">Setup</a>
+      <div class="grp">Run it locally</div>
+      <a href="#walkthrough">Full walkthrough</a>
+      <a href="#generate">generate</a>
+      <a href="#compare">compare</a>
+      <a href="#pairs">pairs.json</a>
+      <div class="grp">Configure</div>
+      <a href="#config">Config file</a>
+      <a href="#slow">Slow APIs</a>
+      <div class="grp">Reference</div>
+      <a href="#exits">Exit codes</a>
+      <a href="#reports">Reports</a>
+      <a href="#ci">Use in CI</a>
+      <a href="#trouble">Troubleshooting</a>
+    </nav>
+  </aside>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section id="overview">
+      <div class="eyebrow">Command line interface</div>
+      <h1>pdfsuite</h1>
+      <p class="lead">Run the PDF comparison engine headlessly — generate PDFs from JSON payloads,
+        check them against golden references, and get a pass/fail exit code plus a visual report.
+        Built to be driven from a shell script, Python, or a Jenkins job.</p>
+      <p class="muted">The only requirement on the caller is that <b>Node 20+</b> is installed.
+        Everything else is flags, files, and exit codes — so it is agnostic to whatever language
+        drives it.</p>
+
+      <div class="grid2">
+        <div class="card tint">
+          <div class="ic">📤</div>
+          <b>generate</b>
+          <span>POSTs each JSON payload to your render API and saves the returned PDFs, with retries,
+            a heartbeat, and a manifest.</span>
+        </div>
+        <div class="card tint">
+          <div class="ic">🔍</div>
+          <b>compare</b>
+          <span>Runs every pair through the comparison engine and writes HTML, JSON, CSV and JUnit
+            reports — then exits 0 or 1.</span>
+        </div>
+      </div>
+
+      <div class="note">
+        <b>Same engine as the app</b>
+        The CLI does not reimplement the comparison — it imports the React app's own services and swaps
+        the browser canvas for a Node one underneath. A verdict from the CLI is the verdict the app
+        would show for the same pair.
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how">
+      <h2>How it works</h2>
+      <p>Two commands, run in sequence. The first fills a directory with candidate PDFs; the second
+        checks that directory against your goldens.</p>
+
+      <figure>
+        <svg viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pipeline diagram: payloads through generate to the render API, producing candidate PDFs, which compare checks against golden PDFs to produce reports and an exit code.">
+          <defs>
+            <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+              <path d="M0,0 L9,4.5 L0,9 z" fill="#8a8c95"/>
+            </marker>
+            <style>
+              .bx { fill:#ffffff; stroke:#d5cfc1; stroke-width:1.5; }
+              .bx-a { fill:#e6f2ee; stroke:#0e7c66; stroke-width:1.5; }
+              .bx-g { fill:#f3f1ea; stroke:#d5cfc1; stroke-width:1.5; }
+              .lbl { font-family:"IBM Plex Sans",sans-serif; font-size:13px; fill:#1a1c22; font-weight:600; }
+              .sub { font-family:"IBM Plex Mono",monospace; font-size:10.5px; fill:#8a8c95; }
+              .cmd { font-family:"IBM Plex Mono",monospace; font-size:12.5px; fill:#0e7c66; font-weight:600; }
+              .ln { stroke:#8a8c95; stroke-width:1.5; fill:none; marker-end:url(#ar); }
+            </style>
+          </defs>
+
+          <!-- row 1: generate -->
+          <rect class="bx" x="8" y="34" width="132" height="58" rx="10"/>
+          <text class="lbl" x="24" y="58">JSON payloads</text>
+          <text class="sub" x="24" y="76">--payloads ./in</text>
+
+          <line class="ln" x1="146" y1="63" x2="196" y2="63"/>
+
+          <rect class="bx-a" x="202" y="26" width="128" height="74" rx="10"/>
+          <text class="cmd" x="222" y="52">generate</text>
+          <text class="sub" x="222" y="70">retries</text>
+          <text class="sub" x="222" y="85">heartbeat</text>
+
+          <line class="ln" x1="336" y1="63" x2="386" y2="63"/>
+
+          <rect class="bx" x="392" y="34" width="140" height="58" rx="10"/>
+          <text class="lbl" x="410" y="58">Render API</text>
+          <text class="sub" x="410" y="76">returns base64</text>
+
+          <line class="ln" x1="538" y1="63" x2="588" y2="63"/>
+
+          <rect class="bx" x="594" y="34" width="150" height="58" rx="10"/>
+          <text class="lbl" x="612" y="58">candidate PDFs</text>
+          <text class="sub" x="612" y="76">--out ./candidates</text>
+
+          <!-- candidates feed into compare from above, clear of the compare→reports arrow -->
+          <path class="ln" d="M669,98 L669,150 L322,150 L322,190"/>
+
+          <!-- row 2: compare -->
+          <rect class="bx-g" x="8" y="176" width="132" height="58" rx="10"/>
+          <text class="lbl" x="24" y="200">golden PDFs</text>
+          <text class="sub" x="24" y="218">--reference</text>
+
+          <rect class="bx-g" x="8" y="248" width="132" height="58" rx="10"/>
+          <text class="lbl" x="24" y="272">pairs.json</text>
+          <text class="sub" x="24" y="290">--pairs</text>
+
+          <path class="ln" d="M146,205 L200,205 L200,232 L252,232"/>
+          <path class="ln" d="M146,277 L200,277 L200,250 L252,250"/>
+
+          <rect class="bx-a" x="258" y="196" width="128" height="74" rx="10"/>
+          <text class="cmd" x="278" y="222">compare</text>
+          <text class="sub" x="278" y="240">pixel diff</text>
+          <text class="sub" x="278" y="255">text diff</text>
+
+          <line class="ln" x1="392" y1="233" x2="446" y2="233"/>
+
+          <rect class="bx" x="452" y="180" width="180" height="106" rx="10"/>
+          <text class="lbl" x="470" y="204">Reports</text>
+          <text class="sub" x="470" y="224">report.html</text>
+          <text class="sub" x="470" y="240">report.json / .csv</text>
+          <text class="sub" x="470" y="256">junit.xml</text>
+          <text class="sub" x="470" y="274">--report ./reports</text>
+
+          <line class="ln" x1="638" y1="233" x2="688" y2="233"/>
+
+          <rect class="bx" x="694" y="196" width="150" height="74" rx="10" style="stroke:#1a1c22;stroke-width:2"/>
+          <text class="lbl" x="712" y="220">Exit code</text>
+          <text class="sub" x="712" y="240">0 pass · 1 fail</text>
+          <text class="sub" x="712" y="256">2 tool error</text>
+
+          <text class="sub" x="8" y="344">Step 1 — fill a directory with candidates</text>
+          <text class="sub" x="8" y="362">Step 2 — check that directory against the goldens</text>
+          <text class="sub" x="8" y="380">Both steps read connection settings from pdfsuite.config.json</text>
+        </svg>
+        <figcaption>payloads → generate → API → candidates → compare → reports + exit code</figcaption>
+      </figure>
+
+      <h3>Where things live</h3>
+      <div class="tree"><span class="c">cli/</span>
+├── <span class="hl">pdfsuite.config.json</span>   <span class="c">← API url, headers, timeouts</span>
+├── <span class="d">fixtures/</span>
+│   ├── <span class="d">payloads/</span>            <span class="c">← example JSON inputs</span>
+│   ├── <span class="d">golden/</span>              <span class="c">← reference PDFs to compare against</span>
+│   └── <span class="hl">pairs.json</span>          <span class="c">← which candidate maps to which golden</span>
+├── <span class="d">mock-api/</span>server.js      <span class="c">← stand-in for your real render API</span>
+├── <span class="d">dist/</span>index.js          <span class="c">← the built CLI you run</span>
+└── <span class="d">.work/</span>                  <span class="c">← generated PDFs + reports (gitignored)</span></div>
+    </section>
+
+    <!-- SETUP -->
+    <section id="setup">
+      <h2>Setup</h2>
+      <ol class="steps">
+        <li>
+          <b>Install and build</b>
+          <p class="muted">From the repository root. This is separate from the React app's dependencies —
+            installing here does not touch the app.</p>
+          <div class="term">
+            <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+            <div class="term-body"><span class="p">$ </span><span class="cmd">cd cli</span>
+<span class="p">$ </span><span class="cmd">npm install</span>
+<span class="p">$ </span><span class="cmd">npm run build</span>
+<span class="dim">  dist/index.js      951.2kb</span>
+<span class="ok">  Done in 130ms</span>
+<span class="p">$ </span><span class="cmd">npm link</span>
+<span class="dim">  added 1 package</span></div>
+          </div>
+          <p class="muted"><code>npm link</code> registers <code>pdfsuite</code> as a global command pointing at
+            this checkout, so rebuilds take effect immediately with no re-linking. Prefer not to install
+            anything globally? Every <code>pdfsuite …</code> on this page also works as
+            <code>node dist/index.js …</code>.</p>
+        </li>
+        <li>
+          <b>Check it works</b>
+          <p class="muted">Run <code>pdfsuite</code> with no arguments and it tells you what it can do —
+            the commands, a typical run, and what each exit code means.</p>
+          <div class="term">
+            <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+            <div class="term-body"><span class="p">$ </span><span class="cmd">pdfsuite</span>
+<span class="dim">Usage: pdfsuite [options] [command]</span>
+
+Generate PDFs from JSON payloads and check them against golden references.
+
+<span class="warnc">Commands:</span>
+<span class="hl">  generate</span> [options]  POST each JSON payload to the render API and save the
+                      returned PDFs
+<span class="hl">  compare</span>  [options]  Compare candidate PDFs against golden references and
+                      write reports
+<span class="hl">  pairs</span>    [options]  Resolve and print the pairing table without comparing
+                      anything
+
+<span class="warnc">Typical run</span>
+<span class="dim">  # 1. fill a directory with candidate PDFs</span>
+  pdfsuite generate --payloads ./payloads --out ./candidates
+
+<span class="dim">  # 2. check them against the goldens, write reports</span>
+  pdfsuite compare --reference ./golden --candidate ./candidates --pairs ./pairs.json --report ./reports
+
+<span class="warnc">Exit codes</span>
+<span class="ok">  0</span>  every pair passed
+<span class="bad">  1</span>  a pair breached its thresholds <span class="dim">— the PDFs changed</span>
+<span class="warnc">  2</span>  tool error <span class="dim">— bad args, API unreachable, unmatched pair, nothing to compare</span>
+
+<span class="dim">Run `pdfsuite &lt;command&gt; --help` for the full flag list of any command.</span></div>
+          </div>
+        </li>
+        <li>
+          <b>Start the mock render API</b>
+          <p class="muted">In a second terminal. It serves the sample PDFs bundled with the app, so you can
+            exercise the whole flow before pointing at a real backend.</p>
+          <div class="term">
+            <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash — terminal 2</span></div>
+            <div class="term-body"><span class="p">$ </span><span class="cmd">npm run mock-api</span>
+<span class="ok">Mock render API listening on http://localhost:4000</span>
+<span class="dim">  POST /render   serving samples from ../public/samples</span>
+<span class="dim">  GET  /health</span></div>
+          </div>
+        </li>
+      </ol>
+      <div class="note">
+        <b>Check the API</b>
+        <code>curl http://localhost:4000/health</code> should return <code>{"status":"ok", …}</code>.
+        If it reports <code>degraded</code>, the sample PDFs are missing from <span class="path">public/samples/</span>.
+      </div>
+      <div class="note warn">
+        <b>Windows / PowerShell</b>
+        Every command on this page is written on a single line, so it pastes and runs the same in
+        PowerShell, cmd and bash. Beware of multi-line examples elsewhere that end lines with
+        <code>\</code> — that continuation character is bash-only, and in PowerShell you would need a
+        backtick instead. Use the short flags (<code>-r -c -P -o</code>) to keep long commands readable
+        on one line.
+      </div>
+    </section>
+
+    <!-- WALKTHROUGH -->
+    <section id="walkthrough">
+      <h2>Full walkthrough</h2>
+      <p>Three commands end to end, using the bundled fixtures. No <code>--api</code> flag is needed —
+        the URL comes from the config file.</p>
+
+      <h3>1 · Preview the pairing</h3>
+      <p>Before spending time comparing, check which file will be measured against which. This runs
+        nothing and answers <i>“why did it compare those two?”</i></p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+        <div class="term-body"><span class="p">$ </span><span class="cmd">pdfsuite pairs <span class="flag">-r</span> ./fixtures/golden <span class="flag">-c</span> ./.work/candidates <span class="flag">-P</span> ./fixtures/pairs.json</span>
+
+<span class="ok">  ✓</span> invoice-standard     invoice-original.pdf  <span class="dim">←</span>  invoice-standard.pdf
+<span class="ok">  ✓</span> invoice-identical    invoice-original.pdf  <span class="dim">←</span>  invoice-identical.pdf
+<span class="ok">  ✓</span> statement-summary    statement-original.pdf  <span class="dim">←</span>  statement-summary.pdf
+<span class="dim">      content≥99% pixels≤5% offset≤0.03"</span>
+
+<span class="dim">  3 pair(s) resolved · 0 problem(s)</span></div>
+      </div>
+
+      <h3>2 · Generate the candidates</h3>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+        <div class="term-body"><span class="p">$ </span><span class="cmd">pdfsuite generate <span class="flag">--payloads</span> ./fixtures/payloads <span class="flag">--out</span> ./.work/candidates</span>
+
+<span class="hl">config: /…/cli/pdfsuite.config.json</span>
+Generating 3 document(s)
+<span class="dim">  api          http://localhost:4000/render</span>
+<span class="dim">  out          ./.work/candidates</span>
+<span class="dim">  concurrency  4 · timeout 2m00s · retries 2</span>
+
+<span class="ok">  ✓  invoice-identical</span> — 13.5KB in 54ms
+<span class="ok">  ✓  invoice-standard</span> — 12.3KB in 38ms
+<span class="ok">  ✓  statement-summary</span> — 8.0KB in 39ms
+
+3/3 generated in 132ms
+<span class="dim">  3 API call(s) · average 90ms · slowest 121ms</span>
+<span class="dim">  manifest: .work/candidates/manifest.json</span></div>
+      </div>
+
+      <h3>3 · Compare against the goldens</h3>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+        <div class="term-body"><span class="p">$ </span><span class="cmd">pdfsuite compare <span class="flag">-r</span> ./fixtures/golden <span class="flag">-c</span> ./.work/candidates <span class="flag">-P</span> ./fixtures/pairs.json <span class="flag">-o</span> ./.work/reports</span>
+
+<span class="dim">[1/3]</span> invoice-standard …  <span class="bad">FAIL</span> · 6 pages, 4 failing · 1407ms
+<span class="dim">[2/3]</span> invoice-identical …  <span class="ok">PASS</span> · 6 pages · 1386ms
+<span class="dim">[3/3]</span> statement-summary …  <span class="ok">PASS</span> · 2 pages · 496ms
+
+Building visual HTML report … done
+<span class="dim">  wrote .work/reports/report.html (491 KB)</span>
+<span class="dim">  wrote .work/reports/report.json (5 KB)</span>
+<span class="dim">  wrote .work/reports/report.csv (2 KB)</span>
+<span class="dim">  wrote .work/reports/junit.xml (3 KB)</span>
+
+2/3 pair(s) passed
+<span class="bad">  ✗ invoice-standard</span> — page 1: content 95.82% &lt; 99%, pixels 6.52% &gt; 2%
+                       page 2: content 92.94% &lt; 99%, offset 0.264" &gt; 0.03"
+                       page 5: content 83.91% &lt; 99%, pixels 9.92% &gt; 2%
+                       page 6: page missing on one side
+
+<span class="p">$ </span><span class="cmd">echo $?</span>
+<span class="bad">1</span></div>
+      </div>
+      <div class="note">
+        <b>This is the expected result</b>
+        The fixtures fail on purpose. <code>invoice-standard</code> is generated from a different template
+        than its golden, so it must fail; <code>invoice-identical</code> uses the same template, so it must
+        pass. A test set where everything passes would stay green even if the comparison logic were deleted.
+      </div>
+      <p>Open <span class="path">.work/reports/report.html</span> in a browser to see the annotated pages,
+        the pixel-diff heatmap, and every change listed per page.</p>
+    </section>
+
+    <!-- GENERATE -->
+    <section id="generate">
+      <h2><code>generate</code></h2>
+      <p>Reads every <code>*.json</code> file in <code>--payloads</code>, POSTs each one to the render API,
+        and writes <code>&lt;name&gt;.pdf</code> into <code>--out</code>.</p>
+
+      <div class="note warn">
+        <b>Filename convention</b>
+        The payload's filename stem carries through the whole pipeline:
+        <span class="path">acme-invoice.json</span> → <span class="path">acme-invoice.pdf</span> →
+        referenced as <code>"candidate": "acme-invoice.pdf"</code> in pairs.json. Choose names that are
+        stable and meaningful — they end up in the report and key your CI history.
+      </div>
+
+      <p><b>The payload's contents are entirely yours.</b> The CLI reads the file, checks it parses as
+        JSON, and POSTs the bytes verbatim. It never inspects or requires any particular field — send
+        whatever your render API expects.</p>
+      <p class="muted">Payload discovery is <b>not recursive</b>: only files directly inside
+        <code>--payloads</code> are picked up, and only those ending in <code>.json</code>.</p>
+
+      <table>
+        <thead><tr><th>Flag</th><th>Default</th><th>Config key</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><code>-p, --payloads</code></td><td><i>required</i></td><td>—</td><td>directory of JSON payloads</td></tr>
+          <tr><td><code>-o, --out</code></td><td><i>required</i></td><td>—</td><td>where to write PDFs</td></tr>
+          <tr><td><code>-a, --api</code></td><td>—</td><td><code>api.url</code></td><td>render endpoint</td></tr>
+          <tr><td><code>-c, --concurrency</code></td><td><code>4</code></td><td><code>api.concurrency</code></td><td>requests in flight</td></tr>
+          <tr><td><code>-t, --timeout</code></td><td><code>120000</code></td><td><code>api.timeout</code></td><td>per-request timeout (ms)</td></tr>
+          <tr><td><code>-r, --retries</code></td><td><code>2</code></td><td><code>api.retries</code></td><td>retries on 5xx / network error</td></tr>
+          <tr><td><code>--retry-on-timeout</code></td><td>off</td><td><code>api.retryOnTimeout</code></td><td>also retry timeouts</td></tr>
+          <tr><td><code>--retry-backoff</code></td><td><code>2000</code></td><td><code>api.retryBackoff</code></td><td>base backoff, doubled each attempt</td></tr>
+          <tr><td><code>--heartbeat</code></td><td><code>15000</code></td><td><code>api.heartbeat</code></td><td>progress interval; <code>0</code> disables</td></tr>
+          <tr><td><code>--response-path</code></td><td><code>pdfBase64</code></td><td><code>api.responsePath</code></td><td>dot-path to the base64 PDF</td></tr>
+          <tr><td><code>-H, --header</code></td><td>—</td><td><code>api.headers</code></td><td>extra headers; CLI merges over config</td></tr>
+          <tr><td><code>--skip-existing</code></td><td>off</td><td>—</td><td>reuse PDFs already on disk</td></tr>
+          <tr><td><code>--fail-fast</code></td><td>off</td><td>—</td><td>stop at the first failure</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Adapting to your real API</h3>
+      <p>Two settings usually cover it. If your API returns
+        <code>{"data":{"document":{"content":"…"}}}</code> instead of <code>{"pdfBase64":"…"}</code>:</p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">pdfsuite.config.json</span></div>
+        <div class="term-body"><span class="dim">{</span>
+  <span class="hl">"api"</span>: <span class="dim">{</span>
+    <span class="hl">"url"</span>: <span class="ok">"https://render.internal.example.com/v1/documents"</span>,
+    <span class="hl">"responsePath"</span>: <span class="ok">"data.document.content"</span>
+  <span class="dim">}</span>
+<span class="dim">}</span></div>
+      </div>
+      <p class="muted">If the path is wrong, the error tells you what the response actually contained —
+        <code>Response has no string at "data.nope". Keys: documentId, template, generatedAt, pdfBase64</code>.</p>
+
+      <h3>The manifest</h3>
+      <p>Every run writes <span class="path">&lt;out&gt;/manifest.json</span> recording, per document: the
+        payload name and its sha256, HTTP status, duration, attempts, output size and sha256. It is what
+        lets you diagnose a CI failure without re-running a slow API.</p>
+    </section>
+
+    <!-- COMPARE -->
+    <section id="compare">
+      <h2><code>compare</code></h2>
+      <p>Runs every resolved pair through the engine — text extraction, word-level diff, text-position
+        matching, and a pixel diff — then writes reports and sets the exit code.</p>
+
+      <table>
+        <thead><tr><th>Flag</th><th>Default</th><th>Config key</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><code>-r, --reference</code></td><td><i>required</i></td><td>—</td><td>golden PDFs</td></tr>
+          <tr><td><code>-c, --candidate</code></td><td><i>required</i></td><td>—</td><td>PDFs to check</td></tr>
+          <tr><td><code>-P, --pairs</code></td><td><i>required</i></td><td>—</td><td>pairs.json</td></tr>
+          <tr><td><code>-o, --report</code></td><td><i>required</i></td><td>—</td><td>where to write reports</td></tr>
+          <tr><td><code>-f, --format</code></td><td><code>html,json,csv,junit</code></td><td><code>compare.format</code></td><td>which reports to emit</td></tr>
+          <tr><td><code>--pixel-threshold</code></td><td><code>0.1</code></td><td><code>compare.pixelThreshold</code></td><td>pixelmatch sensitivity</td></tr>
+          <tr><td><code>--include-aa</code></td><td>off</td><td><code>compare.includeAA</code></td><td>count anti-aliased pixels as differences</td></tr>
+          <tr><td><code>--fail-on</code></td><td><code>any</code></td><td><code>compare.failOn</code></td><td><code>none</code> = report only, always exit 0</td></tr>
+        </tbody>
+      </table>
+
+      <h3>What makes a page fail</h3>
+      <p>A page passes when it clears all three thresholds. Any breach is named explicitly in the output
+        and in the JUnit failure message, so you never have to guess which metric moved.</p>
+      <div class="grid3">
+        <div class="card"><b>Content match</b><span>Share of text identical between the two pages.
+          Must be <b>≥</b> the threshold. Catches wording changes.</span></div>
+        <div class="card"><b>Pixels different</b><span>Share of pixels that differ visually.
+          Must be <b>≤</b> the threshold. Catches colour, spacing and graphics changes with no text delta.</span></div>
+        <div class="card"><b>Max offset</b><span>Largest distance a shared text run moved, in inches.
+          Must be <b>≤</b> the threshold. Catches layout drift.</span></div>
+      </div>
+      <p class="muted">A page present on only one side is always a failure — it means a page was added or
+        dropped.</p>
+    </section>
+
+    <!-- PAIRS -->
+    <section id="pairs">
+      <h2><code>pairs.json</code></h2>
+      <p>Explicit mapping of which candidate is measured against which golden. This is the contract
+        between the two commands.</p>
+
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">fixtures/pairs.json</span></div>
+        <div class="term-body"><span class="dim">{</span>
+  <span class="hl">"defaults"</span>: <span class="dim">{</span> <span class="hl">"contentPct"</span>: 99, <span class="hl">"pixelPct"</span>: 2, <span class="hl">"offsetIn"</span>: 0.03 <span class="dim">},</span>
+
+  <span class="hl">"pairs"</span>: <span class="dim">[</span>
+    <span class="dim">{</span>
+      <span class="hl">"id"</span>:        <span class="ok">"invoice-standard"</span>,
+      <span class="hl">"name"</span>:      <span class="ok">"Invoice · standard layout"</span>,
+      <span class="hl">"reference"</span>: <span class="ok">"invoice-original.pdf"</span>,   <span class="dim">// under --reference</span>
+      <span class="hl">"candidate"</span>: <span class="ok">"invoice-standard.pdf"</span>,   <span class="dim">// under --candidate</span>
+
+      <span class="hl">"thresholds"</span>: <span class="dim">{</span> <span class="hl">"pixelPct"</span>: 5 <span class="dim">},</span>        <span class="dim">// overrides defaults</span>
+      <span class="hl">"skipPages"</span>:  <span class="dim">[</span>6<span class="dim">]</span>                       <span class="dim">// 1-based, excluded from verdict</span>
+    <span class="dim">}</span>
+  <span class="dim">]</span>
+<span class="dim">}</span></div>
+      </div>
+
+      <table>
+        <thead><tr><th>Field</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code> <i>required</i></td><td>Stable identifier. Becomes the JUnit <code>&lt;testsuite name&gt;</code>, the report anchor, and the asset folder. <b>Do not rename it casually</b> — CI keys test history off the suite name, so a changed id reads as “old test deleted, new test added” and discards that pair's trend graph.</td></tr>
+          <tr><td><code>name</code></td><td>Human label shown in reports. Defaults to <code>id</code>.</td></tr>
+          <tr><td><code>reference</code> <i>required</i></td><td>Path relative to <code>--reference</code>. Never absolute.</td></tr>
+          <tr><td><code>candidate</code> <i>required</i></td><td>Path relative to <code>--candidate</code>. Never absolute.</td></tr>
+          <tr><td><code>thresholds</code></td><td>Per-pair overrides merged over <code>defaults</code>. Use for documents that are legitimately noisier.</td></tr>
+          <tr><td><code>skipPages</code></td><td>1-based page numbers excluded from the verdict — generated dates, barcodes, anything that always differs.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note stop">
+        <b>Unmatched entries are fatal</b>
+        If a <code>reference</code> or <code>candidate</code> file does not exist, the run stops with
+        exit&nbsp;<b>2</b> — it is not a warning. A missing candidate means generation silently dropped a
+        document, which is exactly the regression worth catching. Reporting on the remaining pairs would
+        hide it.
+      </div>
+      <p class="muted">Paths are always relative to the two directory flags — never absolute, never relative
+        to the pairs file, never cwd-dependent. That keeps one pairs.json working unchanged on a laptop and
+        on a CI agent with a different workspace path.</p>
+    </section>
+
+    <!-- CONFIG -->
+    <section id="config">
+      <h2>Config file</h2>
+      <p>Two kinds of setting, two homes. The split is deliberate.</p>
+
+      <div class="split">
+        <div>
+          <h4>pdfsuite.config.json</h4>
+          <div class="big">How to reach the API</div>
+          <p class="muted" style="font-size:13.5px;margin:0">Stable, reviewed, version-controlled. Not
+            something to retype in a Jenkins job config.</p>
+          <ul>
+            <li>url, headers, responsePath</li>
+            <li>timeout, retries, backoff</li>
+            <li>concurrency, heartbeat</li>
+            <li>compare formats &amp; thresholds</li>
+          </ul>
+        </div>
+        <div>
+          <h4>CLI flags</h4>
+          <div class="big">What to process now</div>
+          <p class="muted" style="font-size:13.5px;margin:0">Varies with every invocation, so it belongs on
+            the command line.</p>
+          <ul>
+            <li><code>--payloads</code> / <code>--out</code></li>
+            <li><code>--reference</code> / <code>--candidate</code></li>
+            <li><code>--pairs</code> / <code>--report</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Discovery</h3>
+      <p>The file is found by walking up from the working directory — the way <code>git</code> and
+        <code>eslint</code> do — so commands work from anywhere inside the project. The resolved path prints
+        at the top of every run, so which settings applied is never a mystery.</p>
+      <div class="pillrow">
+        <span class="pill on">auto-discovered</span>
+        <span class="pill"><code>--config ./other.json</code></span>
+        <span class="pill"><code>--no-config</code></span>
+      </div>
+
+      <h3>Secrets</h3>
+      <p>Never commit a token. Any string value expands <code>${ENV_VAR}</code> from the environment, so the
+        committed file references a secret that only exists on the CI agent.</p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">pdfsuite.config.json</span></div>
+        <div class="term-body"><span class="hl">"headers"</span>: <span class="dim">{</span>
+  <span class="hl">"Authorization"</span>: <span class="ok">"Bearer ${RENDER_API_TOKEN}"</span>,
+  <span class="hl">"X-Client"</span>:      <span class="ok">"pdfsuite-cli"</span>
+<span class="dim">}</span></div>
+      </div>
+      <div class="note warn">
+        <b>A missing variable is a hard error</b>
+        Not an empty string. Sending <code>Authorization: Bearer </code> would produce a 401 from the API and
+        a confusing hunt far from the real cause — so the run stops immediately, naming the exact config path
+        that referenced it.
+      </div>
+
+      <h3>Precedence</h3>
+      <p>An explicitly passed flag always wins, then the config file, then the built-in default.
+        <code>-H</code> headers merge <i>over</i> the config's <code>headers</code> object, so a one-off
+        override does not require editing the committed file.</p>
+      <div class="pillrow">
+        <span class="pill on">CLI flag</span><span class="pill">›</span>
+        <span class="pill">config file</span><span class="pill">›</span>
+        <span class="pill">built-in default</span>
+      </div>
+      <p class="muted">Unknown top-level keys are rejected. A typo like <code>"comapre"</code> fails loudly
+        rather than being silently ignored while the CLI quietly uses a default you did not intend.</p>
+    </section>
+
+    <!-- SLOW -->
+    <section id="slow">
+      <h2>Working with a slow API</h2>
+      <p>Real PDF rendering commonly takes <b>20–40 seconds per document</b>. The defaults assume that, and
+        four things follow — each one the difference between a run that works and one that fails for reasons
+        unrelated to your PDFs.</p>
+
+      <h3>Generous timeout</h3>
+      <p>Default <code>120000</code> (2 minutes) against a 40s API. A timeout that fires on a healthy-but-slow
+        response turns a working pipeline red. There is no penalty for a generous timeout, only for a tight
+        one — raise it further if your p99 is worse.</p>
+
+      <h3>Timeouts are not retried</h3>
+      <p>If a request blew past an already-generous timeout, the retry almost certainly will too — you have
+        tripled the wall clock and still failed. Measured on the mock API, 8 documents timing out:</p>
+      <table>
+        <thead><tr><th></th><th>Wall time</th><th>Wasted attempts</th></tr></thead>
+        <tbody>
+          <tr><td>default</td><td><b>5.3s</b></td><td>0</td></tr>
+          <tr><td><code>--retry-on-timeout</code></td><td>16.8s</td><td>16</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">5xx responses and network faults <i>are</i> retried, because a retry can actually fix
+        those.</p>
+
+      <h3>Heartbeat</h3>
+      <p>With 40s calls a run is otherwise silent for minutes, which reads as a hang — and CI runners
+        routinely kill jobs that produce no output for N minutes. The heartbeat keeps a long job alive and
+        legible:</p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">generate — 30s API, concurrency 3</span></div>
+        <div class="term-body"><span class="dim">  …  3 in flight · longest acme-invoice-feb 10.0s · 0/8 done</span>
+<span class="dim">  …  3 in flight · longest acme-invoice-feb 20.0s · 0/8 done</span>
+<span class="dim">  …  3 in flight · longest acme-invoice-feb 30.0s · 0/8 done</span>
+<span class="ok">  ✓  acme-invoice-feb</span> — 12.3KB in 30.1s
+<span class="ok">  ✓  globex-invoice-feb</span> — 12.3KB in 30.1s
+<span class="ok">  ✓  acme-invoice-jan</span> — 13.5KB in 30.1s
+<span class="dim">  …  3 in flight · longest globex-invoice-jan 10.0s · 3/8 done · <span class="hl">ETA ~60.1s</span></span>
+
+8/8 generated in <span class="hl">1m30s</span>
+<span class="dim">  8 API call(s) · average 30.0s · slowest 30.1s</span></div>
+      </div>
+      <p class="muted">The ETA is projected from completed API calls only, so it is absent on the first wave
+        and accurate afterwards.</p>
+
+      <h3>Resuming a partial run</h3>
+      <p>When each call costs 40s, re-running a 200-document batch to recover 3 failures is not viable.
+        <code>--skip-existing</code> reuses what is already on disk and fetches only what is missing.</p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+        <div class="term-body"><span class="p">$ </span><span class="cmd">pdfsuite generate <span class="flag">-p</span> ./payloads <span class="flag">-o</span> ./candidates <span class="flag">--skip-existing</span></span>
+<span class="dim">  ⏭  acme-invoice-feb — exists, skipped</span>
+<span class="dim">  ⏭  globex-invoice-feb — exists, skipped</span>
+<span class="ok">  ✓  acme-invoice-jan</span> — 13.5KB in 30.1s
+<span class="ok">  ✓  tyrell-statement</span> — 8.0KB in 30.1s
+
+8/8 generated in 30.2s <span class="hl">(6 reused from disk)</span>
+<span class="dim">  2 API call(s) · average 30.1s · slowest 30.1s</span></div>
+      </div>
+      <p class="muted">Reused files are excluded from the timing statistics, so <code>average</code> and
+        <code>slowest</code> still describe real API calls.</p>
+
+      <div class="note warn">
+        <b>Concurrency caveat</b>
+        If the API is slow because rendering is CPU-bound, raising <code>--concurrency</code> may just queue
+        requests server-side and push them <i>all</i> past the timeout at once. Start at <code>4</code> and
+        raise it only if you have measured that it helps.
+      </div>
+    </section>
+
+    <!-- EXITS -->
+    <section id="exits">
+      <h2>Exit codes</h2>
+      <p>The primary contract with CI. Separating “the PDFs regressed” from “the job is broken” is what lets
+        a pipeline react correctly to each.</p>
+      <div class="exits">
+        <div class="exit e0"><div class="n">0</div><div class="t">Passed</div>
+          <div class="d">Every pair cleared its thresholds.</div></div>
+        <div class="exit e1"><div class="n">1</div><div class="t">Comparison failed</div>
+          <div class="d">At least one pair breached a threshold. The documents changed — investigate the report.</div></div>
+        <div class="exit e2"><div class="n">2</div><div class="t">Tool error</div>
+          <div class="d">Bad arguments, unreachable API, unreadable PDF, unmatched pair, zero pairs resolved. The job is broken, not the PDFs.</div></div>
+      </div>
+      <div class="note">
+        <b>Zero pairs is an error, never a pass</b>
+        A run that compares nothing and exits 0 is the exact failure this tool exists to prevent — a green
+        pipeline that is silently checking nothing.
+      </div>
+      <p>Use <code>--fail-on none</code> when you want the reports but always a zero exit, e.g. on a branch
+        where failures should not block the build.</p>
+    </section>
+
+    <!-- REPORTS -->
+    <section id="reports">
+      <h2>Reports</h2>
+      <p>Four outputs, written to <code>--report</code>. Choose with <code>--format</code>.</p>
+      <div class="grid2">
+        <div class="card">
+          <div class="ic">🖼️</div><b>report.html</b>
+          <span>The full visual report — annotated A/B pages, the pixel-diff heatmap with layout/text colour
+            coding, before→after labels, and a per-page change list. Built from the app's own exporters, so
+            it is the same report the app produces. Print → Save as PDF to share.</span>
+        </div>
+        <div class="card">
+          <div class="ic">⚙️</div><b>junit.xml</b>
+          <span>One <code>&lt;testsuite&gt;</code> per pair, one <code>&lt;testcase&gt;</code> per page.
+            Jenkins, GitLab and GitHub Actions render this natively — per-page pass/fail history and
+            “what newly broke” for free.</span>
+        </div>
+        <div class="card">
+          <div class="ic">🧾</div><b>report.json</b>
+          <span>Per-pair and per-page metrics, verdicts, and the specific thresholds breached. For scripts
+            that need to act on the detail.</span>
+        </div>
+        <div class="card">
+          <div class="ic">📊</div><b>report.csv</b>
+          <span>One row per pair × page. For spreadsheets and quick trend charts.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CI -->
+    <section id="ci">
+      <h2>Use in CI</h2>
+      <p>The API url and headers come from the committed config; only the token is injected from
+        credentials, and only paths are passed as flags.</p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">Jenkinsfile</span></div>
+        <div class="term-body"><span class="hl">stage</span>(<span class="ok">'PDF regression'</span>) {
+  <span class="hl">environment</span> {
+    RENDER_API_TOKEN = credentials(<span class="ok">'render-api-token'</span>)
+  }
+  <span class="hl">steps</span> {
+    sh <span class="ok">'cd cli &amp;&amp; npm ci &amp;&amp; npm run build'</span>
+    sh <span class="ok">'cd cli &amp;&amp; node dist/index.js generate -p $WORKSPACE/payloads -o $WORKSPACE/.work/candidates'</span>
+    sh <span class="ok">'cd cli &amp;&amp; node dist/index.js compare -r $WORKSPACE/golden -c $WORKSPACE/.work/candidates -P $WORKSPACE/pairs.json -o $WORKSPACE/.work/reports'</span>
+  }
+  <span class="hl">post</span> { always {
+    junit <span class="ok">'.work/reports/junit.xml'</span>
+    archiveArtifacts artifacts: <span class="ok">'.work/reports/report.html'</span>
+  } }
+}</div>
+      </div>
+
+      <h3>From Python</h3>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">python</span></div>
+        <div class="term-body"><span class="hl">import</span> subprocess
+
+r = subprocess.run([
+    <span class="ok">"node"</span>, <span class="ok">"cli/dist/index.js"</span>, <span class="ok">"compare"</span>,
+    <span class="ok">"--reference"</span>, <span class="ok">"golden"</span>,
+    <span class="ok">"--candidate"</span>, <span class="ok">"candidates"</span>,
+    <span class="ok">"--pairs"</span>, <span class="ok">"pairs.json"</span>,
+    <span class="ok">"--report"</span>, <span class="ok">"reports"</span>,
+], check=<span class="hl">False</span>)
+
+<span class="dim"># 0 = all passed · 1 = PDFs regressed · 2 = tool/config error</span>
+<span class="hl">if</span> r.returncode == 2:
+    <span class="hl">raise</span> RuntimeError(<span class="ok">"pdfsuite failed to run"</span>)</div>
+      </div>
+      <p class="muted">Point a different environment at a different backend with one flag —
+        <code>--config ./config/staging.json</code> — rather than editing the job.</p>
+    </section>
+
+    <!-- TROUBLESHOOTING -->
+    <section id="trouble">
+      <h2>Troubleshooting</h2>
+      <table>
+        <thead><tr><th>Symptom</th><th>Cause &amp; fix</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>No render API URL</code></td>
+            <td>Neither <code>api.url</code> in the config nor <code>--api</code> was set. The run stops before
+              making any request.</td>
+          </tr>
+          <tr>
+            <td><code>No .json payloads in …</code></td>
+            <td>The directory is empty, or the payloads sit in subdirectories — discovery is
+              <b>not recursive</b>. Use one flat directory per run.</td>
+          </tr>
+          <tr>
+            <td><code>Response has no string at "…"</code></td>
+            <td>Wrong <code>--response-path</code>. The error lists the keys the API actually returned — set
+              <code>api.responsePath</code> to match.</td>
+          </tr>
+          <tr>
+            <td><code>… references ${VAR}, which is not set</code></td>
+            <td>The config references an environment variable that is missing. Export it, or replace the
+              reference with a literal.</td>
+          </tr>
+          <tr>
+            <td><code>N pair(s) could not be resolved</code></td>
+            <td>A file named in pairs.json does not exist. Run <code>pdfsuite pairs</code> to see exactly
+              which entry is broken.</td>
+          </tr>
+          <tr>
+            <td><code>Timed out after 2m00s</code></td>
+            <td>The API exceeded the timeout. Raise <code>api.timeout</code>; add
+              <code>--retry-on-timeout</code> only if timeouts are genuinely transient.</td>
+          </tr>
+          <tr>
+            <td>Everything fails after moving to a new machine</td>
+            <td>Font availability. pdf.js substitutes missing fonts, which shifts pixels — goldens blessed on
+              one machine can fail on an agent with a different font set. Pin comparison runs to a container
+              image with a known font set.</td>
+          </tr>
+          <tr>
+            <td>Noisy pdf.js font warnings</td>
+            <td>Filtered by default; rendering is unaffected. Pass <code>--verbose</code> to see them.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Verify the whole toolchain</h3>
+      <p>The spike script doubles as a smoke test — run it after any change to the app's services to confirm
+        the CLI still works end to end.</p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+        <div class="term-body"><span class="p">$ </span><span class="cmd">node build.mjs --entry spike/run-engine.ts --out .work/spike.js &amp;&amp; node .work/spike.js</span>
+<span class="dim">   page 3: content 100.0% · pixels 0.00% · maxShift 0.000" · changes 0</span>
+<span class="dim">   page 4: content 100.0% · pixels 1.48% · maxShift 0.000" · changes 0</span>
+<span class="dim">   page 5: content 83.9% · pixels 9.92% · maxShift 2.181" · changes 9</span>
+<span class="ok">✓ SPIKE PASSED — engine runs unmodified under Node.</span></div>
+      </div>
+
+      <footer>pdfsuite · generate → compare · same engine as the app, driven from the command line.</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Scrollspy: highlight the current section in the sidebar.
+  const links = [...document.querySelectorAll('#toc a')];
+  const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        map.get(e.target.id)?.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+  document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+
+  // Copy button on every terminal block that contains a command.
+  document.querySelectorAll('.term').forEach(term => {
+    const body = term.querySelector('.term-body');
+    if (!body || !body.querySelector('.cmd')) return;
+    const btn = document.createElement('button');
+    btn.className = 'copy';
+    btn.textContent = 'copy';
+    btn.addEventListener('click', () => {
+      // Only the typed commands, not the printed output.
+      const text = [...body.querySelectorAll('.cmd')]
+        .map(n => n.textContent.replace(/\\\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim())
+        .join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'copied';
+        btn.classList.add('done');
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('done'); }, 1400);
+      });
+    });
+    term.appendChild(btn);
+  });
+</script>
+</body>
+</html>

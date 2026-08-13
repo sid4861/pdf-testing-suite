@@ -1,0 +1,13 @@
+{
+  "documentId": "INV-2026-0002",
+  "template": "invoice-original",
+  "customer": {
+    "name": "Northwind Trading Ltd",
+    "vatId": "GB123456789"
+  },
+  "currency": "GBP",
+  "lineItems": [
+    { "sku": "WID-100", "description": "Widget, standard", "qty": 12, "unitPrice": 4.5 }
+  ],
+  "_note": "Points at the same template as the golden, so this pair PASSES. Proves a green result is reachable and the tool is not failing everything indiscriminately."
+}

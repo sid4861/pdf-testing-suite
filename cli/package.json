@@ -1,0 +1,25 @@
+{
+  "name": "pdfsuite-cli",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "pdfsuite": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "mock-api": "node mock-api/server.js",
+    "spike": "node build.mjs --entry spike/run-engine.ts --out .work/spike.js && node .work/spike.js"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.65",
+    "commander": "^12.1.0",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.16.11",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.2"
+  }
+}

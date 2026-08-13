@@ -1,0 +1,41 @@
+{
+  "$comment": [
+    "Explicit pairing for `pdfsuite compare`.",
+    "`reference` resolves against --reference, `candidate` against --candidate.",
+    "Always relative — never absolute — so this file stays portable across machines",
+    "and CI workspaces.",
+    "`id` must be stable: it becomes the JUnit <testsuite name>, the asset folder name,",
+    "and the report anchor. Jenkins keys test history off the suite name, so changing an",
+    "id silently discards that pair's trend history."
+  ],
+
+  "defaults": {
+    "contentPct": 99,
+    "pixelPct": 2,
+    "offsetIn": 0.03
+  },
+
+  "pairs": [
+    {
+      "id": "invoice-standard",
+      "name": "Invoice · standard layout",
+      "reference": "invoice-original.pdf",
+      "candidate": "invoice-standard.pdf"
+    },
+    {
+      "id": "invoice-identical",
+      "name": "Invoice · unchanged control",
+      "reference": "invoice-original.pdf",
+      "candidate": "invoice-identical.pdf"
+    },
+    {
+      "id": "statement-summary",
+      "name": "Statement · monthly summary",
+      "reference": "statement-original.pdf",
+      "candidate": "statement-summary.pdf",
+      "thresholds": {
+        "pixelPct": 5
+      }
+    }
+  ]
+}

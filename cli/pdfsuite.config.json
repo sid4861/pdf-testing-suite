@@ -1,0 +1,43 @@
+{
+  "$comment": [
+    "Connection settings for pdfsuite. Discovered automatically by walking up from the",
+    "working directory, so `pdfsuite generate` works from anywhere in the project.",
+    "",
+    "What goes where:",
+    "  this file   HOW to reach the API — url, headers, timeouts, retries. Stable,",
+    "              reviewed, version-controlled.",
+    "  CLI flags   WHAT to process this run — --payloads, --out, --report. Varies per",
+    "              invocation.",
+    "",
+    "An explicitly passed flag always overrides the value here.",
+    "",
+    "Secrets: never commit a token. String values expand ${ENV_VAR} from the environment,",
+    "and a missing variable is a hard error rather than an empty header.",
+    "",
+    "This example points at the bundled mock API (npm run mock-api)."
+  ],
+
+  "api": {
+    "url": "http://localhost:4000/render",
+
+    "headers": {
+      "X-Client": "pdfsuite-cli"
+    },
+
+    "responsePath": "pdfBase64",
+
+    "concurrency": 4,
+    "timeout": 120000,
+    "retries": 2,
+    "retryOnTimeout": false,
+    "retryBackoff": 2000,
+    "heartbeat": 15000
+  },
+
+  "compare": {
+    "format": "html,json,csv,junit",
+    "pixelThreshold": 0.1,
+    "includeAA": false,
+    "failOn": "any"
+  }
+}
