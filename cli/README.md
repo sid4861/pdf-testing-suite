@@ -94,6 +94,62 @@ at the top of every run, so there is never a mystery about which settings applie
 }
 ```
 
+### Authentication
+
+Four schemes, declared under `api.auth`. Each ultimately produces a header or a query
+parameter, but declaring it keeps credentials out of hand-built strings — and `basic`
+base64-encodes the credentials for you, which is exactly the thing that ends up wrong when
+written by hand:
+
+```json
+{ "type": "bearer", "token": "${API_TOKEN}" }
+{ "type": "basic",  "username": "svc-pdf", "password": "${API_PASS}" }
+{ "type": "header", "name": "X-API-Key", "value": "${API_KEY}" }
+{ "type": "query",  "name": "api_key",   "value": "${API_KEY}" }
+```
+
+Add arbitrary headers alongside it under `api.headers`, and arbitrary query parameters
+under `api.query`. Precedence when they collide: `-H` flag > `auth` > `headers`.
+
+Query-string credentials are **redacted** (`api_key=***`) from the run log and from
+`manifest.json`, since both are routinely archived as CI artifacts. Header values are never
+printed at all — only header *names*, so "did my auth actually apply?" stays answerable:
+
+```
+POST         https://render.example.com/v1/documents?tenant=acme&api_key=***
+headers      Content-Type, X-Client, Authorization
+response     json at "data.document.content"
+```
+
+### Response shape
+
+`api.responseMode` covers the three ways a PDF comes back:
+
+| Mode | Response | |
+|---|---|---|
+| `json` *(default)* | `{"pdfBase64": "…"}` | base64 string at `api.responsePath` |
+| `binary` | the body **is** the PDF | `Content-Type: application/pdf` |
+| `base64` | body is a bare base64 string | no JSON wrapper |
+
+`api.method` defaults to `POST`; `GET` and `DELETE` send no body, so such an API is
+expected to key off the URL and `api.query`.
+
+Whatever the mode, the decoded bytes are checked for the `%PDF-` magic number before
+anything is written. A misconfigured endpoint very often returns `200` with an HTML error
+page or a JSON envelope, and writing that to a `.pdf` turns a clear configuration problem
+into a confusing "corrupt PDF" failure two commands later. Getting the mode wrong says so
+directly:
+
+```
+✗ invoice-standard — Response is not JSON — it looks like a raw PDF; set api.responseMode to "binary"
+```
+
+### Where the PDFs go
+
+`--out` (or `paths.out` in the config). Each `<name>.json` in `--payloads` is written as
+`<name>.pdf` there, alongside a `manifest.json` recording status, timing, attempts, and the
+sha256 of both payload and output.
+
 **Secrets stay out of the file.** Any string value expands `${ENV_VAR}` from the
 environment, so the committed config references a token that only exists on the CI agent:
 
@@ -109,8 +165,10 @@ A referenced variable that is not set is a **hard error**, not an empty string �
 built-in default. `-H` headers merge over the config's `headers` object, so a one-off
 override does not require editing the committed file.
 
-**Unknown top-level keys are rejected.** A typo like `"comapre"` fails loudly rather than
-being silently ignored while the CLI quietly uses a default you did not intend.
+**Unknown keys are rejected at every level.** A typo like `"comapre"` or `api.timout`
+fails loudly, listing the keys that *are* valid there — rather than being silently ignored
+while the CLI quietly uses a default you did not intend. Keys beginning with `$`
+(`$schema`, `$comment`, `$comment_anything`) are treated as metadata and left alone.
 
 The bundled fixtures deliberately produce a mixed result — `invoice-standard` fails,
 `invoice-identical` and `statement-summary` pass — so you can see both outcomes and confirm
@@ -123,18 +181,16 @@ the tool is not passing (or failing) everything indiscriminately.
 POSTs each `*.json` in `--payloads` to the render API and writes `<stem>.pdf` into `--out`,
 plus a `manifest.json` recording status, timing, and sha256 of both payload and output.
 
-| Flag | Default | |
-|---|---|---|
-| `-p, --payloads <dir>` | *required* | directory of JSON payloads |
-| `-o, --out <dir>` | *required* | where to write PDFs |
 Everything below `--out` also reads from the config file — the `[config: …]` column is the
 key it maps to. Passing the flag overrides the file.
 
 | Flag | Default | Config key | |
 |---|---|---|---|
-| `-p, --payloads <dir>` | *required* | — | directory of JSON payloads |
-| `-o, --out <dir>` | *required* | — | where to write PDFs |
+| `-p, --payloads <dir>` | *required* | `paths.payloads` | directory of JSON payloads |
+| `-o, --out <dir>` | *required* | `paths.out` | where to write PDFs |
 | `-a, --api <url>` | — | `api.url` | render endpoint |
+| `-X, --method <verb>` | `POST` | `api.method` | GET, POST, PUT, PATCH, DELETE |
+| `--response-mode <mode>` | `json` | `api.responseMode` | `json` / `binary` / `base64` |
 | `-c, --concurrency <n>` | `4` | `api.concurrency` | requests in flight |
 | `-t, --timeout <ms>` | `120000` | `api.timeout` | per-request timeout |
 | `-r, --retries <n>` | `2` | `api.retries` | retries on 5xx / network error |
@@ -199,12 +255,12 @@ Node's own `fetch` imposes no ceiling below ~5 minutes (verified empirically at 
 
 Runs the comparison engine over every pair and writes reports.
 
-| Flag | Default | |
-|---|---|---|
-| `-r, --reference <dir>` | *required* | golden PDFs |
-| `-c, --candidate <dir>` | *required* | PDFs to check |
-| `-P, --pairs <file>` | *required* | `pairs.json` |
-| `-o, --report <dir>` | *required* | where to write reports |
+| Flag | Default | Config key | |
+|---|---|---|---|
+| `-r, --reference <dir>` | *required* | `paths.reference` | golden PDFs |
+| `-c, --candidate <dir>` | *required* | `paths.candidate` | PDFs to check |
+| `-P, --pairs <file>` | *required* | `paths.pairs` | `pairs.json` |
+| `-o, --report <dir>` | *required* | `paths.report` | where to write reports |
 | `-f, --format <list>` | `html,json,csv,junit` | `compare.format` | which reports to emit |
 | `--pixel-threshold <n>` | `0.1` | `compare.pixelThreshold` | pixelmatch sensitivity |
 | `--include-aa` | off | `compare.includeAA` | count anti-aliased pixels as differences |

@@ -4,10 +4,9 @@
     "working directory, so `pdfsuite generate` works from anywhere in the project.",
     "",
     "What goes where:",
-    "  this file   HOW to reach the API — url, headers, timeouts, retries. Stable,",
-    "              reviewed, version-controlled.",
-    "  CLI flags   WHAT to process this run — --payloads, --out, --report. Varies per",
-    "              invocation.",
+    "  this file   HOW to reach the API — url, method, auth, headers, timeouts, and the",
+    "              shape of the response. Stable, reviewed, version-controlled.",
+    "  CLI flags   WHAT to process this run — --payloads, --out, --report.",
     "",
     "An explicitly passed flag always overrides the value here.",
     "",
@@ -19,11 +18,30 @@
 
   "api": {
     "url": "http://localhost:4000/render",
+    "method": "POST",
+
+    "$comment_auth": [
+      "Optional. One of four shapes — each produces a header or query parameter, but",
+      "declaring it here keeps credentials out of hand-built strings (and base64-encodes",
+      "Basic credentials for you):",
+      "  { \"type\": \"bearer\", \"token\": \"${API_TOKEN}\" }",
+      "  { \"type\": \"basic\",  \"username\": \"svc\", \"password\": \"${API_PASS}\" }",
+      "  { \"type\": \"header\", \"name\": \"X-API-Key\",  \"value\": \"${API_KEY}\" }",
+      "  { \"type\": \"query\",  \"name\": \"api_key\",    \"value\": \"${API_KEY}\" }",
+      "Query-string credentials are redacted from logs and from the manifest."
+    ],
 
     "headers": {
       "X-Client": "pdfsuite-cli"
     },
 
+    "$comment_response": [
+      "How the PDF comes back:",
+      "  json    JSON body with a base64 string at responsePath  (default)",
+      "  binary  the body IS the PDF (Content-Type: application/pdf)",
+      "  base64  the whole body is a bare base64 string, no JSON wrapper"
+    ],
+    "responseMode": "json",
     "responsePath": "pdfBase64",
 
     "concurrency": 4,
@@ -39,5 +57,11 @@
     "pixelThreshold": 0.1,
     "includeAA": false,
     "failOn": "any"
-  }
+  },
+
+  "$comment_paths": [
+    "Optional default paths, so a fixed output directory need not be retyped. Flags still",
+    "override. Paths that vary per run are better passed as flags.",
+    "  \"paths\": { \"payloads\": \"./payloads\", \"out\": \"./candidates\" }"
+  ]
 }

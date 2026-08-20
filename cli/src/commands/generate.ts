@@ -404,7 +404,7 @@ export async function runGenerate(opts: GenerateOptions): Promise<number> {
 
   // Echo the resolved request shape — credentials are never printed, but the header names
   // are, so "did my auth actually get applied?" is answerable from the log alone.
-  const headerNames = headers.map((h) => h.slice(0, h.indexOf(':')));
+  const headerNames = Object.keys(headers);
   console.log(`Generating ${payloadFiles.length} document(s)`);
   console.log(`  ${opts.method.padEnd(6)}       ${redactUrl(opts.api)}`);
   console.log(`  out          ${path.resolve(opts.out)}`);

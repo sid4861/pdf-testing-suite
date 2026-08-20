@@ -10,7 +10,15 @@ import '../src/platform/dom-shim.js';
 import { Command } from 'commander';
 
 import { EXIT, ToolError } from './core/exit.js';
-import { loadConfig, mergeHeaders, pick, CONFIG_FILENAME } from './core/config.js';
+import {
+  loadConfig,
+  mergeHeaders,
+  pick,
+  buildUrl,
+  normalizeMethod,
+  normalizeResponseMode,
+  CONFIG_FILENAME,
+} from './core/config.js';
 import { installPdfLogFilter } from './platform/pdf-log.js';
 import { runGenerate } from './commands/generate.js';
 import { runCompare, runPairs } from './commands/compare.js';
@@ -171,10 +179,10 @@ ${c.b('Notes')}
 program
   .command('compare')
   .description('Compare candidate PDFs against golden references and write reports')
-  .requiredOption('-r, --reference <dir>', 'directory of golden/reference PDFs')
-  .requiredOption('-c, --candidate <dir>', 'directory of PDFs to check')
-  .requiredOption('-P, --pairs <file>', 'pairs.json describing which file maps to which')
-  .requiredOption('-o, --report <dir>', 'directory to write reports into')
+  .option('-r, --reference <dir>', 'directory of golden/reference PDFs [config: paths.reference]')
+  .option('-c, --candidate <dir>', 'directory of PDFs to check [config: paths.candidate]')
+  .option('-P, --pairs <file>', 'pairs.json describing which file maps to which [config: paths.pairs]')
+  .option('-o, --report <dir>', 'directory to write reports into [config: paths.report]')
   .option('-f, --format <list>', 'html,json,csv,junit [config: compare.format]', 'html,json,csv,junit')
   .option('--pixel-threshold <n>', 'pixelmatch sensitivity 0–1 [config: compare.pixelThreshold]', parseFloat, 0.1)
   .option('--include-aa', 'count anti-aliased pixels as differences [config: compare.includeAA]', false)
@@ -204,16 +212,37 @@ ${c.dim('Thresholds live in pairs.json — globally under "defaults", per pair u
     await run(() => {
       const { config, source } = loadConfigFor();
       const cmp = config.compare ?? {};
+      const paths = config.paths ?? {};
       const src = (flag: string) => cmd.getOptionValueSource(flag);
+
+      const reference = pick(src('reference'), opts.reference, paths.reference);
+      const candidate = pick(src('candidate'), opts.candidate, paths.candidate);
+      const pairsFile = pick(src('pairs'), opts.pairs, paths.pairs);
+      const report = pick(src('report'), opts.report, paths.report);
+
+      const missing = (
+        [
+          ['--reference', reference, 'paths.reference'],
+          ['--candidate', candidate, 'paths.candidate'],
+          ['--pairs', pairsFile, 'paths.pairs'],
+          ['--report', report, 'paths.report'],
+        ] as const
+      ).filter(([, value]) => !value);
+      if (missing.length) {
+        throw new ToolError(
+          `Missing required path(s): ${missing.map(([flag]) => flag).join(', ')}`,
+          `Pass the flag, or set ${missing.map(([, , key]) => `"${key}"`).join(' / ')} under "paths" in ${CONFIG_FILENAME}.`,
+        );
+      }
 
       if (source) console.log(`config: ${source}`);
 
       const failOn = pick(src('failOn'), opts.failOn, cmp.failOn);
       return runCompare({
-        reference: opts.reference,
-        candidate: opts.candidate,
-        pairs: opts.pairs,
-        report: opts.report,
+        reference,
+        candidate,
+        pairs: pairsFile,
+        report,
         format: pick(src('format'), opts.format, cmp.format),
         pixelThreshold: pick(src('pixelThreshold'), opts.pixelThreshold, cmp.pixelThreshold),
         includeAA: pick(src('includeAa'), opts.includeAa ?? false, cmp.includeAA),

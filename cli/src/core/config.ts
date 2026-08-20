@@ -142,7 +142,48 @@ export function discoverConfig(startDir = process.cwd()): string | null {
   }
 }
 
-const KNOWN_TOP_LEVEL = new Set(['api', 'compare', 'paths', '$schema', '$comment']);
+// `$`-prefixed keys are metadata ($schema, $comment, and any $comment_* the author adds),
+// consistent with how expandDeep treats them. Everything else must be a real setting.
+const KNOWN_KEYS: Record<string, Set<string>> = {
+  '': new Set(['api', 'compare', 'paths']),
+  api: new Set([
+    'url', 'method', 'headers', 'query', 'auth',
+    'responseMode', 'responsePath',
+    'timeout', 'retries', 'retryOnTimeout', 'retryBackoff',
+    'concurrency', 'heartbeat',
+  ]),
+  compare: new Set(['format', 'pixelThreshold', 'includeAA', 'failOn']),
+  paths: new Set(['payloads', 'out', 'reference', 'candidate', 'pairs', 'report']),
+};
+
+/**
+ * Reject unknown keys at every level, not just the top.
+ *
+ * A typo like `api.timout` is otherwise completely silent — the setting is ignored, the
+ * built-in default applies, and the run misbehaves in a way that points nowhere near the
+ * config file.
+ */
+function validateKeys(node: unknown, section: string, file: string): void {
+  const known = KNOWN_KEYS[section];
+  if (!known || !node || typeof node !== 'object' || Array.isArray(node)) return;
+
+  const unknown = Object.keys(node as Record<string, unknown>).filter(
+    (k) => !k.startsWith('$') && !known.has(k),
+  );
+  if (unknown.length) {
+    const where = section ? `"${section}"` : 'top level';
+    throw new ToolError(
+      `Unknown key(s) at ${where} in ${file}: ${unknown.join(', ')}`,
+      `Supported there: ${[...known].join(', ')}.`,
+    );
+  }
+
+  for (const child of ['api', 'compare', 'paths']) {
+    if (section === '' && child in (node as Record<string, unknown>)) {
+      validateKeys((node as Record<string, unknown>)[child], child, file);
+    }
+  }
+}
 
 export function loadConfig(explicitPath: string | undefined, useConfig: boolean): LoadedConfig {
   if (!useConfig) return { config: {}, source: null };
@@ -164,15 +205,7 @@ export function loadConfig(explicitPath: string | undefined, useConfig: boolean)
     throw new ToolError(`Could not parse ${file}: ${(err as Error).message}`);
   }
 
-  // Typos in a config file are otherwise invisible — the setting is simply ignored and
-  // the CLI quietly uses a default the user did not intend.
-  const unknown = Object.keys(parsed).filter((k) => !KNOWN_TOP_LEVEL.has(k));
-  if (unknown.length) {
-    throw new ToolError(
-      `Unknown key(s) in ${path.basename(file)}: ${unknown.join(', ')}`,
-      `Supported top-level keys: api, compare.`,
-    );
-  }
+  validateKeys(parsed, '', path.basename(file));
 
   const config = expandDeep(parsed, path.basename(file)) as PdfSuiteConfig;
   return { config, source: file };
