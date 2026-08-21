@@ -1,0 +1,14 @@
+{
+  "documentId": "INV-2026-0001",
+  "template": "invoice-recreated",
+  "customer": {
+    "name": "Northwind Trading Ltd",
+    "vatId": "GB123456789"
+  },
+  "currency": "GBP",
+  "lineItems": [
+    { "sku": "WID-100", "description": "Widget, standard", "qty": 12, "unitPrice": 4.5 },
+    { "sku": "WID-200", "description": "Widget, reinforced", "qty": 4, "unitPrice": 11.0 }
+  ],
+  "_note": "Points at the recreated template, so this pair FAILS against the invoice-original golden. This is the regression case the pipeline must catch."
+}

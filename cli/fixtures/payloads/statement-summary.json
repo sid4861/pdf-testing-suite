@@ -1,0 +1,10 @@
+{
+  "documentId": "STMT-2026-0044",
+  "template": "statement-recreated",
+  "accountHolder": "A. Patel",
+  "periodStart": "2026-07-01",
+  "periodEnd": "2026-07-31",
+  "openingBalance": 1204.55,
+  "closingBalance": 987.12,
+  "_note": "Second document type, to prove batching across more than one template."
+}

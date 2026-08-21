@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdfsuitepy"
+version = "1.0.0"
+description = "Python CLI and library for PDF regression testing — generates candidate PDFs and checks them against golden references."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+# Deliberately zero runtime dependencies. This tool drops into arbitrary CI
+# environments and existing Python projects; a dependency here is a version
+# conflict waiting to happen. stdlib urllib covers everything `generate` needs.
+dependencies = []
+
+[project.scripts]
+pdfsuitepy = "pdfsuite.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

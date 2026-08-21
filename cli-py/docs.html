@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>pdfsuitepy — Python Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --sidebar: #f3f1ea;
+    --card: #ffffff;
+    --ink: #1a1c22;
+    --ink-soft: #52545e;
+    --ink-faint: #8a8c95;
+    --line: #e6e2d8;
+    --line-strong: #d5cfc1;
+    --accent: #0e7c66;
+    --accent-soft: #e6f2ee;
+    --py: #2f5fa8;
+    --py-soft: #eaf0f9;
+    --node: #4a7c23;
+    --node-soft: #eef4e6;
+    --red: #c8402f;
+    --green: #157f5b;
+    --amber: #b0741a;
+    --code-bg: #f1efe8;
+    --term-bg: #1c1f26;
+    --term-line: #2c313b;
+    --display: "Fraunces", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15.5px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+
+  .shell { display: grid; grid-template-columns: 264px minmax(0, 1fr); max-width: 1240px; margin: 0 auto; }
+  aside { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 30px 22px 40px; border-right: 1px solid var(--line); background: var(--sidebar); }
+  main { padding: 56px 60px 120px; min-width: 0; }
+  @media (max-width: 940px) {
+    .shell { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    main { padding: 36px 26px 80px; }
+  }
+
+  .brand { display: flex; align-items: center; gap: 11px; font-family: var(--display); font-size: 19px; font-weight: 600; margin-bottom: 4px; }
+  .mark { width: 30px; height: 30px; border-radius: 8px; background: var(--py); color: #fff; display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .brand-sub { font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 26px 41px; }
+  nav.toc { font-size: 14px; }
+  nav.toc .grp { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin: 22px 0 8px; }
+  nav.toc a { display: block; color: var(--ink-soft); text-decoration: none; padding: 5px 10px; border-radius: 7px; border-left: 2px solid transparent; margin-left: -2px; transition: background .15s, color .15s; }
+  nav.toc a:hover { background: #eae7dd; color: var(--ink); }
+  nav.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 500; }
+
+  h1 { font-family: var(--display); font-weight: 600; font-size: 40px; line-height: 1.1; letter-spacing: -.01em; margin: 0 0 10px; }
+  .lead { font-size: 18px; color: var(--ink-soft); margin: 0 0 14px; max-width: 64ch; }
+  h2 { font-family: var(--display); font-weight: 600; font-size: 27px; margin: 0 0 4px; letter-spacing: -.01em; scroll-margin-top: 24px; }
+  h3 { font-size: 17px; font-weight: 600; margin: 28px 0 6px; }
+  section { padding: 46px 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: none; padding-top: 8px; }
+  p { margin: 12px 0; max-width: 70ch; }
+  .muted { color: var(--ink-soft); }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--py); margin-bottom: 8px; }
+  ul, ol { max-width: 70ch; padding-left: 22px; }
+  li { margin: 6px 0; }
+  ol.steps { counter-reset: s; list-style: none; padding-left: 0; }
+  ol.steps > li { position: relative; padding-left: 42px; margin: 22px 0; }
+  ol.steps > li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: -1px; width: 27px; height: 27px; border-radius: 8px; background: var(--ink); color: var(--bg); font-family: var(--mono); font-size: 13px; font-weight: 600; display: grid; place-items: center; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--code-bg); padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line); }
+
+  .term { background: var(--term-bg); border-radius: 12px; margin: 18px 0; overflow: hidden; box-shadow: 0 2px 14px rgba(26,28,34,.14); position: relative; }
+  .term-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--term-line); }
+  .term-bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .term-bar .r { background: #ec6a5e; } .term-bar .y { background: #f4bf4f; } .term-bar .g { background: #61c554; }
+  .term-title { font-family: var(--mono); font-size: 11px; color: #7d8595; margin-left: 8px; letter-spacing: .04em; }
+  .term-body { padding: 16px 18px; font-family: var(--mono); font-size: 13px; line-height: 1.75; color: #d5dae3; overflow-x: auto; white-space: pre; }
+  .term-body .p { color: #6f7889; user-select: none; }
+  .term-body .cmd { color: #eaeef5; font-weight: 500; }
+  .term-body .flag { color: #7fb3ff; }
+  .term-body .ok { color: #6fd08c; }
+  .term-body .bad { color: #ff8b7a; }
+  .term-body .warnc { color: #f0c060; }
+  .term-body .dim { color: #767f90; }
+  .term-body .hl { color: #c9a6ff; }
+  .term-body .kw { color: #7fb3ff; }
+  .term-body .str { color: #a5d6a7; }
+  .copy { position: absolute; top: 9px; right: 10px; background: #2b313b; color: #aeb6c4; border: 1px solid #3a414d; border-radius: 6px; font-family: var(--mono); font-size: 10.5px; padding: 4px 9px; cursor: pointer; letter-spacing: .05em; }
+  .copy:hover { background: #353d49; color: #e6eaf1; }
+  .copy.done { color: #6fd08c; border-color: #3d6b4c; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 22px 0 4px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .card b { display: block; font-size: 15px; margin: 8px 0 3px; }
+  .card span { font-size: 13.5px; color: var(--ink-soft); }
+  .card.py { background: var(--py-soft); border-color: color-mix(in srgb, var(--py) 25%, transparent); }
+  .card.node { background: var(--node-soft); border-color: color-mix(in srgb, var(--node) 25%, transparent); }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .tag.py { background: var(--py); color: #fff; }
+  .tag.node { background: var(--node); color: #fff; }
+
+  .exits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
+  @media (max-width: 720px) { .exits { grid-template-columns: 1fr; } }
+  .exit { border-radius: 12px; padding: 16px 18px; border: 1px solid; background: var(--card); }
+  .exit .n { font-family: var(--mono); font-size: 30px; font-weight: 600; line-height: 1; }
+  .exit .t { font-weight: 600; font-size: 14.5px; margin: 8px 0 3px; }
+  .exit .d { font-size: 13px; color: var(--ink-soft); }
+  .exit.e0 { border-color: color-mix(in srgb, var(--green) 40%, transparent); background: #eef7f2; } .exit.e0 .n { color: var(--green); }
+  .exit.e1 { border-color: color-mix(in srgb, var(--red) 40%, transparent); background: #fdf0ee; } .exit.e1 .n { color: var(--red); }
+  .exit.e2 { border-color: color-mix(in srgb, var(--amber) 45%, transparent); background: #fbf3e4; } .exit.e2 .n { color: var(--amber); }
+
+  .note { border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 18px 0; font-size: 14.5px; max-width: 76ch; }
+  .note.warn { border-color: var(--amber); background: #fbf3e4; }
+  .note.stop { border-color: var(--red); background: #fdf0ee; }
+  .note.py { border-color: var(--py); background: var(--py-soft); }
+  .note b { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: 3px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; border-bottom: 1px solid var(--line-strong); }
+  tbody tr:hover { background: #f6f4ee; }
+  td code { white-space: nowrap; }
+
+  figure { margin: 26px 0; }
+  figcaption { font-size: 13px; color: var(--ink-faint); text-align: center; margin-top: 10px; font-family: var(--mono); }
+  svg { max-width: 100%; height: auto; display: block; }
+  footer { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside>
+    <div class="brand"><span class="mark">py</span> pdfsuitepy</div>
+    <div class="brand-sub">Python Guide</div>
+    <nav class="toc" id="toc">
+      <div class="grp">Start</div>
+      <a href="#overview">What it is</a>
+      <a href="#split">The two halves</a>
+      <a href="#setup">Setup</a>
+      <div class="grp">Run it</div>
+      <a href="#walkthrough">Walkthrough</a>
+      <a href="#commands">Commands</a>
+      <div class="grp">Use it</div>
+      <a href="#library">Library API</a>
+      <a href="#pytest">In pytest</a>
+      <a href="#config">Configuration</a>
+      <div class="grp">Reference</div>
+      <a href="#exits">Exit codes</a>
+      <a href="#env">Environment</a>
+      <a href="#verify">Verification</a>
+      <a href="#limits">Limitations</a>
+    </nav>
+  </aside>
+
+  <main>
+    <section id="overview">
+      <div class="eyebrow">Python package</div>
+      <h1>pdfsuitepy</h1>
+      <p class="lead">The same PDF regression pipeline as the Node CLI, installable with pip and
+        usable as a Python library. Generate candidate PDFs from JSON payloads, check them against
+        golden references, and get typed results plus a pass/fail exit code.</p>
+
+      <div class="grid2">
+        <div class="card py">
+          <span class="tag py">native python</span>
+          <b>generate</b>
+          <span>Calls your render API for each payload and saves the PDFs. Stdlib only — no Node,
+            no third-party packages.</span>
+        </div>
+        <div class="card node">
+          <span class="tag node">delegates to node</span>
+          <b>compare</b>
+          <span>Runs the same engine the React app runs, so a verdict here is the verdict the app
+            would show for the same pair.</span>
+        </div>
+      </div>
+
+      <div class="note py">
+        <b>Zero runtime dependencies</b>
+        <code>pyproject.toml</code> declares none. This drops into arbitrary CI environments and
+        existing Python projects, where an added dependency is a version conflict waiting to happen.
+        <code>urllib</code> covers everything <code>generate</code> needs.
+      </div>
+    </section>
+
+    <section id="split">
+      <h2>The two halves</h2>
+      <p>The commands are implemented differently because they are not equally portable.</p>
+
+      <figure>
+        <svg viewBox="0 0 840 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram: generate runs natively in Python; compare delegates to the Node engine which the React app also uses.">
+          <defs>
+            <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+              <path d="M0,0 L9,4.5 L0,9 z" fill="#8a8c95"/>
+            </marker>
+            <style>
+              .bx { fill:#ffffff; stroke:#d5cfc1; stroke-width:1.5; }
+              .bpy { fill:#eaf0f9; stroke:#2f5fa8; stroke-width:1.5; }
+              .bnd { fill:#eef4e6; stroke:#4a7c23; stroke-width:1.5; }
+              .lbl { font-family:"IBM Plex Sans",sans-serif; font-size:13px; fill:#1a1c22; font-weight:600; }
+              .sub { font-family:"IBM Plex Mono",monospace; font-size:10.5px; fill:#8a8c95; }
+              .ln { stroke:#8a8c95; stroke-width:1.5; fill:none; marker-end:url(#a2); }
+            </style>
+          </defs>
+
+          <rect class="bpy" x="10" y="18" width="150" height="70" rx="10"/>
+          <text class="lbl" x="28" y="44">pdfsuitepy</text>
+          <text class="sub" x="28" y="62">generate</text>
+          <text class="sub" x="28" y="77">native python</text>
+
+          <line class="ln" x1="166" y1="53" x2="228" y2="53"/>
+          <rect class="bx" x="234" y="18" width="150" height="70" rx="10"/>
+          <text class="lbl" x="252" y="44">Render API</text>
+          <text class="sub" x="252" y="62">HTTP + auth</text>
+          <text class="sub" x="252" y="77">base64 / binary</text>
+
+          <line class="ln" x1="390" y1="53" x2="452" y2="53"/>
+          <rect class="bx" x="458" y="18" width="160" height="70" rx="10"/>
+          <text class="lbl" x="476" y="48">candidate PDFs</text>
+          <text class="sub" x="476" y="66">--out ./candidates</text>
+
+          <path class="ln" d="M538,94 L538,140 L300,140 L300,176"/>
+
+          <rect class="bpy" x="10" y="182" width="150" height="70" rx="10"/>
+          <text class="lbl" x="28" y="208">pdfsuitepy</text>
+          <text class="sub" x="28" y="226">compare</text>
+          <text class="sub" x="28" y="241">delegates</text>
+
+          <line class="ln" x1="166" y1="217" x2="228" y2="217"/>
+
+          <rect class="bnd" x="234" y="182" width="160" height="70" rx="10"/>
+          <text class="lbl" x="252" y="208">Node engine</text>
+          <text class="sub" x="252" y="226">pdf.js + pixelmatch</text>
+          <text class="sub" x="252" y="241">cli/dist/index.js</text>
+
+          <line class="ln" x1="400" y1="217" x2="452" y2="217"/>
+          <rect class="bx" x="458" y="176" width="160" height="82" rx="10"/>
+          <text class="lbl" x="476" y="200">Reports</text>
+          <text class="sub" x="476" y="219">report.html / .json</text>
+          <text class="sub" x="476" y="235">junit.xml</text>
+          <text class="sub" x="476" y="251">+ exit code</text>
+
+          <rect class="bnd" x="654" y="176" width="176" height="82" rx="10" stroke-dasharray="5 4"/>
+          <text class="lbl" x="672" y="200">React app</text>
+          <text class="sub" x="672" y="219">same engine</text>
+          <text class="sub" x="672" y="235">same verdicts</text>
+          <text class="sub" x="672" y="251">for the same pair</text>
+          <!-- routed above the Reports box so it does not cross its label -->
+          <path class="ln" d="M314,182 L314,158 L742,158 L742,170" stroke-dasharray="4 4"/>
+        </svg>
+        <figcaption>generate is native Python · compare shares the app's engine</figcaption>
+      </figure>
+
+      <h3>Why <code>generate</code> was ported</h3>
+      <p>It contains no comparison logic — it is HTTP, base64 and file writes. Porting carries zero
+        fidelity risk, and it means a Python-only workflow can fetch candidates with no JS runtime
+        present.</p>
+
+      <h3>Why <code>compare</code> was not</h3>
+      <p>Every number it produces comes from pdf.js rendering. A Python port on PyMuPDF or
+        pypdfium2 would rasterize differently — different anti-aliasing, font hinting and subpixel
+        positioning — so pixel ratios, content-match percentages and offsets would all drift.</p>
+      <div class="note stop">
+        <b>What drift would cost</b>
+        Thresholds tuned in the app would be wrong here. Goldens blessed with one tool would fail
+        with the other. The app would show PASS while Python showed FAIL for the same pair, and
+        nobody could say which was right. Delegating keeps one source of truth.
+      </div>
+      <p class="muted">Which engine was found is never a mystery — <code>pdfsuitepy --version</code>
+        prints it.</p>
+    </section>
+
+    <section id="setup">
+      <h2>Setup</h2>
+      <ol class="steps">
+        <li>
+          <b>Build the Node engine</b>
+          <p class="muted">Needed by <code>compare</code>. Skip if you only use <code>generate</code>.</p>
+          <div class="term">
+            <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+            <div class="term-body"><span class="p">$ </span><span class="cmd">cd cli</span>
+<span class="p">$ </span><span class="cmd">npm install</span>
+<span class="p">$ </span><span class="cmd">npm run build</span></div>
+          </div>
+        </li>
+        <li>
+          <b>Install the Python package</b>
+          <div class="term">
+            <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+            <div class="term-body"><span class="p">$ </span><span class="cmd">cd cli-py</span>
+<span class="p">$ </span><span class="cmd">pip install -e .</span></div>
+          </div>
+        </li>
+        <li>
+          <b>Confirm it found the engine</b>
+          <div class="term">
+            <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+            <div class="term-body"><span class="p">$ </span><span class="cmd">pdfsuitepy --version</span>
+<span class="ok">pdfsuitepy 1.0.0</span>
+<span class="dim">  engine: node v20.12.2 · C:\…\cli\dist\index.js</span></div>
+          </div>
+          <p class="muted">The bundle is located by walking up from the package and from the working
+            directory, so a source checkout needs no configuration.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="walkthrough">
+      <h2>Walkthrough</h2>
+      <p>Against the bundled mock API (<code>cd cli &amp;&amp; npm run mock-api</code>). No
+        <code>--api</code> flag needed — the URL comes from the shared config file.</p>
+
+      <h3>generate — native Python</h3>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+        <div class="term-body"><span class="p">$ </span><span class="cmd">pdfsuitepy generate <span class="flag">-p</span> ./payloads <span class="flag">-o</span> ./candidates</span>
+<span class="hl">config: /…/cli/pdfsuite.config.json</span>
+Generating 3 document(s)
+<span class="dim">  POST         http://localhost:4000/render</span>
+<span class="dim">  out          /…/candidates</span>
+<span class="dim">  headers      Content-Type, X-Client</span>
+<span class="dim">  response     json at "pdfBase64"</span>
+<span class="dim">  concurrency  4 | timeout 2m00s | retries 2</span>
+
+<span class="ok">  [ok]    invoice-standard</span> - 12.3KB in 45ms
+<span class="ok">  [ok]    invoice-identical</span> - 13.5KB in 52ms
+<span class="ok">  [ok]    statement-summary</span> - 8.0KB in 39ms
+
+3/3 generated in 1.7s
+<span class="dim">  3 API call(s) | average 1.7s | slowest 1.7s</span>
+<span class="dim">  manifest: candidates/manifest.json</span></div>
+      </div>
+      <p class="muted">Header <i>names</i> are echoed so you can confirm auth applied; values are
+        never printed, and query-string credentials appear as <code>api_key=***</code>.</p>
+
+      <h3>compare — delegates, streams live</h3>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">bash</span></div>
+        <div class="term-body"><span class="p">$ </span><span class="cmd">pdfsuitepy compare <span class="flag">-r</span> ./golden <span class="flag">-c</span> ./candidates <span class="flag">-P</span> ./pairs.json <span class="flag">-o</span> ./reports</span>
+
+<span class="dim">  3 pair(s) resolved · 0 problem(s)</span>
+
+<span class="dim">[1/3]</span> invoice-standard …  <span class="bad">FAIL</span> · 6 pages, 4 failing · 1277ms
+<span class="dim">[2/3]</span> invoice-identical …  <span class="ok">PASS</span> · 6 pages · 1279ms
+<span class="dim">[3/3]</span> statement-summary …  <span class="ok">PASS</span> · 2 pages · 477ms
+
+<span class="dim">  wrote reports/report.json (5 KB)</span>
+<span class="dim">  wrote reports/junit.xml (3 KB)</span>
+
+2/3 pair(s) passed
+<span class="bad">  ✗ invoice-standard</span> — page 5: content 83.91% &lt; 99%, pixels 9.92% &gt; 2%, offset 2.181" &gt; 0.03"
+
+<span class="p">$ </span><span class="cmd">echo $?</span>
+<span class="bad">1</span></div>
+      </div>
+      <div class="note">
+        <b>Output is streamed, not captured</b>
+        The subprocess writes straight through. Buffering it would make a long run look hung — the
+        exact CI-watchdog problem the heartbeat exists to avoid.
+      </div>
+    </section>
+
+    <section id="commands">
+      <h2>Commands</h2>
+      <h3><code>generate</code> <span class="tag py">native python</span></h3>
+      <table>
+        <thead><tr><th>Flag</th><th>Default</th><th>Config key</th></tr></thead>
+        <tbody>
+          <tr><td><code>-p, --payloads DIR</code></td><td><i>required</i></td><td><code>paths.payloads</code></td></tr>
+          <tr><td><code>-o, --out DIR</code></td><td><i>required</i></td><td><code>paths.out</code></td></tr>
+          <tr><td><code>-a, --api URL</code></td><td>—</td><td><code>api.url</code></td></tr>
+          <tr><td><code>-X, --method VERB</code></td><td><code>POST</code></td><td><code>api.method</code></td></tr>
+          <tr><td><code>--response-mode</code></td><td><code>json</code></td><td><code>api.responseMode</code></td></tr>
+          <tr><td><code>--response-path</code></td><td><code>pdfBase64</code></td><td><code>api.responsePath</code></td></tr>
+          <tr><td><code>-c, --concurrency N</code></td><td><code>4</code></td><td><code>api.concurrency</code></td></tr>
+          <tr><td><code>-t, --timeout MS</code></td><td><code>120000</code></td><td><code>api.timeout</code></td></tr>
+          <tr><td><code>-r, --retries N</code></td><td><code>2</code></td><td><code>api.retries</code></td></tr>
+          <tr><td><code>--retry-on-timeout</code></td><td>off</td><td><code>api.retryOnTimeout</code></td></tr>
+          <tr><td><code>--retry-backoff MS</code></td><td><code>2000</code></td><td><code>api.retryBackoff</code></td></tr>
+          <tr><td><code>--heartbeat MS</code></td><td><code>15000</code></td><td><code>api.heartbeat</code></td></tr>
+          <tr><td><code>-H, --header H</code></td><td>—</td><td><code>api.headers</code></td></tr>
+          <tr><td><code>--skip-existing</code></td><td>off</td><td>—</td></tr>
+          <tr><td><code>--fail-fast</code></td><td>off</td><td>—</td></tr>
+        </tbody>
+      </table>
+
+      <h3><code>compare</code> <span class="tag node">delegates</span></h3>
+      <table>
+        <thead><tr><th>Flag</th><th>Default</th><th>Config key</th></tr></thead>
+        <tbody>
+          <tr><td><code>-r, --reference DIR</code></td><td><i>required</i></td><td><code>paths.reference</code></td></tr>
+          <tr><td><code>-c, --candidate DIR</code></td><td><i>required</i></td><td><code>paths.candidate</code></td></tr>
+          <tr><td><code>-P, --pairs FILE</code></td><td><i>required</i></td><td><code>paths.pairs</code></td></tr>
+          <tr><td><code>-o, --report DIR</code></td><td><i>required</i></td><td><code>paths.report</code></td></tr>
+          <tr><td><code>-f, --format LIST</code></td><td><code>html,json,csv,junit</code></td><td><code>compare.format</code></td></tr>
+          <tr><td><code>--pixel-threshold N</code></td><td><code>0.1</code></td><td><code>compare.pixelThreshold</code></td></tr>
+          <tr><td><code>--include-aa</code></td><td>off</td><td><code>compare.includeAA</code></td></tr>
+          <tr><td><code>--fail-on any|none</code></td><td><code>any</code></td><td><code>compare.failOn</code></td></tr>
+        </tbody>
+      </table>
+
+      <p class="muted">Plus <code>pairs</code> to preview the pairing, and the common
+        <code>--config</code>, <code>--no-config</code>, <code>-v/--verbose</code>,
+        <code>-q/--quiet</code>.</p>
+    </section>
+
+    <section id="library">
+      <h2>Library API</h2>
+      <p>The main reason to use this instead of writing <code>subprocess.run</code> yourself:
+        results come back as dataclasses.</p>
+
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">python</span></div>
+        <div class="term-body"><span class="kw">from</span> pdfsuite <span class="kw">import</span> compare, generate
+
+generate(
+    payloads=<span class="str">"./payloads"</span>,
+    out=<span class="str">"./candidates"</span>,
+    api=<span class="str">"https://render.example.com/v1/documents"</span>,
+    quiet=<span class="kw">True</span>,
+)
+
+result = compare(
+    reference=<span class="str">"./golden"</span>,
+    candidate=<span class="str">"./candidates"</span>,
+    pairs=<span class="str">"./pairs.json"</span>,
+    report=<span class="str">"./reports"</span>,
+    quiet=<span class="kw">True</span>,
+)
+
+<span class="kw">if not</span> result.passed:
+    <span class="kw">for</span> pair <span class="kw">in</span> result.failures:
+        worst = pair.worst_page
+        print(pair.id, <span class="str">"page"</span>, worst.page, worst.breaches)</div>
+      </div>
+
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">output</span></div>
+        <div class="term-body">invoice-standard page 5 [<span class="str">'content 83.91% &lt; 99%'</span>, <span class="str">'pixels 9.92% &gt; 2%'</span>, <span class="str">'offset 2.181" &gt; 0.03"'</span>]</div>
+      </div>
+
+      <table>
+        <thead><tr><th>Type</th><th>Useful members</th></tr></thead>
+        <tbody>
+          <tr><td><code>CompareResult</code></td><td><code>.passed</code> <code>.exit_code</code> <code>.failures</code> <code>.pairs</code> <code>.html_report</code> <code>.summary()</code></td></tr>
+          <tr><td><code>PairResult</code></td><td><code>.id</code> <code>.name</code> <code>.passed</code> <code>.failed_pages</code> <code>.worst_page</code></td></tr>
+          <tr><td><code>PageVerdict</code></td><td><code>.page</code> <code>.verdict</code> <code>.breaches</code> <code>.content_match</code> <code>.pixel_ratio</code> <code>.max_offset_inches</code></td></tr>
+          <tr><td><code>GenerateResult</code></td><td><code>.ok</code> <code>.documents</code> <code>.failures</code> <code>.manifest_path</code> <code>.summary()</code></td></tr>
+        </tbody>
+      </table>
+      <p class="muted"><code>quiet=True</code> suppresses all progress output, for when you want the
+        returned object rather than a running log.</p>
+    </section>
+
+    <section id="pytest">
+      <h2>In pytest</h2>
+      <p>No plugin ships yet, but the library API is already enough to drive a test suite.</p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">test_pdfs.py</span></div>
+        <div class="term-body"><span class="kw">import</span> pytest
+<span class="kw">from</span> pdfsuite <span class="kw">import</span> compare
+
+<span class="dim">@pytest.fixture(scope=<span class="str">"session"</span>)</span>
+<span class="kw">def</span> report(tmp_path_factory):
+    <span class="kw">return</span> compare(
+        reference=<span class="str">"golden"</span>,
+        candidate=<span class="str">"candidates"</span>,
+        pairs=<span class="str">"pairs.json"</span>,
+        report=<span class="kw">str</span>(tmp_path_factory.mktemp(<span class="str">"reports"</span>)),
+        quiet=<span class="kw">True</span>,
+    )
+
+<span class="dim">@pytest.mark.parametrize(<span class="str">"pair_id"</span>, [<span class="str">"invoice-standard"</span>, <span class="str">"statement-summary"</span>])</span>
+<span class="kw">def</span> test_pair_matches_golden(report, pair_id):
+    pair = next(p <span class="kw">for</span> p <span class="kw">in</span> report.pairs <span class="kw">if</span> p.id == pair_id)
+    <span class="kw">assert</span> pair.passed, pair.worst_page.breaches</div>
+      </div>
+      <p class="muted">One test per pair, failures rendered by pytest, <code>-k</code> filtering for
+        free. Comparing once in a session fixture keeps the cost to a single engine run.</p>
+    </section>
+
+    <section id="config">
+      <h2>Configuration</h2>
+      <p>Reads <b>the same <code>pdfsuite.config.json</code></b> the Node CLI does — same discovery
+        (walking up from the working directory), same <code>${ENV_VAR}</code> expansion, same
+        validation, same precedence. Configuration does not fork between implementations, so
+        switching one for the other cannot silently change behaviour. <code>pairs.json</code> is
+        shared unchanged too.</p>
+
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">pdfsuite.config.json</span></div>
+        <div class="term-body"><span class="dim">{</span>
+  <span class="hl">"api"</span>: <span class="dim">{</span>
+    <span class="hl">"url"</span>: <span class="ok">"https://render.example.com/v1/documents"</span>,
+    <span class="hl">"auth"</span>: <span class="dim">{</span> <span class="hl">"type"</span>: <span class="ok">"bearer"</span>, <span class="hl">"token"</span>: <span class="ok">"${API_TOKEN}"</span> <span class="dim">},</span>
+    <span class="hl">"responseMode"</span>: <span class="ok">"binary"</span>
+  <span class="dim">},</span>
+  <span class="hl">"paths"</span>: <span class="dim">{</span> <span class="hl">"payloads"</span>: <span class="ok">"./payloads"</span>, <span class="hl">"out"</span>: <span class="ok">"./candidates"</span> <span class="dim">}</span>
+<span class="dim">}</span></div>
+      </div>
+
+      <p><b>Precedence:</b> explicit flag &rsaquo; config file &rsaquo; built-in default. Auth
+        schemes (<code>bearer</code>, <code>basic</code>, <code>header</code>, <code>query</code>)
+        and response modes (<code>json</code>, <code>binary</code>, <code>base64</code>) are all
+        supported natively by the Python <code>generate</code>.</p>
+
+      <div class="note warn">
+        <b>Unknown keys are rejected at every level</b>
+        A typo like <code>api.timout</code> fails loudly, listing the keys that <i>are</i> valid
+        there — rather than being silently ignored while a default you did not intend takes effect.
+      </div>
+    </section>
+
+    <section id="exits">
+      <h2>Exit codes</h2>
+      <p>Identical to the Node CLI, so a pipeline can switch implementations without changing how it
+        reads a result.</p>
+      <div class="exits">
+        <div class="exit e0"><div class="n">0</div><div class="t">Passed</div>
+          <div class="d">Every pair cleared its thresholds.</div></div>
+        <div class="exit e1"><div class="n">1</div><div class="t">Comparison failed</div>
+          <div class="d">A pair breached a threshold. The documents changed.</div></div>
+        <div class="exit e2"><div class="n">2</div><div class="t">Tool error</div>
+          <div class="d">Bad args, unreachable API, unmatched pair, nothing to compare. The job is broken, not the PDFs.</div></div>
+      </div>
+      <p class="muted">Running <code>pdfsuitepy</code> bare prints help and exits <b>0</b> — asking
+        what a tool does is not an error.</p>
+    </section>
+
+    <section id="env">
+      <h2>Environment overrides</h2>
+      <table>
+        <thead><tr><th>Variable</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><code>PDFSUITE_NODE</code></td><td>path to the node executable, when it is not on PATH</td></tr>
+          <tr><td><code>PDFSUITE_NODE_BUNDLE</code></td><td>path to <code>cli/dist/index.js</code>, when it is not beside this checkout</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Neither is needed for a source checkout. <code>shutil.which</code> handles the
+        Windows <code>.cmd</code> shim resolution that otherwise bites when invoking npm-installed
+        tooling from Python.</p>
+    </section>
+
+    <section id="verify">
+      <h2>Verification</h2>
+      <p>All measured against the bundled mock API.</p>
+
+      <h3>Byte-identical output</h3>
+      <p>PDFs from <code>pdfsuitepy generate</code> sha256-compared against both the Node CLI's
+        output and the original sample files, across every response shape:</p>
+      <div class="term">
+        <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="term-title">cross-check</span></div>
+        <div class="term-body"><span class="ok">json     3 pdfs  byte-identical to source</span>
+<span class="ok">binary   3 pdfs  byte-identical to source</span>
+<span class="ok">base64   3 pdfs  byte-identical to source</span>
+<span class="ok">nested   3 pdfs  byte-identical to source</span>
+<span class="dim">  -> all modes lossless</span></div>
+      </div>
+
+      <h3>Identical comparison metrics</h3>
+      <p>Because <code>compare</code> is the same engine rather than a reimplementation, it
+        reproduces the Node CLI's numbers exactly — 95.82% / 92.94% / 0.264″ / 83.91% / 9.92% /
+        2.181″.</p>
+
+      <h3>Manifest parity</h3>
+      <p>Field-by-field diff against a Node-produced manifest: no differing entry fields, and only
+        the additive <code>producedBy</code> key at the top level, so either tool can read the
+        other's output.</p>
+
+      <h3>Credential redaction</h3>
+      <p><code>api_key=***</code> in both the log and the manifest, byte-for-byte matching Node.
+        Grepping the artifacts for the real key finds nothing.</p>
+
+      <h3>16/16 parity checks</h3>
+      <p>Four auth schemes, four response modes, compare/pairs delegation,
+        <code>--fail-on none</code>, and five misconfiguration cases — all producing the same exit
+        codes as the Node CLI.</p>
+    </section>
+
+    <section id="limits">
+      <h2>Limitations</h2>
+      <ul>
+        <li><b>compare requires Node ≥ 20.</b> Checked up front with an actionable error rather than
+          a cryptic failure from the bundle. <code>generate</code> needs nothing but Python.</li>
+        <li><b>The Node bundle must be built</b> (<code>cd cli &amp;&amp; npm run build</code>)
+          before <code>compare</code> works.</li>
+        <li><b>Font availability still applies.</b> pdf.js substitutes missing fonts, which shifts
+          pixels — goldens blessed on one machine can fail on an agent with a different font set.
+          Unchanged from the Node CLI; pin comparison runs to a container image with a known font
+          set.</li>
+        <li><b>No pytest plugin yet.</b> The library API supports the pattern above, but a
+          first-class fixture with per-pair test IDs is not built.</li>
+      </ul>
+      <footer>pdfsuitepy · generate natively, compare with the app's own engine.</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+  const links = [...document.querySelectorAll('#toc a')];
+  const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        map.get(e.target.id)?.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+  document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+
+  document.querySelectorAll('.term').forEach(term => {
+    const body = term.querySelector('.term-body');
+    if (!body || !body.querySelector('.cmd')) return;
+    const btn = document.createElement('button');
+    btn.className = 'copy';
+    btn.textContent = 'copy';
+    btn.addEventListener('click', () => {
+      const text = [...body.querySelectorAll('.cmd')]
+        .map(n => n.textContent.replace(/\s+/g, ' ').trim())
+        .join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'copied';
+        btn.classList.add('done');
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('done'); }, 1400);
+      });
+    });
+    term.appendChild(btn);
+  });
+</script>
+</body>
+</html>
