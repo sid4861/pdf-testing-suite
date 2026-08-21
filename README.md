@@ -107,6 +107,7 @@ From the Report tab, the **Export** menu produces:
 | **HTML report** | Standalone, printable page with the metrics table, the overall verdict, and for every page an annotated A/B pair with the change highlights, the pixel-diff heatmap with always-on *before → after* labels on each replaced text, and a per-page change list. Open it and *Print → Save as PDF* for a shareable report. |
 | **JSON** | Full machine-readable metrics, thresholds, and per-page pass/fail. |
 | **CSV** | Per-page metrics table for spreadsheets. |
+| **Markdown fix-list** | A remediation report written for an **AI agent** rather than a person: every difference paired with the change needed in the *source template*. Positions are in inches and font sizes in points, matching AEM Forms XDP (XFA) `x`/`y`/`<font size>` attributes, and deltas are given as the correction to apply rather than the drift observed. Cascading shifts are grouped by shared delta, so one deleted table row reads as a single finding instead of thirty. |
 
 ## Architecture
 

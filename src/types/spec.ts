@@ -11,12 +11,46 @@ export interface SpecTolerance {
   fontSize?: number; // points
 }
 
+/**
+ * Locate an element relative to a nearby text label instead of by absolute
+ * position.
+ *
+ * Images and tables carry no text of their own, so without an anchor they can
+ * only be found by proximity to the declared top/left — which silently latches
+ * onto a neighbour when the layout reflows. An anchor ties the element to
+ * something the page actually says, so the check survives content above it
+ * growing or shrinking.
+ */
+export interface SpecAnchor {
+  /** Text to find on the page. Matched case-insensitively. */
+  text: string;
+  /** How `text` is matched. Default 'contains'. */
+  match?: 'exact' | 'contains';
+  /** Where the element sits relative to the anchor text. Default 'below'. */
+  position?: 'above' | 'below' | 'left' | 'right';
+  /**
+   * How far from the anchor to search, in spec units. Elements beyond this are
+   * ignored. Default 2 (inches).
+   */
+  within?: number;
+  /**
+   * When the anchor text appears more than once, which occurrence to use
+   * (1-based, in reading order). Default 1.
+   */
+  occurrence?: number;
+}
+
 interface SpecElementBase {
   id: string;
   label?: string;
   top: number;  // spec units from the top of the page
   left: number; // spec units from the left of the page
   tolerance?: SpecTolerance;
+  /**
+   * Optional. When present, the element is located relative to this text rather
+   * than by nearest-to-top/left. `top`/`left` are still checked and reported.
+   */
+  anchor?: SpecAnchor;
 }
 
 export interface TextSpec extends SpecElementBase {

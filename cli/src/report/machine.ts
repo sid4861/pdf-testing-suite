@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { buildMarkdownReport } from '../platform/engine.js';
 import type { PairResult, RunContext } from './types.js';
 
 // ── JSON ──────────────────────────────────────────────────────────────
@@ -153,5 +154,76 @@ ${suites}
 
   const file = path.join(outDir, 'junit.xml');
   fs.writeFileSync(file, xml);
+  return file;
+}
+
+// -- Markdown remediation ----------------------------------------------
+// A single file describing what to change in the source template, structured for
+// an automated agent rather than a human reader.
+export function writeMarkdownReport(results: PairResult[], ctx: RunContext, outDir: string): string {
+  const failing = results.filter((r) => !r.pass);
+  const parts: string[] = [];
+
+  parts.push('# Batch Template Remediation Report');
+  parts.push('');
+  parts.push(`> ${results.length} comparison(s) - generated ${ctx.generatedAt.toISOString()}`);
+  parts.push(
+    `> ${results.length - failing.length}/${results.length} passed. ` +
+      `${failing.length} document(s) need template changes.`,
+  );
+  parts.push('');
+  parts.push('Each section below is a self-contained report for one document. Documents produced');
+  parts.push('from the same template repeat the same finding, so one template edit may clear');
+  parts.push('several sections at once.');
+  parts.push('');
+
+  if (failing.length === 0) {
+    parts.push('No changes required - every comparison passed.');
+    parts.push('');
+  } else {
+    parts.push('## Documents needing changes');
+    parts.push('');
+    parts.push('| Pair | Reference | Candidate |');
+    parts.push('|---|---|---|');
+    for (const r of failing) {
+      parts.push(`| ${r.pair.id} | \`${r.pair.referenceRel}\` | \`${r.pair.candidateRel}\` |`);
+    }
+    parts.push('');
+    parts.push('---');
+    parts.push('');
+
+    for (const r of failing) {
+      parts.push(`# ${r.pair.name}`);
+      parts.push('');
+      if (r.error) {
+        parts.push(`Comparison failed to run: ${r.error}`);
+        parts.push('');
+        parts.push('---');
+        parts.push('');
+        continue;
+      }
+      const body = buildMarkdownReport(
+        r.summary,
+        {
+          nameA: r.pair.referenceRel,
+          nameB: r.pair.candidateRel,
+          pageCountA: r.summary.pageCountA,
+          pageCountB: r.summary.pageCountB,
+          generatedAt: ctx.generatedAt.toISOString(),
+        },
+        r.pair.thresholds,
+        r.pageCache,
+      );
+      // The shared preamble is stated once at the top of the batch file.
+      const from = body.indexOf('## Run metadata');
+      parts.push(from >= 0 ? body.slice(from) : body);
+      parts.push('');
+      parts.push('---');
+      parts.push('');
+    }
+  }
+
+  const file = path.join(outDir, 'remediation.md');
+  fs.writeFileSync(file, parts.join('\n'));
   return file;
 }

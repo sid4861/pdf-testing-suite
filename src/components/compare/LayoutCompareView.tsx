@@ -1,7 +1,16 @@
 import { useMemo, useRef, useState } from 'react';
 import type { LayoutViewMode, MatchedPair, RenderedPageImage, TextItem } from '../../types/compare';
 import { useCompareStore } from '../../store/compareStore';
-import { buildChanges, fmtInch, heatmapBoxes, HEAT_COLOR, HEAT_LABEL, type HeatBox } from '../../services/changes';
+import {
+  buildChanges,
+  fmtInch,
+  heatmapBoxes,
+  HEAT_COLOR,
+  HEAT_HINT,
+  HEAT_LABEL,
+  type HeatBox,
+  type HeatBucket,
+} from '../../services/changes';
 import MeasureOverlay from './MeasureOverlay';
 
 const MAX_DISPLAY_H = 460;
@@ -79,8 +88,9 @@ function RunHotspots({
   );
 }
 
-// Translucent colored regions on the pixel-diff heatmap — violet for layout shifts,
-// amber for text changes — so the two causes are visually distinguishable.
+// Translucent coloured regions on the pixel-diff heatmap — amber where the words
+// changed, cyan where only the type changed, violet where a run merely moved — so
+// the cause of a difference is readable at a glance.
 function HeatBoxOverlay({ boxes, image }: { boxes: HeatBox[]; image: RenderedPageImage }) {
   return (
     <>
@@ -128,18 +138,18 @@ export default function LayoutCompareView() {
     if (i != null) rowsRef.current[i]?.scrollIntoView({ block: 'nearest' });
   };
 
-  // Heatmap classification: 'moved' runs become layout regions, added/removed runs
-  // become text regions — reused for both the colored overlay and the hover tooltip.
+  // Heatmap classification: edited runs become text regions, restyled runs style
+  // regions, and merely-shifted runs layout regions — reused for both the coloured
+  // overlay and the hover tooltip.
   const changes = useMemo(() => (pc ? buildChanges(pc, offsetThresholdIn) : []), [pc, offsetThresholdIn]);
   const heatBoxes = useMemo(() => heatmapBoxes(changes), [changes]);
   const movedChanges = useMemo(() => changes.filter((c) => c.type === 'moved'), [changes]);
-  const heatCounts = useMemo(
-    () => ({
-      layout: heatBoxes.filter((b) => b.type === 'layout').length,
-      text: heatBoxes.filter((b) => b.type === 'text').length,
-    }),
-    [heatBoxes],
-  );
+  const styledChanges = useMemo(() => changes.filter((c) => c.type === 'styled'), [changes]);
+  const heatCounts = useMemo(() => {
+    const c: Record<HeatBucket, number> = { layout: 0, text: 0, style: 0 };
+    for (const b of heatBoxes) c[b.type]++;
+    return c;
+  }, [heatBoxes]);
 
   if (computing && !pc) {
     return (
@@ -231,18 +241,19 @@ export default function LayoutCompareView() {
       </div>
 
       {/* Heatmap legend */}
-      {viewMode === 'diff' && pc.pixel && (heatCounts.layout > 0 || heatCounts.text > 0) && (
+      {viewMode === 'diff' && pc.pixel && (heatCounts.text > 0 || heatCounts.style > 0 || heatCounts.layout > 0) && (
         <div className="heat-legend">
-          <span className="heat-item">
-            <i className="heat-dot" style={{ borderColor: HEAT_COLOR.layout, background: `${HEAT_COLOR.layout}33` }} />
-            {HEAT_LABEL.layout}
-            {heatCounts.layout > 0 ? ` · ${heatCounts.layout}` : ''}
-          </span>
-          <span className="heat-item">
-            <i className="heat-dot" style={{ borderColor: HEAT_COLOR.text, background: `${HEAT_COLOR.text}33` }} />
-            {HEAT_LABEL.text}
-            {heatCounts.text > 0 ? ` · ${heatCounts.text}` : ''}
-          </span>
+          {(['text', 'style', 'layout'] as HeatBucket[]).map((bucket) => (
+            <span key={bucket} className="heat-item" title={HEAT_HINT[bucket]}>
+              <i
+                className="heat-dot"
+                style={{ borderColor: HEAT_COLOR[bucket], background: `${HEAT_COLOR[bucket]}33` }}
+              />
+              {HEAT_LABEL[bucket]}
+              {heatCounts[bucket] > 0 ? ` · ${heatCounts[bucket]}` : ''}
+            </span>
+          ))}
+          <span className="legend-hint">Hover a region for before → after.</span>
         </div>
       )}
 
@@ -288,6 +299,7 @@ export default function LayoutCompareView() {
                   onlyA={pc.match.onlyA}
                   onlyB={pc.match.onlyB}
                   moved={movedChanges}
+                  styled={styledChanges}
                 />
               </div>
             ) : (

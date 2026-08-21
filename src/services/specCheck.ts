@@ -12,6 +12,7 @@ import type {
   ImageSpec,
   ParagraphSpec,
   PdfSpec,
+  SpecAnchor,
   SpecReport,
   SpecTolerance,
   SpecUnit,
@@ -176,6 +177,87 @@ function tol(el: { tolerance?: SpecTolerance }, spec: PdfSpec, key: keyof SpecTo
   return el.tolerance?.[key] ?? spec.tolerance?.[key] ?? DEFAULT_TOL[key];
 }
 
+// ── anchors ───────────────────────────────────────────────────────────
+/** How far from the anchor text to search, in spec units, when not stated. */
+const DEFAULT_ANCHOR_WITHIN = 2;
+
+/** The line an anchor refers to, or null when its text is not on the page. */
+function findAnchorLine(anchor: SpecAnchor, lines: Line[]): Line | null {
+  const want = normalize(anchor.text);
+  const mode = anchor.match ?? 'contains';
+  const hits = lines
+    .filter((l) => (mode === 'exact' ? l.norm === want : l.norm.includes(want)))
+    .sort((a, b) => a.top - b.top || a.left - b.left); // reading order
+  if (hits.length === 0) return null;
+  const which = Math.max(1, anchor.occurrence ?? 1);
+  return hits[Math.min(which, hits.length) - 1];
+}
+
+/**
+ * Restrict candidates to the region an anchor points at, and rank them by
+ * distance from the anchor rather than from the declared top/left.
+ *
+ * Returns null when the anchor text is absent — the caller reports that as a
+ * distinct failure, which is far more useful than silently falling back to
+ * position and matching the wrong element.
+ */
+function anchorRegion(
+  anchor: SpecAnchor,
+  lines: Line[],
+  u2p: number,
+): { line: Line; keep: (b: Box) => boolean; distance: (b: Box) => number } | null {
+  const line = findAnchorLine(anchor, lines);
+  if (!line) return null;
+
+  const side = anchor.position ?? 'below';
+  const reach = (anchor.within ?? DEFAULT_ANCHOR_WITHIN) * u2p;
+  // A little slack across the anchor's own axis, so an element that is not
+  // perfectly aligned with the label still qualifies.
+  const slack = reach;
+
+  const keep = (b: Box): boolean => {
+    switch (side) {
+      case 'below':
+        return b.top >= line.bottom - 2 && b.top <= line.bottom + reach
+          && b.left <= line.right + slack && b.left + b.width >= line.left - slack;
+      case 'above':
+        return b.top + b.height <= line.top + 2 && b.top + b.height >= line.top - reach
+          && b.left <= line.right + slack && b.left + b.width >= line.left - slack;
+      case 'right':
+        return b.left >= line.right - 2 && b.left <= line.right + reach
+          && b.top <= line.bottom + slack && b.top + b.height >= line.top - slack;
+      case 'left':
+        return b.left + b.width <= line.left + 2 && b.left + b.width >= line.left - reach
+          && b.top <= line.bottom + slack && b.top + b.height >= line.top - slack;
+      default:
+        return false;
+    }
+  };
+
+  const anchorPoint = { x: line.left, y: side === 'above' ? line.top : line.bottom };
+  const distance = (b: Box) => Math.hypot(b.left - anchorPoint.x, b.top - anchorPoint.y);
+
+  return { line, keep, distance };
+}
+
+const lineBox = (l: Line): Box => ({
+  left: l.left, top: l.top, width: l.right - l.left, height: l.bottom - l.top,
+});
+
+/** Failure result for an anchor whose text is not on the page. */
+function anchorMissing(base: ElementResult, anchor: SpecAnchor): ElementResult {
+  return {
+    ...base,
+    status: 'not-found',
+    checks: [{
+      name: 'Anchor',
+      expected: `text “${anchor.text}” on the page`,
+      actual: 'not found',
+      pass: false,
+    }],
+  };
+}
+
 function posCheck(name: string, actualPt: number, expectedPt: number, tolPt: number, fmt: (n: number) => string): CheckResult {
   const delta = actualPt - expectedPt;
   return {
@@ -197,7 +279,7 @@ function checkText(
   const want = normalize(el.text);
   const mode = el.match ?? 'contains';
 
-  const candidates = lines.filter((l) => (mode === 'exact' ? l.norm === want : l.norm.includes(want)));
+  let candidates = lines.filter((l) => (mode === 'exact' ? l.norm === want : l.norm.includes(want)));
   const base: ElementResult = {
     id: el.id, type: 'text', label: el.label ?? el.text, status: 'not-found',
     detail: `“${el.text}”`, checks: [], expectedBox: { left: expLeft, top: expTop, width: 6, height: el.fontSize ?? 12 }, actualBox: null,
@@ -206,8 +288,34 @@ function checkText(
     base.checks.push({ name: 'Present', expected: 'found', actual: 'not found', pass: false });
     return base;
   }
-  const line = candidates.reduce((b, l) => (Math.abs(l.top - expTop) < Math.abs(b.top - expTop) ? l : b));
-  const checks: CheckResult[] = [{ name: 'Present', expected: 'found', actual: 'found', pass: true }];
+
+  const checks: CheckResult[] = [];
+  let anchored: ((b: Box) => number) | null = null;
+
+  // With an anchor, "which occurrence" is answered by the label rather than by
+  // whichever copy happens to sit nearest the declared top.
+  if (el.anchor) {
+    const region = anchorRegion(el.anchor, lines, u2p);
+    if (!region) return anchorMissing(base, el.anchor);
+    checks.push({ name: 'Anchor', expected: `“${el.anchor.text}”`, actual: 'found', pass: true });
+    const near = candidates.filter((l) => region.keep(lineBox(l)));
+    if (near.length === 0) {
+      checks.push({
+        name: 'Present',
+        expected: `“${el.text}” ${el.anchor.position ?? 'below'} “${el.anchor.text}”`,
+        actual: 'not in that region',
+        pass: false,
+      });
+      return { ...base, status: 'fail', checks };
+    }
+    candidates = near;
+    anchored = region.distance;
+  }
+
+  const line = anchored
+    ? candidates.reduce((b, l) => (anchored!(lineBox(l)) < anchored!(lineBox(b)) ? l : b))
+    : candidates.reduce((b, l) => (Math.abs(l.top - expTop) < Math.abs(b.top - expTop) ? l : b));
+  checks.push({ name: 'Present', expected: 'found', actual: 'found', pass: true });
   checks.push(posCheck('Left', line.left, expLeft, posTol, fmt));
   checks.push(posCheck('Top', line.top, expTop, posTol, fmt));
   if (el.fontSize != null) {
@@ -226,7 +334,7 @@ function checkText(
 }
 
 function checkImage(
-  el: ImageSpec, spec: PdfSpec, images: Box[], u2p: number, fmt: (n: number) => string,
+  el: ImageSpec, spec: PdfSpec, images: Box[], lines: Line[], u2p: number, fmt: (n: number) => string,
 ): ElementResult {
   const exp: Box = { left: el.left * u2p, top: el.top * u2p, width: el.width * u2p, height: el.height * u2p };
   const posTol = tol(el, spec, 'position') * u2p;
@@ -239,13 +347,42 @@ function checkImage(
     base.checks.push({ name: 'Present', expected: 'found', actual: 'no image', pass: false });
     return base;
   }
-  // nearest image to expected top-left
-  const img = images.reduce((b, im) => {
-    const d = Math.hypot(im.left - exp.left, im.top - exp.top);
-    const bd = Math.hypot(b.left - exp.left, b.top - exp.top);
-    return d < bd ? im : b;
-  });
-  const checks: CheckResult[] = [{ name: 'Present', expected: 'found', actual: 'found', pass: true }];
+
+  const checks: CheckResult[] = [];
+  let pool = images;
+
+  // An anchor narrows the search to the region beside a real label, which is the
+  // only way to tell two images apart when the layout has moved.
+  if (el.anchor) {
+    const region = anchorRegion(el.anchor, lines, u2p);
+    if (!region) return anchorMissing(base, el.anchor);
+    checks.push({
+      name: 'Anchor',
+      expected: `“${el.anchor.text}”`,
+      actual: 'found',
+      pass: true,
+    });
+    const near = images.filter(region.keep);
+    if (near.length === 0) {
+      checks.push({
+        name: 'Present',
+        expected: `image ${el.anchor.position ?? 'below'} “${el.anchor.text}”`,
+        actual: 'no image in that region',
+        pass: false,
+      });
+      return { ...base, status: 'fail', checks };
+    }
+    pool = near.sort((a, b) => region.distance(a) - region.distance(b));
+  }
+
+  const img = el.anchor
+    ? pool[0]
+    : pool.reduce((b, im) => {
+        const d = Math.hypot(im.left - exp.left, im.top - exp.top);
+        const bd = Math.hypot(b.left - exp.left, b.top - exp.top);
+        return d < bd ? im : b;
+      });
+  checks.push({ name: 'Present', expected: 'found', actual: 'found', pass: true });
   checks.push(posCheck('Left', img.left, exp.left, posTol, fmt));
   checks.push(posCheck('Top', img.top, exp.top, posTol, fmt));
   checks.push(posCheck('Width', img.width, exp.width, sizeTol, fmt));
@@ -269,16 +406,31 @@ function checkTable(
     detail: `table ${el.width} wide`, checks: [], expectedBox: exp, actualBox: null,
   };
 
-  // Table rows = multi-column lines within the horizontal span, starting near expTop.
+  // Table rows = multi-column lines within the horizontal span. Without an anchor
+  // the first row must start near expTop; with one, it must start below the label.
   const spanTol = posTol * 3;
+  const anchorChecks: CheckResult[] = [];
+  let startTop = expTop;
+  let startTol = spanTol * 2;
+
+  if (el.anchor) {
+    const region = anchorRegion(el.anchor, lines, u2p);
+    if (!region) return anchorMissing(base, el.anchor);
+    anchorChecks.push({ name: 'Anchor', expected: `“${el.anchor.text}”`, actual: 'found', pass: true });
+    // Anchor the table to the label's edge rather than to a coordinate, so
+    // content growing above it does not orphan the table.
+    startTop = (el.anchor.position ?? 'below') === 'above' ? region.line.top : region.line.bottom;
+    startTol = (el.anchor.within ?? DEFAULT_ANCHOR_WITHIN) * u2p;
+  }
+
   const inSpan = lines.filter(
-    (l) => l.count >= 2 && l.left >= expLeft - spanTol && l.left <= expLeft + expWidth + spanTol && l.top >= expTop - spanTol,
+    (l) => l.count >= 2 && l.left >= expLeft - spanTol && l.left <= expLeft + expWidth + spanTol && l.top >= startTop - spanTol,
   ).sort((a, b) => a.top - b.top);
 
   const rows: Line[] = [];
   for (const l of inSpan) {
     if (rows.length === 0) {
-      if (Math.abs(l.top - expTop) <= spanTol * 2) rows.push(l);
+      if (Math.abs(l.top - startTop) <= startTol) rows.push(l);
     } else {
       const gap = l.top - rows[rows.length - 1].bottom;
       const rowH = rows[rows.length - 1].bottom - rows[rows.length - 1].top;
@@ -297,7 +449,7 @@ function checkTable(
   const actual: Box = { left, top, width: right - left, height: bottom - top };
   const cols = Math.max(...rows.map((r) => r.count));
 
-  const checks: CheckResult[] = [{ name: 'Present', expected: 'found', actual: `${rows.length} rows`, pass: true }];
+  const checks: CheckResult[] = [...anchorChecks, { name: 'Present', expected: 'found', actual: `${rows.length} rows`, pass: true }];
   checks.push(posCheck('Left', left, expLeft, posTol, fmt));
   checks.push(posCheck('Top', top, expTop, posTol, fmt));
   checks.push(posCheck('Width', actual.width, expWidth, sizeTol, fmt));
@@ -396,7 +548,7 @@ export async function runSpec(
       for (const el of sp.elements) {
         let r: ElementResult;
         if (el.type === 'text') r = checkText(el, spec, lines, u2p, fmt);
-        else if (el.type === 'image') r = checkImage(el, spec, images, u2p, fmt);
+        else if (el.type === 'image') r = checkImage(el, spec, images, lines, u2p, fmt);
         else if (el.type === 'table') r = checkTable(el, spec, lines, u2p, fmt);
         else r = checkParagraph(el, spec, lines, u2p, fmt);
         results.push(r);

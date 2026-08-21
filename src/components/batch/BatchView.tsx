@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBatchStore, type BatchFile, type BatchPair } from '../../store/batchStore';
 import { useCompareStore } from '../../store/compareStore';
-import { pairVerdict, worst, exportBatchHtml, exportBatchJson, exportBatchCsv, type BatchPairExport } from '../../services/batchExport';
+import {
+  pairVerdict,
+  worst,
+  exportBatchHtml,
+  exportBatchJson,
+  exportBatchCsv,
+  exportBatchMarkdown,
+  type BatchPairExport,
+} from '../../services/batchExport';
 
 // ── multi-file upload column ──────────────────────────────────────────
 function MultiUpload({ side }: { side: 'A' | 'B' }) {
@@ -166,7 +174,8 @@ export default function BatchView({ onOpenCompare }: { onOpenCompare: () => void
                   setExportProgress(null);
                 }
               }}>HTML report<small>Overview + every pair's annotated pages</small></button>
-              <button onClick={() => { exportBatchJson(exportPairs, thresholds); setMenuOpen(false); }}>JSON<small>All pairs &amp; pages, machine-readable</small></button>
+              <button onClick={() => { exportBatchMarkdown(exportPairs, thresholds); setMenuOpen(false); }}>Markdown fix-list<small>What to change in the templates · for an AI agent</small></button>
+        <button onClick={() => { exportBatchJson(exportPairs, thresholds); setMenuOpen(false); }}>JSON<small>All pairs &amp; pages, machine-readable</small></button>
               <button onClick={() => { exportBatchCsv(exportPairs, thresholds); setMenuOpen(false); }}>CSV<small>One row per pair × page</small></button>
             </div>
           )}

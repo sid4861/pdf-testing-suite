@@ -9,6 +9,8 @@ import { diffWords } from 'diff';
 
 import type {
   TextItem,
+  TextStyle,
+  StyleDiff,
   DiffSegment,
   MatchedPair,
   ItemMatch,
@@ -88,6 +90,45 @@ async function renderAndExtract(
   };
 }
 
+// ── font resolution ───────────────────────────────────────────────────
+// PDFs frequently subset fonts and prefix the name with a six-letter tag
+// ("ABCDEF+Helvetica-Bold"). The tag is per-file and meaningless for comparison,
+// so it is stripped before two sides are compared.
+const stripSubsetTag = (name: string) => name.replace(/^[A-Z]{6}\+/, '');
+
+/**
+ * Resolve a run's typography.
+ *
+ * `page.commonObjs` only holds the font once the page has been rendered — which
+ * is why renderAndExtract renders first and extracts second. If a font is still
+ * unresolved the run simply carries no style, and restyle detection skips it
+ * rather than reporting a false difference.
+ */
+function resolveStyle(
+  page: PDFPageProxy,
+  fontName: string | undefined,
+  sizePx: number,
+): TextStyle | undefined {
+  if (!fontName) return undefined;
+  try {
+    const font = (page.commonObjs as unknown as { get(name: string): unknown }).get(fontName) as
+      | { name?: string; fallbackName?: string; bold?: boolean; italic?: boolean; black?: boolean }
+      | undefined;
+    if (!font) return undefined;
+
+    const raw = font.name ?? font.fallbackName ?? fontName;
+    const name = stripSubsetTag(raw);
+    // Some producers encode weight/slant only in the name, so fall back to it
+    // when the parsed flags are absent.
+    const bold = font.bold === true || font.black === true || /bold|black|heavy/i.test(name);
+    const italic = font.italic === true || /italic|oblique/i.test(name);
+
+    return { font: name, size: sizePx, bold, italic };
+  } catch {
+    return undefined; // not resolved yet — treat as unknown, never as a difference
+  }
+}
+
 // ── 5.3 extractItems ──────────────────────────────────────────────────
 async function extractItems(
   page: PDFPageProxy,
@@ -100,7 +141,7 @@ async function extractItems(
   const items: TextItem[] = [];
 
   for (const raw of content.items) {
-    const item = raw as { str?: string; width?: number; transform?: number[] };
+    const item = raw as { str?: string; width?: number; transform?: number[]; fontName?: string };
     if (typeof item.str !== 'string') continue; // skip marked-content markers
     if (!item.str.trim()) continue;              // skip whitespace-only runs
 
@@ -111,10 +152,45 @@ async function extractItems(
     const w = (item.width ?? 0) * scale;
     const h = fontHeight;
 
-    items.push({ str: item.str, x, y, w, h });
+    items.push({ str: item.str, x, y, w, h, style: resolveStyle(page, item.fontName, fontHeight) });
   }
 
   return items;
+}
+
+// ── style comparison ──────────────────────────────────────────────────
+// Rendered sizes carry sub-pixel noise from scaling, so only a visible
+// difference counts — below this it is the same size, not a restyle.
+const SIZE_TOLERANCE_PX = 0.75;
+
+/**
+ * Compare two runs' typography. Returns null when they are effectively identical.
+ *
+ * `compareSizes` is false when B was letterboxed to fit A's box: every glyph on
+ * that page is uniformly rescaled, so sizes are not comparable and treating them
+ * as restyles would flag the whole page. Font, weight and slant stay meaningful.
+ */
+export function diffStyle(
+  a: TextStyle | undefined,
+  b: TextStyle | undefined,
+  compareSizes = true,
+): StyleDiff | null {
+  // Unknown typography on either side is not evidence of a change.
+  if (!a || !b) return null;
+
+  const font = a.font !== b.font;
+  const size = compareSizes && Math.abs(a.size - b.size) > SIZE_TOLERANCE_PX;
+  const bold = a.bold !== b.bold;
+  const italic = a.italic !== b.italic;
+  if (!font && !size && !bold && !italic) return null;
+
+  const parts: string[] = [];
+  if (font) parts.push(`${a.font} → ${b.font}`);
+  if (size) parts.push(`${a.size.toFixed(1)}px → ${b.size.toFixed(1)}px`);
+  if (bold) parts.push(b.bold ? 'bold added' : 'bold removed');
+  if (italic) parts.push(b.italic ? 'italic added' : 'italic removed');
+
+  return { font, size, bold, italic, summary: parts.join(' · ') };
 }
 
 // ── 5.4 reconstructReadingText ────────────────────────────────────────
@@ -210,7 +286,11 @@ export function pixelDiff(
 // ── 5.8 matchItems ────────────────────────────────────────────────────
 const normalize = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
 
-export function matchItems(itemsA: TextItem[], itemsB: TextItem[]): ItemMatch {
+export function matchItems(
+  itemsA: TextItem[],
+  itemsB: TextItem[],
+  opts: { compareSizes?: boolean } = {},
+): ItemMatch {
   const matched: MatchedPair[] = [];
   const onlyA: TextItem[] = [];
 
@@ -256,6 +336,9 @@ export function matchItems(itemsA: TextItem[], itemsB: TextItem[]): ItemMatch {
       dw: best.item.w - a.w,
       dh: best.item.h - a.h,
       offset: Math.hypot(dx, dy),
+      // Same words on both sides, so any typography difference is a restyle
+      // rather than a content edit.
+      styleDiff: diffStyle(a.style, best.item.style, opts.compareSizes ?? true) ?? undefined,
     });
   }
 
@@ -339,7 +422,10 @@ export async function comparePage(
   const diff = diffText(textA, textB);
   const contentMatch = contentMatchRatio(diff);
 
-  const match = matchItems(itemsA, itemsB);
+  // A letterboxed B was uniformly rescaled to fit A's box, so glyph sizes on this
+  // page are not comparable between the two sides.
+  const rescaled = imageB?.letterboxed === true;
+  const match = matchItems(itemsA, itemsB, { compareSizes: !rescaled });
   const maxOffset = match.matched.reduce((m, p) => Math.max(m, p.offset), 0);
 
   let pixel: PixelDiffResult | null = null;

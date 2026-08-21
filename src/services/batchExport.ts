@@ -3,6 +3,7 @@
 
 import type { CompareSummary, PageComparison } from '../types/compare';
 import { summaryPageDiffers } from './changes';
+import { buildMarkdownReport } from './exportMarkdown';
 import {
   REPORT_CSS,
   download,
@@ -160,3 +161,63 @@ export function exportBatchCsv(pairs: BatchPairExport[], thresholds: ExportThres
 }
 
 export { pairVerdict, worst };
+
+// ── Markdown remediation ──────────────────────────────────────────────
+// One document covering every pair, so a model fixing an AEM XDP template reads
+// a single file rather than one per comparison.
+export function exportBatchMarkdown(pairs: BatchPairExport[], thresholds: ExportThresholds) {
+  const now = new Date();
+  const failing = pairs.filter((p) => !pairVerdict(p.summary, thresholds));
+
+  const parts: string[] = [];
+  parts.push('# Batch Template Remediation Report');
+  parts.push('');
+  parts.push(`> ${pairs.length} comparison${pairs.length === 1 ? '' : 's'} · generated ${now.toISOString()}`);
+  parts.push(`> ${pairs.length - failing.length}/${pairs.length} passed. ` +
+    `${failing.length} document${failing.length === 1 ? '' : 's'} need${failing.length === 1 ? 's' : ''} template changes.`);
+  parts.push('');
+  parts.push('Each section below is a self-contained report for one document. Fix them in');
+  parts.push('order; documents produced from the same template will repeat the same finding,');
+  parts.push('so a single template edit may clear several sections at once.');
+  parts.push('');
+  parts.push('## Documents needing changes');
+  parts.push('');
+  if (failing.length === 0) {
+    parts.push('None — every comparison passed.');
+  } else {
+    parts.push('| # | Reference | Candidate |');
+    parts.push('|---|---|---|');
+    for (const p of failing) {
+      parts.push(`| ${p.index} | \`${p.aName}\` | \`${p.bName}\` |`);
+    }
+  }
+  parts.push('');
+  parts.push('---');
+  parts.push('');
+
+  for (const p of pairs) {
+    if (pairVerdict(p.summary, thresholds)) continue;
+    parts.push(`# Document ${p.index}: ${p.bName}`);
+    parts.push('');
+    const body = buildMarkdownReport(
+      p.summary,
+      {
+        nameA: p.aName,
+        nameB: p.bName,
+        pageCountA: p.summary.pageCountA,
+        pageCountB: p.summary.pageCountB,
+        generatedAt: now.toISOString(),
+      },
+      thresholds,
+      p.pageCache,
+    );
+    // The shared preamble is stated once at the top of the batch file rather
+    // than repeated for every document.
+    parts.push(body.slice(body.indexOf('## Run metadata')));
+    parts.push('');
+    parts.push('---');
+    parts.push('');
+  }
+
+  download(`pdf-batch-remediation-${stamp()}.md`, parts.join('\n'), 'text/markdown');
+}

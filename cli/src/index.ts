@@ -183,7 +183,11 @@ program
   .option('-c, --candidate <dir>', 'directory of PDFs to check [config: paths.candidate]')
   .option('-P, --pairs <file>', 'pairs.json describing which file maps to which [config: paths.pairs]')
   .option('-o, --report <dir>', 'directory to write reports into [config: paths.report]')
-  .option('-f, --format <list>', 'html,json,csv,junit [config: compare.format]', 'html,json,csv,junit')
+  .option(
+    '-f, --format <list>',
+    'html,json,csv,junit,md [config: compare.format]',
+    'html,json,csv,junit',
+  )
   .option('--pixel-threshold <n>', 'pixelmatch sensitivity 0–1 [config: compare.pixelThreshold]', parseFloat, 0.1)
   .option('--include-aa', 'count anti-aliased pixels as differences [config: compare.includeAA]', false)
   .option('--fail-on <mode>', 'any | none (none = report only, always exit 0) [config: compare.failOn]', 'any')
@@ -204,6 +208,14 @@ ${c.b('A page fails if any threshold is breached')}
   pixels differ   must be ${c.teal('<=')} pixelPct     ${c.dim('colour / spacing / graphics changed')}
   max offset      must be ${c.teal('<=')} offsetIn     ${c.dim('layout drifted')}
   ${c.dim('A page present on only one side always fails.')}
+
+${c.b('Formats')}
+  ${c.teal('html')}   visual report — annotated pages and the pixel-diff heatmap
+  ${c.teal('json')}   per-page metrics and verdicts, for scripts
+  ${c.teal('csv')}    one row per pair x page, for spreadsheets
+  ${c.teal('junit')}  one testcase per page — Jenkins/GitLab render it natively
+  ${c.teal('md')}     remediation fix-list, written for an AI agent to apply to the
+         source template (AEM XDP and similar)
 
 ${c.dim('Thresholds live in pairs.json — globally under "defaults", per pair under "thresholds".')}
 `,

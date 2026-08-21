@@ -325,6 +325,12 @@ Written to `--report`:
 - **`junit.xml`** — one `<testsuite>` per pair, one `<testcase>` per page. Jenkins, GitLab
   and GitHub Actions render this natively, giving per-page pass/fail history and
   "what newly broke" for free.
+- **`remediation.md`** (`--format md`) — a fix-list written to be **read by an AI agent**
+  rather than a person. Every finding states what the template currently produces, what it
+  should produce, and the change that closes the gap, with positions in inches and font
+  sizes in points so the values map straight onto AEM Forms XDP (XFA) attributes. Cascading
+  shifts are grouped by shared delta, so a deleted table row reads as one finding rather
+  than thirty. See the "Remediation report" section below.
 
 ## Jenkins
 

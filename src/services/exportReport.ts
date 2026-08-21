@@ -145,15 +145,20 @@ export const REPORT_CSS = `
   .diffpane .pane-label { text-align: left; }
   .dwrap { max-width: 520px; }
   .dspot { position: absolute; box-sizing: border-box; outline: 1.5px solid rgba(15,23,42,.55); border-radius: 2px; }
-  .dtip { position: absolute; z-index: 5; display: inline-flex; align-items: center; gap: 5px; line-height: 1.3;
-    background: #0f172a; color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 6px; white-space: nowrap;
-    box-shadow: 0 3px 10px rgba(0,0,0,.3); }
+  /* Wraps rather than truncating: a before -> after label that ends in an ellipsis
+     hides the very edit it is reporting. */
+  .dtip { position: absolute; z-index: 5; display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 3px 5px;
+    line-height: 1.35; background: #0f172a; color: #fff; font-size: 10px; padding: 4px 7px; border-radius: 6px;
+    max-width: 320px; white-space: normal; box-shadow: 0 3px 10px rgba(0,0,0,.3); }
   .dtip.below { top: 100%; margin-top: 3px; } .dtip.above { bottom: 100%; margin-bottom: 3px; }
   .dtip:not(.r) { left: 0; } .dtip.r { right: 0; }
   .dtip .tl { font-size: 8px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #94a3b8; }
   .dtip .tl.rm { color: #fca5a5; } .dtip .tl.ad { color: #86efac; }
-  .dtip .tb { color: #fca5a5; text-decoration: line-through; font-family: ui-monospace, Menlo, Consolas, monospace; }
-  .dtip .ta { color: #86efac; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .dtip .tb, .dtip .ta { font-family: ui-monospace, Menlo, Consolas, monospace;
+    white-space: pre-wrap; overflow-wrap: anywhere; }
+  .dtip .tb { color: #fca5a5; text-decoration: line-through; }
+  .dtip .ta { color: #86efac; }
+  .dtip .tst { color: #67e8f9; }
   .dtip .tar { color: #64748b; }
   .pair-block { border: 1px solid #cbd5e1; border-radius: 12px; padding: 22px; margin-bottom: 26px; }
   .pair-block > h2 { margin: 0 0 4px; }
@@ -245,6 +250,22 @@ export async function reportPageDetail(
     const diffPane =
       diffImg && diffDims && srcDiff
         ? (() => {
+            // Same words, different type — reported alongside the text edits so the
+            // exported heatmap distinguishes a restyle from a rewrite.
+            const styleSpots = changes
+              .filter((c) => c.type === 'styled' && c.style && (c.b ?? c.a))
+              .map((c) => {
+                const b = (c.b ?? c.a)!;
+                const cx = ((b.x + b.w / 2) / diffDims.width) * 100;
+                const cy = ((b.y + b.h / 2) / diffDims.height) * 100;
+                const anchor = cx > 55 ? ' r' : '';
+                const below = cy < 90 ? ' below' : ' above';
+                const style = `left:${(b.x / diffDims.width) * 100}%;top:${(b.y / diffDims.height) * 100}%;width:${(b.w / diffDims.width) * 100}%;height:${(b.h / diffDims.height) * 100}%`;
+                const tip = `<span class="tl">font / style</span><span class="tst">${escapeHtml(c.style!.summary)}</span>`;
+                return `<div class="dspot" style="${style}"><span class="dtip${anchor}${below}">${tip}</span></div>`;
+              })
+              .join('');
+
             const spots = diffHotspots(pc.match.onlyA, pc.match.onlyB)
               .filter((s) => s.before && s.after)
               .map((s) => {
@@ -258,7 +279,7 @@ export async function reportPageDetail(
                 return `<div class="dspot" style="${style}"><span class="dtip${anchor}${below}">${tip}</span></div>`;
               })
               .join('');
-            return `<div class="diffpane"><div class="pane-label">Pixel diff · ${pct(diffImg.ratio)} of pixels changed — before → after labels shown for each replaced text</div><div class="rwrap dwrap"><img src="${srcDiff}" alt="pixel diff" />${spots}</div></div>`;
+            return `<div class="diffpane"><div class="pane-label">Pixel diff · ${pct(diffImg.ratio)} of pixels changed — before → after labels for replaced text, and font/style labels where only the type changed</div><div class="rwrap dwrap"><img src="${srcDiff}" alt="pixel diff" />${spots}${styleSpots}</div></div>`;
           })()
         : '';
 
@@ -268,7 +289,12 @@ export async function reportPageDetail(
             const box = (c.a ?? c.b)!;
             const dims = pc.imageA ?? pc.imageB;
             const ii = (px: number) => inchStr(px, pc.pxPerInch);
-            const pos = c.type === 'moved' && c.offset != null ? `moved ${ii(c.offset)}` : `${ii(box.x)}, ${ii(box.y)}`;
+            const pos =
+              c.type === 'styled' && c.style
+                ? c.style.summary
+                : c.type === 'moved' && c.offset != null
+                  ? `moved ${ii(c.offset)}`
+                  : `${ii(box.x)}, ${ii(box.y)}`;
             const where = dims ? region(box, dims.width, dims.height) : '';
             return `<li><span class="rnum" style="background:${CHANGE_COLOR[c.type]}">${c.id}</span>
               <span class="rtype" style="color:${CHANGE_COLOR[c.type]}">${TYPE_LABEL[c.type]}</span>

@@ -7,6 +7,7 @@ import {
   exportJson,
   type ExportThresholds,
 } from '../../services/exportReport';
+import { exportMarkdownReport } from '../../services/exportMarkdown';
 
 export default function CompareReport() {
   const summary = useCompareStore((s) => s.summary);
@@ -124,6 +125,15 @@ export default function CompareReport() {
                 >
                   HTML report
                   <small>Printable, with diff images · Save as PDF</small>
+                </button>
+                <button
+                  onClick={() => {
+                    exportMarkdownReport(summary, meta, thresholds, pageCache);
+                    setMenuOpen(false);
+                  }}
+                >
+                  Markdown fix-list
+                  <small>What to change in the template · for an AI agent</small>
                 </button>
                 <button
                   onClick={() => {

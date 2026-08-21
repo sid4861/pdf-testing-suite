@@ -35,6 +35,8 @@ export {
   type ExportThresholds,
 } from '../../../src/services/exportReport';
 
+export { buildMarkdownReport } from '../../../src/services/exportMarkdown';
+
 export type {
   CompareSummary,
   PageComparison,

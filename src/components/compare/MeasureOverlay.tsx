@@ -12,6 +12,8 @@ interface Props {
   // 'moved' changes (layout shifts) — hovering shows before/after position in inches
   // instead of text.
   moved?: Change[];
+  // 'styled' changes — same words, different type. Hovering shows what changed.
+  styled?: Change[];
 }
 
 interface Pt {
@@ -22,7 +24,7 @@ interface Pt {
 interface Tip {
   x: number; // css, relative to overlay
   y: number;
-  kind: 'text' | 'layout';
+  kind: 'text' | 'layout' | 'style';
   before: string | null;
   after: string | null;
   // layout-only, in inches:
@@ -31,6 +33,9 @@ interface Tip {
   topA?: number;
   topB?: number;
   offsetIn?: number;
+  // style-only:
+  styleSummary?: string;
+  sample?: string;
 }
 
 // Item whose box contains the point (nearest to its centre wins).
@@ -99,7 +104,7 @@ function movedAt(items: Change[], nx: number, ny: number): Change | null {
   return best;
 }
 
-export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB, moved }: Props) {
+export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB, moved, styled }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [start, setStart] = useState<Pt | null>(null);
   const [end, setEnd] = useState<Pt | null>(null);
@@ -108,6 +113,7 @@ export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB, 
 
   const hasText = !!(onlyA?.length || onlyB?.length);
   const hasMoved = !!moved?.length;
+  const hasStyled = !!styled?.length;
 
   const toCss = (e: React.PointerEvent): Pt => {
     const rect = ref.current!.getBoundingClientRect();
@@ -122,10 +128,28 @@ export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB, 
   };
 
   const updateTip = (css: Pt) => {
-    if (!hasText && !hasMoved) return;
+    if (!hasText && !hasMoved && !hasStyled) return;
     const s = scale();
     const nx = css.x * s;
     const ny = css.y * s;
+
+    // Restyles are checked first: they explain a shift, so reporting the shift
+    // instead would bury the actual cause.
+    if (hasStyled) {
+      const st = movedAt(styled!, nx, ny);
+      if (st) {
+        setTip({
+          x: css.x,
+          y: css.y,
+          kind: 'style',
+          before: null,
+          after: null,
+          styleSummary: st.style?.summary ?? 'type changed',
+          sample: st.text,
+        });
+        return;
+      }
+    }
 
     if (hasMoved) {
       const m = movedAt(moved!, nx, ny);
@@ -215,10 +239,22 @@ export default function MeasureOverlay({ naturalWidth, pxPerInch, onlyA, onlyB, 
       {/* before/after tooltip (pixel-diff hover) — text content or, for a layout shift, position in inches */}
       {tip && !dragging && (
         <div
-          className={`diff-tip ${tip.kind === 'layout' ? 'layout' : ''}`}
-          style={{ left: Math.min(tip.x + 12, (ref.current?.clientWidth ?? 0) - 8), top: tip.y + 14 }}
+          className={`diff-tip ${tip.kind === 'layout' || tip.kind === 'style' ? 'stacked' : ''}`}
+          // Anchored to whichever side has room. Clamping `left` near the right
+          // edge would squeeze the tooltip into a sliver and wrap every line.
+          style={
+            tip.x > (ref.current?.clientWidth ?? 0) / 2
+              ? { right: Math.max(8, (ref.current?.clientWidth ?? 0) - tip.x + 12), top: tip.y + 14 }
+              : { left: tip.x + 12, top: tip.y + 14 }
+          }
         >
-          {tip.kind === 'layout' ? (
+          {tip.kind === 'style' ? (
+            <>
+              <span className="tt-lbl st">font / style</span>
+              {tip.sample && <span className="tt-sample">{tip.sample}</span>}
+              <span className="tt-row">{tip.styleSummary}</span>
+            </>
+          ) : tip.kind === 'layout' ? (
             <>
               <span className="tt-lbl mv">layout shift</span>
               <span className="tt-row">left {tip.leftA!.toFixed(2)}″ → {tip.leftB!.toFixed(2)}″</span>

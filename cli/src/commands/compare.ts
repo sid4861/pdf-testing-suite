@@ -14,7 +14,12 @@ import {
 import { EXIT, ToolError } from '../core/exit.js';
 import { DEFAULT_THRESHOLDS, formatPairTable, loadPairs, type ResolvedPair } from '../core/pairs.js';
 import { writeHtmlReport } from '../report/html.js';
-import { writeCsvReport, writeJsonReport, writeJUnitReport } from '../report/machine.js';
+import {
+  writeCsvReport,
+  writeJsonReport,
+  writeJUnitReport,
+  writeMarkdownReport,
+} from '../report/machine.js';
 import type { PageVerdict, PairResult, RunContext } from '../report/types.js';
 
 export interface CompareOptions {
@@ -200,6 +205,9 @@ export async function runCompare(opts: CompareOptions): Promise<number> {
   if (formats.has('json')) written.push(writeJsonReport(results, ctx, opts.report));
   if (formats.has('csv')) written.push(writeCsvReport(results, opts.report));
   if (formats.has('junit')) written.push(writeJUnitReport(results, ctx, opts.report));
+  if (formats.has('md') || formats.has('markdown')) {
+    written.push(writeMarkdownReport(results, ctx, opts.report));
+  }
 
   for (const f of written) {
     const kb = (fs.statSync(f).size / 1024).toFixed(0);

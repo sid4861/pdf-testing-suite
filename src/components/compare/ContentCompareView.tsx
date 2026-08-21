@@ -3,7 +3,7 @@ import { useCompareStore } from '../../store/compareStore';
 import type { CompareSide, RenderedPageImage } from '../../types/compare';
 import { buildChanges, fmtInch, isOnSide, region, TYPE_LABEL, type Change, type ChangeType } from '../../services/changes';
 
-const TYPE_ORDER: ChangeType[] = ['removed', 'added', 'moved'];
+const TYPE_ORDER: ChangeType[] = ['removed', 'added', 'styled', 'moved'];
 
 function scoreClass(m: number): string {
   if (m >= 0.999) return 'good';
@@ -77,6 +77,7 @@ export default function ContentCompareView() {
   const [enabled, setEnabled] = useState<Record<ChangeType, boolean>>({
     removed: true,
     added: true,
+    styled: true,
     moved: true,
   });
 
@@ -86,7 +87,7 @@ export default function ContentCompareView() {
   );
 
   const counts = useMemo(() => {
-    const c: Record<ChangeType, number> = { removed: 0, added: 0, moved: 0 };
+    const c: Record<ChangeType, number> = { removed: 0, added: 0, styled: 0, moved: 0 };
     for (const ch of changes) c[ch.type]++;
     return c;
   }, [changes]);
@@ -136,7 +137,10 @@ export default function ContentCompareView() {
               <i className={`dot ${t}`} /> {TYPE_LABEL[t]} <span className="cnt">{counts[t]}</span>
             </button>
           ))}
-          <span className="legend-hint">Click a type to filter · hover to link a change to the page.</span>
+          <span className="legend-hint">
+            Removed / added = the words changed · Restyled = same words, different type ·
+            Moved = same words and type, shifted. Click a type to filter, hover to link it to the page.
+          </span>
         </div>
         <div className="pages-row">
           <PageWithBoxes
@@ -214,9 +218,11 @@ export default function ContentCompareView() {
                   <span className="chg-text" title={c.text}>{c.text}</span>
                   <span className="chg-pos">
                     {dims ? region(box, dims.width, dims.height) : ''}
-                    {c.type === 'moved' && c.offset != null
-                      ? ` · moved ${fmtInch(c.offset, pc.pxPerInch)}`
-                      : ` · ${fmtInch(box.x, pc.pxPerInch)}, ${fmtInch(box.y, pc.pxPerInch)}`}
+                    {c.type === 'styled' && c.style
+                      ? ` · ${c.style.summary}`
+                      : c.type === 'moved' && c.offset != null
+                        ? ` · moved ${fmtInch(c.offset, pc.pxPerInch)}`
+                        : ` · ${fmtInch(box.x, pc.pxPerInch)}, ${fmtInch(box.y, pc.pxPerInch)}`}
                   </span>
                 </div>
               );

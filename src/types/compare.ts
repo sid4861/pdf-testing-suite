@@ -1,6 +1,14 @@
 // All shared interfaces for the PDF comparison engine, store, and UI.
 // These types never touch React.
 
+/** Typography of a text run, used to detect restyling when the words are unchanged. */
+export interface TextStyle {
+  font: string;   // BaseFont name with any subset prefix stripped, e.g. "Helvetica-Bold"
+  size: number;   // font size in target-box px (comparable between the two sides)
+  bold: boolean;
+  italic: boolean;
+}
+
 /** A single extracted text run with its bounding box in target-box pixel space. */
 export interface TextItem {
   str: string; // text content of the run (never empty)
@@ -8,6 +16,7 @@ export interface TextItem {
   y: number;   // top edge in px, top-left origin (NOT baseline)
   w: number;   // width in px
   h: number;   // height in px (~font size at render scale)
+  style?: TextStyle; // absent when the font could not be resolved
 }
 
 /** One chunk from a word-level text diff. */
@@ -27,6 +36,18 @@ export interface MatchedPair {
   dw: number;     // b.w - a.w
   dh: number;     // b.h - a.h
   offset: number; // √(dx² + dy²)
+  /** Set when the words are identical but the typography differs. */
+  styleDiff?: StyleDiff;
+}
+
+/** What changed about a run's typography. Only populated when something did. */
+export interface StyleDiff {
+  font: boolean;
+  size: boolean;
+  bold: boolean;
+  italic: boolean;
+  /** Human-readable one-liner, e.g. "Helvetica -> Helvetica-Bold - bold added". */
+  summary: string;
 }
 
 /** Full result of matching two pages' text items. */

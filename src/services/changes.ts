@@ -1,9 +1,15 @@
 // Shared change-derivation logic used by both the Content view and the HTML export,
 // so the on-screen highlights and the exported report stay in sync.
 
-import type { PageComparison, PageSummary, TextItem } from '../types/compare';
+import type { PageComparison, PageSummary, StyleDiff, TextItem } from '../types/compare';
 
-export type ChangeType = 'removed' | 'added' | 'moved';
+// Three kinds of difference, deliberately kept apart:
+//   removed / added  the words themselves changed  -> a CONTENT change
+//   styled           same words, different type    -> a STYLE change
+//   moved            same words, same type, shifted -> a LAYOUT change
+// A run whose text was edited is always content, never layout, even though the
+// edit usually shifts everything after it.
+export type ChangeType = 'removed' | 'added' | 'moved' | 'styled';
 
 export interface Change {
   id: number;
@@ -13,18 +19,21 @@ export interface Change {
   a: TextItem | null; // box on side A
   b: TextItem | null; // box on side B
   offset?: number;    // for 'moved'
+  style?: StyleDiff;  // for 'styled'
 }
 
 export const TYPE_LABEL: Record<ChangeType, string> = {
   removed: 'Removed',
   added: 'Added',
   moved: 'Moved',
+  styled: 'Restyled',
 };
 
 export const CHANGE_COLOR: Record<ChangeType, string> = {
   removed: '#dc2626', // red
   added: '#059669',   // emerald
   moved: '#7c3aed',   // violet — kept well clear of red so the two never blur together
+  styled: '#0891b2',  // cyan — reads as neither "gone" nor "new", which is the point
 };
 
 /** Convert a target-box pixel distance to inches. */
@@ -34,9 +43,10 @@ export const fmtInch = (px: number, pxPerInch: number) => `${(px / pxPerInch).to
 
 /** Which side(s) a change is drawn on. */
 export function isOnSide(c: Change, side: 'A' | 'B'): boolean {
+  const bothSides = c.type === 'moved' || c.type === 'styled';
   return side === 'A'
-    ? !!c.a && (c.type === 'removed' || c.type === 'moved')
-    : !!c.b && (c.type === 'added' || c.type === 'moved');
+    ? !!c.a && (c.type === 'removed' || bothSides)
+    : !!c.b && (c.type === 'added' || bothSides);
 }
 
 export function region(box: TextItem, w: number, h: number): string {
@@ -53,7 +63,12 @@ export function buildChanges(pc: PageComparison, movedThresholdIn: number): Chan
   for (const it of pc.match.onlyA) raw.push({ type: 'removed', text: it.str, a: it, b: null });
   for (const it of pc.match.onlyB) raw.push({ type: 'added', text: it.str, a: null, b: it });
   for (const p of pc.match.matched) {
-    if (p.offset > thresholdPx) {
+    // Typography wins over position: a run that was restyled is reported as a
+    // style change even if it also shifted, because the restyle is the cause and
+    // the shift is usually its consequence.
+    if (p.styleDiff) {
+      raw.push({ type: 'styled', text: p.a.str, a: p.a, b: p.b, offset: p.offset, style: p.styleDiff });
+    } else if (p.offset > thresholdPx) {
       raw.push({ type: 'moved', text: p.a.str, a: p.a, b: p.b, offset: p.offset });
     }
   }
@@ -140,18 +155,38 @@ export function diffHotspots(onlyA: TextItem[], onlyB: TextItem[]): DiffHotspot[
   return spots;
 }
 
-/** Which of the two heatmap buckets a change belongs to. */
-export type HeatBucket = 'layout' | 'text';
+/** Which heatmap bucket a change belongs to. */
+export type HeatBucket = 'layout' | 'text' | 'style';
 
 export const HEAT_COLOR: Record<HeatBucket, string> = {
   layout: '#7c3aed', // violet — matches the 'moved' color used in the Content tab
   text: '#d97706',   // amber — content added/removed, distinct from the base pixelmatch red
+  style: '#0891b2',  // cyan — same words, different type
 };
 
 export const HEAT_LABEL: Record<HeatBucket, string> = {
   layout: 'Layout shift',
   text: 'Text change',
+  style: 'Font / style change',
 };
+
+export const HEAT_HINT: Record<HeatBucket, string> = {
+  layout: 'same words and type, moved',
+  text: 'the words themselves changed',
+  style: 'same words, different font, size, weight or slant',
+};
+
+const BUCKET_OF: Record<ChangeType, HeatBucket> = {
+  removed: 'text',
+  added: 'text',
+  styled: 'style',
+  moved: 'layout',
+};
+
+// When one region carries more than one kind of change, report the most
+// meaningful cause: an edit explains a shift, a restyle explains a shift, but
+// never the other way round.
+const BUCKET_PRIORITY: Record<HeatBucket, number> = { text: 3, style: 2, layout: 1 };
 
 /** A heatmap region: one per change group, bucketed and boxed as a single union rect. */
 export interface HeatBox {
@@ -169,20 +204,32 @@ function unionBox(items: TextItem[]): TextItem {
 }
 
 /**
- * Collapse the 3 content-tab change types into 2 heatmap buckets — 'moved' becomes
- * a 'layout' region, 'removed'/'added' (including paired in-place replacements,
- * already grouped by buildChanges) become one 'text' region — so the pixel-diff
- * heatmap can be tinted by cause rather than one flat color.
+ * Collapse change types into heatmap buckets so the pixel-diff heatmap is tinted
+ * by cause rather than one flat colour:
+ *
+ *   removed / added -> text    the words changed
+ *   styled          -> style   same words, different type
+ *   moved           -> layout  same words and type, just moved
+ *
+ * Paired in-place replacements are already one group, so an edit renders as a
+ * single region rather than a red box next to a green one.
  */
 export function heatmapBoxes(changes: Change[]): HeatBox[] {
   const groups = new Map<number, { type: HeatBucket; items: TextItem[] }>();
+
   for (const c of changes) {
-    const bucket: HeatBucket = c.type === 'moved' ? 'layout' : 'text';
-    const g = groups.get(c.group) ?? { type: bucket, items: [] };
+    const bucket = BUCKET_OF[c.type];
+    const existing = groups.get(c.group);
+    const g = existing ?? { type: bucket, items: [] };
+    // Highest-priority cause wins for the group as a whole.
+    if (existing && BUCKET_PRIORITY[bucket] > BUCKET_PRIORITY[existing.type]) {
+      g.type = bucket;
+    }
     if (c.a) g.items.push(c.a);
     if (c.b) g.items.push(c.b);
     groups.set(c.group, g);
   }
+
   return [...groups.entries()].map(([id, g]) => ({ id, type: g.type, box: unionBox(g.items) }));
 }
 
