@@ -17,7 +17,7 @@ description: "How the product works, in diagrams — the app shell, each workspa
 
 - Part 1 · High level — [System overview](#system-overview) · [UI shell and state](#ui-shell-and-state) · [Feature flags](#feature-flags) · [Compare engine](#compare-engine-comparepage)
 - Part 2 · Each tab — [Compare 2 PDFs](#compare-2-pdfs--loading-scanning-and-navigation) · [Side by side](#side-by-side) · [Overlapping](#overlapping) · [View report](#view-report) · [Export and Import ZIP](#export-menu-and-import-zip) · [Spec driven comparison](#spec-driven-comparison) · [Inspect PDF](#inspect-pdf) · [Batch compare](#batch-compare)
-- Part 3 · CLI — [Build and engine reuse](#how-the-cli-is-built-and-reuses-the-engine) · [`generate`](#pdfsuite-generate) · [`compare`](#pdfsuite-compare) · [`pairs`](#pdfsuite-pairs) · [Python wrapper](#python-wrapper-cli-py) · [Verdict rules: app vs CLI](#verdict-rules-app-vs-cli)
+- Part 3 · CLI — [Build and engine reuse](#how-the-cli-is-built-and-reuses-the-engine) · [`generate`](#pdfsuite-generate) · [`compare`](#pdfsuite-compare) · [`pairs`](#pdfsuite-pairs) · [Verdict rules: app vs CLI](#verdict-rules-app-vs-cli)
 - Part 4 · [Planned](#planned--excel--spec-conversion-and-deferred-cli-work)
 
 ---
@@ -28,7 +28,7 @@ description: "How the product works, in diagrams — the app shell, each workspa
 
 - **One engine, no React.** [`src/services`](../src/services/) holds all comparison logic; the four workspaces reach it through six Zustand stores.
 - **The Node CLI imports the same engine files unchanged**, with a small DOM shim that swaps the browser canvas for `@napi-rs/canvas`.
-- **The Python CLI** runs `generate` natively and hands `compare` and `pairs` to the Node CLI.
+- **There is one CLI, the Node one** — the product is TypeScript ([SR-STACK-TYPESCRIPT](../records/0104_STACK-typescript.md)).
 
 ```mermaid
 flowchart LR
@@ -62,13 +62,10 @@ flowchart LR
   ELM --> PDFJS
   EXP --> ZL
   subgraph CLIS["Command line"]
-    PY["Python pdfsuite<br/>cli-py"]
     NODE["Node pdfsuite<br/>cli/dist/index.js"]
     SEAM["platform/engine.ts<br/>+ dom-shim"]
   end
   API[("Render API<br/>JSON payload → PDF")]
-  PY -->|"compare · pairs<br/>subprocess"| NODE
-  PY -->|"generate<br/>native urllib"| API
   NODE -->|generate| API
   NODE -->|compare| SEAM
   SEAM -->|"imports unchanged"| CMPS
@@ -603,30 +600,6 @@ flowchart LR
 ```
 
 [Open as SVG](architecture/16-cli-pairs.svg)
-
-## Python wrapper `cli-py`
-
-- **No dependencies.** `generate` is a native Python port (urllib + thread pool).
-- **`compare` and `pairs` run the Node bundle as a subprocess** with an argument list (no shell); output streams through.
-- **As a library, `compare()` reads `report/report.json`** back into dataclasses.
-
-```mermaid
-flowchart LR
-  PY["pdfsuite (Python) · argparse"] --> GEN["generate<br/>native Python · urllib + thread pool<br/>same flags as Node"]
-  GEN --> API[("Render API")]
-  PY --> CMP["compare · pairs"]
-  CMP --> ND["node.py<br/>find_node · check version<br/>find_bundle → dist/index.js"]
-  ND -->|"subprocess.Popen(args list)<br/>streams output"| NC["Node pdfsuite compare / pairs"]
-  NC --> RJ["report/report.json"]
-  RJ --> LIB["compare() library API<br/>models.py dataclasses"]
-  NC -->|"exit code passed through"| PY
-```
-
-[Open as SVG](architecture/17-cli-python-wrapper.svg)
-
-Code: `cli-py/src/pdfsuite/cli.py` · `node.py` · `generate.py` · `compare.py` · `models.py`
-
-> **Watch.** The two `generate` versions already differ: proxy support, timeout semantics, Content-Type handling. `find_bundle` runs the first `dist/index.js` it finds walking up from the current folder.
 
 ## Verdict rules: app vs CLI
 

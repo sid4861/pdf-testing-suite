@@ -81,22 +81,24 @@ cannot be told apart from a stale one.
 
 | Document | Update trigger | Last verified | Notes |
 |---|---|---|---|
-| `CLAUDE.md` | any rule or pointer changes | 2026-10-14 | 2026-10-14 — pointer to `docs/ARCHITECTURE.md` added |
+| `CLAUDE.md` | any rule or pointer changes | 2026-10-16 | 2026-10-16 — `cli-py/` dropped from the map (W-03) |
 | `work/README.md` | a file is added to or removed from `work/` | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/OPEN-WORK.md` | the same change as the work it tracks | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/BACKLOG.md` | a record names something nobody is doing | 2026-10-13 | 2026-10-13 — created at setup |
+| `work/OPEN-WORK.md` | the same change as the work it tracks | 2026-10-16 | 2026-10-16 — W-03, W-04, W-05 filed; W-02 rescoped; inbox row on Python dev scripts |
+| `work/BACKLOG.md` | a record names something nobody is doing | 2026-10-16 | 2026-10-16 — B-008 to B-012 filed |
 | `work/open/README.md` | the item-file contract changes | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/INTERVIEW.md` | direction, a decision or the live state changes — during the session | 2026-10-14 | 2026-10-14 — architecture doc noted in state of play |
-| `work/IMPLEMENTATION.md` | something lands | 2026-10-14 | 2026-10-14 — architecture doc landed |
+| `work/INTERVIEW.md` | direction, a decision or the live state changes — during the session | 2026-10-16 | 2026-10-16 — Excel-spec rulings recorded; four records filed |
+| `work/IMPLEMENTATION.md` | something lands | 2026-10-16 | 2026-10-16 — records 0101–0104 filed, nothing built yet |
 | `work/LESSONS.md` | a failure teaches something durable | 2026-10-13 | 2026-10-13 — created at setup |
 | `work/MACHINE.md` | a surface breaks in a way the code did not cause | 2026-10-13 | 2026-10-13 — created at setup |
 | `work/compare/README.md` | a fork opens, closes, or its trigger fires | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/proposals/README.md` | an idea is filed, graduates, or is rejected | 2026-10-13 | 2026-10-13 — created at setup |
-| `docs/GLOSSARY.md` | a term is coined or redefined | 2026-10-14 | 2026-10-14 — golden PDF, candidate, letterbox added |
-| `records/README.md` | a record's state, ownership or number changes | 2026-10-14 | 2026-10-14 — ownership rows for `docs/ARCHITECTURE.md` and `docs/architecture/` |
+| `work/proposals/README.md` | an idea is filed, graduates, or is rejected | 2026-10-16 | 2026-10-16 — excel-spec-comparison graduated |
+| `docs/GLOSSARY.md` | a term is coined or redefined | 2026-10-16 | 2026-10-16 — spec JSON, extraction JSON, validation report, template v2, Pages List, inferred |
+| `records/README.md` | a record's state, ownership or number changes | 2026-10-16 | 2026-10-16 — records 0101–0104; spec paths moved from W-01; `cli-py/` row removed (W-03) |
 | `records/TEMPLATE.md` | the convention changes | 2026-10-13 | 2026-10-13 — created at setup |
-| `docs/ARCHITECTURE.md` | a change to `src/`, `cli/` or `cli-py/` alters a flow, a store, a tab, a command, a flag or a verdict rule | 2026-10-14 | 2026-10-14 — created from the code |
-| `docs/architecture/` | a Mermaid block in `docs/ARCHITECTURE.md` changes — re-render its SVG | 2026-10-14 | 2026-10-14 — 18 SVGs rendered with mermaid 10.9.1 |
+| `docs/ARCHITECTURE.md` | a change to `src/` or `cli/` alters a flow, a store, a tab, a command, a flag or a verdict rule | 2026-10-16 | 2026-10-16 — Python wrapper section and node removed (W-03) |
+| `docs/architecture/` | a Mermaid block in `docs/ARCHITECTURE.md` changes — re-render its SVG | 2026-10-16 | 2026-10-16 — 01 re-rendered, 17 removed (W-03) |
+| `work/proposals/excel-spec-comparison.md` | the research behind the spec records changes; archived when W-02 and W-04 close | 2026-10-16 | 2026-10-16 — graduated into four records; open questions answered |
+| `tools/samples/excel-spec-hierarchical/README.md` | `generate.py`'s pages, layout or deviations change | 2026-10-16 | 2026-10-16 — created with the sample |
 
 (`WORKLOG.md`, `NOW.md`, `BLOCKED.json` and `archive/README.md` carry no row:
 the first is append-only, the next two are overwritten every session, the last

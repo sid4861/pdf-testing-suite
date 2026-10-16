@@ -242,7 +242,7 @@ Last, once you know what actually remains. Per §3.7.
   pointing at this converter. Converting in-browser would mean porting this to TypeScript —
   a separate decision, not assumed here.
 - **Python, stdlib-first.** `.csv` needs nothing; `.xlsx` needs `openpyxl` behind an
-  optional import. Matches `cli-py`, which is stdlib-only.
+  optional import. (Superseded: the spec pipeline is TypeScript only — SR-STACK-TYPESCRIPT.)
 - **Do not edit `src/` from the converter's side** beyond what Step 0 assembles. The engine
   and the converter are separate deliverables.
 - **Coordinates** are inches from the page's **top-left**; `fontSize` is always points.

@@ -24,6 +24,14 @@ entry is corrected by a new one. Distinct from `INTERVIEW.md`, which is the
 
 ---
 
+## 2026-10-16 — `main` merged into `spec-driven-comparison`; PR raised  ·  Claude Code (Opus 5.5)
+
+- **Asked:** *push and raise the #3 PR.* (PRs #2 and #3 had already merged, so this is the third in the series, stacked on nothing.)
+- **Done:** merged `origin/main` into the branch. Conflicts in `CLAUDE.md` (layout line: `cli-py/` dropped, sealed `src/features/spec/` line kept), `work/NOW.md` (one line for both), `work/WORKLOG.md` (both sides' entries kept, `main`'s first). `main`'s spec separation moved the spec code to `src/features/spec/`, so the spec records' paths (Ownership + Describes rows in `records/README.md`, `owns:` and body refs in 0101–0103, W-02, W-04) were remapped to it — no decision changed.
+- **Decided / left open:** (1) `src/services/specConstants.ts` (SR-CONSTANTS, W-05 — not built) still names `src/services/`; the sealed-feature boundary may want it inside `src/features/spec/` — Siddharth's or Arpit's call. (2) `main` built `sheetRead.ts`/`sheetSpec.ts` (Excel → spec) — overlaps W-02's scope; no record owns them yet, so they fall to W-01. (3) The graduated proposal keeps the old paths, as history.
+- **Mistakes:** none.
+- **Next:** review and merge the PR; then the two calls above; then W-05.
+
 ## 2026-10-16 — pdfsuite published as an npm package, thresholds removed  ·  Claude Code (Opus 5)
 
 - **Asked:** *can we make an npm package that does the same comparison and writes HTML reports? — then: no spec-driven, no ignored regions, positional `pdfsuite compare <golden> <candidate> <pairs.json> <reports>`, and remove thresholds too.*
@@ -98,6 +106,46 @@ entry is corrected by a new one. Distinct from `INTERVIEW.md`, which is the
 - **Next:** file the compare-tab feature stream as an OPEN-WORK item (or fold it into W-01) and commit it.
 
 ---
+
+## 2026-10-16 — W-03: Python CLI removed; spec records committed  ·  Cowork (Opus 5.5)
+
+- **Asked:** *continue, mac shell is up.*
+- **Done:** committed the spec records and items (ca83f3e). W-03: `git rm -r cli-py`; `docs/ARCHITECTURE.md` Python section, contents link and diagram-01 node removed; `01-system-overview.svg` re-rendered, `17-cli-python-wrapper.svg` removed; presentation slide and script now "two front ends"; `CLAUDE.md`, register (SR-STACK-TYPESCRIPT built), Ownership row, registry, `tools/plan.md`, proposal. W-03 archived.
+- **Decided / left open:** inbox still holds Python in dev-only scripts. SVG files keep their numbers (18 not renumbered).
+- **Mistakes:** none.
+- **Next:** W-05.
+
+## 2026-10-16 — Excel-spec rulings → four records and four work items  ·  Cowork (Opus 5.5)
+
+- **Asked:** *is anything still open? If not, create the records for what we talked about and file the work items.*
+- **Done:** [SR-SPEC-INTAKE](../records/0101_SPEC-intake.md), [SR-SPEC-CHECK](../records/0102_SPEC-check.md), [SR-CONSTANTS](../records/0103_CONSTANTS.md), [SR-STACK-TYPESCRIPT](../records/0104_STACK-typescript.md) — accepted, not built. W-02 rescoped to intake (🟡 on W-05); W-03 remove `cli-py/` (🟢), W-04 spec checker (🟡 on W-05), W-05 constants file (🟢). Register, Ownership (spec paths off W-01; `cli-py/` → W-03) and Describes tables; proposal graduated, open questions struck; BACKLOG B-008–B-012; glossary; registry; INTERVIEW; NOW; IMPLEMENTATION. Uncommitted — device shell unreachable.
+- **Decided / left open:** Arpit, by voice, 2026-10-16: `.xlsx` + JSON only; literals only; hidden content skipped and listed (listed hidden sheet = warning); 100 MB raw / 500 MB unzipped; ranges are tolerance bands; normalised wording passes with a note; Pages List order — out of order or extra = warning, missing Required = error; Description column human-only; template v2 plus legacy; JSON is the only engine input, downloadable; one constants file; TypeScript only; remove `cli-py/`; uploader owns freshness; stale-pair, Draft/Ready and version diff to backlog. **Left open (inbox):** Python in dev-only scripts. **Interpretation to confirm:** a file or Pages List error stops the run; an element error excludes only that element.
+- **Mistakes:** `cli-py/` could not be deleted from here (no device shell) — filed as W-03 instead.
+- **Next:** W-05.
+
+## 2026-10-16 — nested-layout Excel spec + PDFs (images, graphs, tables, text)  ·  Cowork (Opus 5.5)
+
+- **Asked:** *analyse a sample spec workbook (first sheet lists every page, then one sheet per page) and create a sample Excel and a PDF with images, graphs, tables and text — use it only as a model.*
+- **Done:** [`tools/samples/excel-spec-hierarchical/`](../tools/samples/excel-spec-hierarchical/README.md) — `report-spec.xlsx` (Pages List + sheets 1–4, nested merged-cell layout, prose values), `report.pdf` (4 landscape pages; 0.000 in off on 25 elements), `report-with-deviations.pdf` (12 deviations, 3 not detectable today), `assets/`, deterministic `generate.py`. Proposal gains *Observed spec-sheet conventions*, decision 10 widened, P1 gains the line-grouping fix, open question 4 answered. W-02 reference, IMPLEMENTATION, registry, INTERVIEW, NOW. Uncommitted — device shell unreachable.
+- **Decided / left open:** all content invented; nothing from the reviewed workbook's wording is reproduced. `tools/samples/excel-spec/` was gone from the tree when this session looked — not recreated; references now point to the new sample.
+- **Mistakes:** none.
+- **Next:** Siddharth or Arpit answers the inbox row; then W-02 P0.
+
+## 2026-10-14 — sample Excel spec + PDFs for W-02  ·  Cowork (Opus 5.5)
+
+- **Asked:** *create a sample Excel of two to three pages and create a PDF for the same.*
+- **Done:** [`tools/samples/excel-spec/`](../tools/samples/excel-spec/README.md): `statement-spec.xlsx` (3 sheets = 3 pages; sections with dimensions; a grid shape and a prose shape), `statement.pdf` (matches — 0.000 in off on 23 elements, measured the app's pdf.js way), `statement-with-deviations.pdf` (9 deliberate deviations, expected findings tabled in the README), `generate.py` (one data definition → all three; deterministic). W-02 reference, IMPLEMENTATION, registry, INTERVIEW, NOW. Uncommitted — device shell unreachable.
+- **Decided / left open:** placed under `tools/samples/` (where `tools/plan.md` puts worked examples), owned by W-01 like the rest of `tools/`. Standard PDF fonts, so the generator runs anywhere. Synthetic data does not answer the inbox ask for real samples.
+- **Mistakes:** none.
+- **Next:** Siddharth or Arpit answers the inbox row; then W-02 P0.
+
+## 2026-10-14 — Excel-as-spec: review, research, proposal, W-02  ·  Cowork (Opus 5.5)
+
+- **Asked:** *review how spec driven comparison works today; research how it can be built out when PDF specs live in Excel (one sheet per page, sections, dimensions; Excel is the truth); write a proposal that becomes a record; create a work item with the diagram.*
+- **Done:** [`work/proposals/excel-spec-comparison.md`](proposals/excel-spec-comparison.md) (record-shaped: today's state, 14 proposed decisions, phases P0–P6, alternatives, open questions, two diagrams with ASCII twins); [`W-02`](open/W-02-excel-spec-comparison.md) with the pipeline diagram; queue row + inbox ruling; proposals index; registry; glossary (workbook profile, spec coverage); INTERVIEW; NOW. Uncommitted — device shell unreachable; written onto whatever branch is checked out (PR #3's, per the entry below).
+- **Decided / left open:** proposed an in-app, zero-dependency TypeScript xlsx reader (jszip already shipped) over the Python converter `tools/plan.md` §5 assumed — **for Siddharth or Arpit to rule**. The proposal went straight to W-02, so it has no `B-nnn` row ([SR-WORK-BACKLOG](../records/0052_WORK-backlog.md) rules 7, 23). Found: `tools/spec-from-excel.py` is referenced but absent; the upload is labelled "CSV spec" yet rejects CSV.
+- **Mistakes:** none.
+- **Next:** Siddharth or Arpit answers the inbox row (samples + parser home); then W-02 P0.
 
 ## 2026-10-14 — architecture docs committed and PR opened  ·  Claude Code (Opus 5.5)
 

@@ -654,8 +654,7 @@
     </div>
     <p style="margin-top:18px;color:var(--ink-soft);font-size:clamp(13px,1.1vw,15px)">
       Separating exit <strong>1</strong> from <strong>2</strong> is what lets a pipeline tell
-      “the documents changed” from “the build is broken”. There's a Python CLI too —
-      <code>pdfsuitepy</code> — with zero third-party dependencies.</p>
+      “the documents changed” from “the build is broken”.</p>
   </section>
 
   <!-- 11 ─ core libraries -->
@@ -734,13 +733,13 @@
   <!-- 13 ─ architecture -->
   <section class="slide">
     <div class="eyebrow">Architecture</div>
-    <h2>One engine, three front ends</h2>
-    <p class="sub">The comparison logic exists once. The browser app, the Node CLI and the
-      Python CLI are all thin layers over it — which is why they can never disagree about the
-      same pair of documents.</p>
+    <h2>One engine, two front ends</h2>
+    <p class="sub">The comparison logic exists once. The browser app and the CLI are both
+      thin layers over it — which is why they can never disagree about the same pair of
+      documents.</p>
     <figure>
       <svg viewBox="0 0 900 250" role="img"
-           aria-label="Architecture: a single comparison engine used by the React app, the Node CLI, and the Python CLI, which delegates to the Node CLI.">
+           aria-label="Architecture: a single comparison engine used by the React app and the Node CLI.">
         <defs>
           <marker id="ar2" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
             <path d="M0,0 L9,4.5 L0,9 z" fill="#8a8c95" />
@@ -759,24 +758,18 @@
         <text class="ss" x="316" y="58">render · extract · match · classify</text>
         <text class="ss" x="316" y="74">src/services/ — one implementation</text>
 
-        <path class="l2" d="M400,88 L400,116 L150,116 L150,148" />
-        <path class="l2" d="M450,88 L450,148" />
-        <path class="l2" d="M500,88 L500,116 L750,116 L750,148" />
+        <path class="l2" d="M410,88 L410,116 L280,116 L280,148" />
+        <path class="l2" d="M490,88 L490,116 L620,116 L620,148" />
 
-        <rect class="bb" x="52" y="154" width="196" height="72" rx="11" />
-        <text class="tt" x="74" y="182">React app</text>
-        <text class="ss" x="74" y="202">four workspaces</text>
-        <text class="ss" x="74" y="218">runs in the browser</text>
+        <rect class="bb" x="182" y="154" width="196" height="72" rx="11" />
+        <text class="tt" x="204" y="182">React app</text>
+        <text class="ss" x="204" y="202">four workspaces</text>
+        <text class="ss" x="204" y="218">runs in the browser</text>
 
-        <rect class="bb" x="352" y="154" width="196" height="72" rx="11" />
-        <text class="tt" x="374" y="182">Node CLI</text>
-        <text class="ss" x="374" y="202">pdfsuite</text>
-        <text class="ss" x="374" y="218">canvas swapped for Node</text>
-
-        <rect class="bb" x="652" y="154" width="196" height="72" rx="11" />
-        <text class="tt" x="674" y="182">Python CLI</text>
-        <text class="ss" x="674" y="202">pdfsuitepy</text>
-        <text class="ss" x="674" y="218">delegates · zero deps</text>
+        <rect class="bb" x="522" y="154" width="196" height="72" rx="11" />
+        <text class="tt" x="544" y="182">Node CLI</text>
+        <text class="ss" x="544" y="202">pdfsuite</text>
+        <text class="ss" x="544" y="218">canvas swapped for Node</text>
       </svg>
       <figcaption>the engine is imported, never copied — a fork would let the tools disagree</figcaption>
     </figure>
@@ -832,7 +825,6 @@
           <h3>Further reading, all offline</h3>
           <p><code>public/manual.html</code> — full feature reference<br />
              <code>cli/docs.html</code> — the command line guide<br />
-             <code>cli-py/docs.html</code> — the Python package<br />
              <code>spec-standard.md</code> — the JSON spec format</p>
         </div>
         <div class="note">

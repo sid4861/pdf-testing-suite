@@ -27,6 +27,7 @@ Rules: [SR-WORK-ARCHIVE](../records/0057_WORK-archive.md).
 
 | file | closed | where the live answer lives now |
 |---|---|---|
+| [W-03-remove-cli-py.md](open/W-03-remove-cli-py.md) | 2026-10-16 — shipped | [SR-STACK-TYPESCRIPT](../records/0104_STACK-typescript.md) |
 
 ## `records/`
 

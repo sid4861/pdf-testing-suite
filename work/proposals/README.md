@@ -24,3 +24,4 @@ timestamp: <ISO 8601>
 
 | doc | idea | graduation trigger | status |
 |-----|------|--------------------|--------|
+| [excel-spec-comparison.md](excel-spec-comparison.md) | the Excel workbook is the PDF spec; upload PDF + `.xlsx`, see every mismatch by cell — graduated into [SR-SPEC-INTAKE](../../records/0101_SPEC-intake.md), [SR-SPEC-CHECK](../../records/0102_SPEC-check.md), [SR-CONSTANTS](../../records/0103_CONSTANTS.md), [SR-STACK-TYPESCRIPT](../../records/0104_STACK-typescript.md) | Arpit's rulings, 2026-10-16 | graduated |

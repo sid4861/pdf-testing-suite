@@ -22,14 +22,18 @@ here. Read that record before changing anything below it.
 
 | what they decide | who | filed | age |
 |---|---|---|---|
-
-*Empty since 2026-10-13 — nothing waits on a ruling; the next gate is the first item filed.*
+| Python in dev-only scripts (`tools/samples/*/generate.py`, `cli/verify/make-cases.py`): port to TypeScript or keep as dev-only — [SR-STACK-TYPESCRIPT](../records/0104_STACK-typescript.md) decision 4 | either | 2026-10-16 | 0 days |
+| ↳ **blocks:** nothing else in the queue | | | |
 
 ---
 
 ## Open items
 
 ### build
+
+- 🟢 **W-05** · `agent` — one constants file, `src/services/specConstants.ts`; move today's scattered tunables into it, values unchanged. **Sonnet.** [detail](open/W-05-constants-file.md)
+- 🟡 **W-02** · `agent` — spec intake: upload `.xlsx` or JSON, validate it, compile to spec JSON with every value's cell. Waiting on W-05. **Opus.** [detail](open/W-02-excel-spec-comparison.md)
+- 🟡 **W-04** · `agent` — spec checker per SR-SPEC-CHECK: fix today's false failures, then pages, fonts, colour, coverage, `pdfsuite spec`. Waiting on W-05. **Opus.** [detail](open/W-04-spec-check-v2.md)
 
 ### testing
 
