@@ -24,6 +24,12 @@ it, and do not read it top-down as a priority order.
 
 | id | what is outstanding | named in | what closes it |
 |---|---|---|---|
+| B-008 | Stale-pair detection — warn when the workbook and the PDF look out of step (deferred by Arpit, 2026-10-16) | [SR-SPEC-INTAKE](../records/0101_SPEC-intake.md) Consequences | a ruling to build it, then a `W-nn` |
+| B-009 | A Draft / Ready status per page sheet, so unfinished sheets are skipped (deferred by Arpit, 2026-10-16) | [SR-SPEC-INTAKE](../records/0101_SPEC-intake.md) Consequences | a ruling to build it, then a `W-nn` |
+| B-010 | A version diff between two spec JSONs — what changed in the workbook (deferred by Arpit, 2026-10-16) | [SR-SPEC-INTAKE](../records/0101_SPEC-intake.md) Consequences | a ruling to build it, then a `W-nn` |
+| B-015 | A standalone PDF viewer app — `apps/viewer` (Arpit, 2026-10-18: "in future"); the `@pdfsuite/viewer` package itself is W-42 | W-44 · SR-MONOREPO | a ruling to start it, then a `W-nn` |
+| B-016 | A PDF designer — `apps/designer`, `@pdfsuite/template`, `@pdfsuite/designer` (Arpit, 2026-10-18: "in future") | W-44 · SR-MONOREPO | a ruling to start it, then a `W-nn` |
+| B-017 | A PDF creator — `@pdfsuite/render`: template + data → PDF locally (Arpit, 2026-10-18: "in future") | W-44 · SR-MONOREPO | a ruling to start it, then a `W-nn` |
 
 ---
 
@@ -36,6 +42,10 @@ it, and do not read it top-down as a priority order.
 | B-003 | The registry's decisions 5–8 are enforced by nothing | [SR-WORK-REGISTRY](../records/0060_WORK-registry.md) Consequences | a test over §3, as a `W-nn` |
 | B-004 | A `W-nn` that resolves to neither `work/open/` nor `archive/open/` is caught by nobody | [SR-WORK-OPEN-QUEUE](../records/0051_WORK-open-queue.md) rules 7, 17 and 53 | a test, as a `W-nn` |
 | B-005 | A second `archive/` directory anywhere is caught by nobody | [SR-WORK-ARCHIVE](../records/0057_WORK-archive.md) decision 1 | a test, as a `W-nn` |
+| B-011 | "No tunable literal lives in engine code outside this file" is checked by nothing | [SR-CONSTANTS](../records/0103_CONSTANTS.md) decision 4 | a lint or test over `src/` and `cli/src/`, as a `W-nn` |
+| B-012 | "No Python in the product" is checked by nothing | [SR-STACK-TYPESCRIPT](../records/0104_STACK-typescript.md) decision 1 | a test over `git ls-files`, as a `W-nn` |
+| B-013 | "One function for the UI and the CLI" is checked by nothing beyond W-27's Compare parity test | [SR-LAW-3](../records/0005_LAW-3-one-function-ui-and-cli.md) Consequences | a test that runs each core step from both surfaces on a fixture and diffs the output, as a `W-nn` |
+| B-014 | "Only open-source dependencies" is checked by nothing | [SR-LAW-2](../records/0004_LAW-2-open-source-only.md) Consequences | a zero-dependency licence check over every installed package, in `npm test`, as a `W-nn` |
 
 ---
 

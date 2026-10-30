@@ -27,7 +27,9 @@ better off. Every file has a trigger that says when it must change.
 | [`MACHINE.md`](MACHINE.md) | environment and tooling quirks of wherever this runs | a surface breaks in a way the code did not cause |
 | [`open/`](open/README.md) | one detail file per open `W-nn` | opened with the item, **archived** with it |
 | [`compare/`](compare/README.md) | live forks — verdict + reopen-trigger | a fork opens, closes, or its trigger fires |
+| [`design/`](design/README.md) | the UI designs and **Proof**, the design system — exported from the Design canvas; source for W-50 and W-51 | the canvas changes — re-export every file in one change |
 | [`proposals/`](proposals/README.md) | parked ideas, not adopted | filed, graduates, or rejected |
+| `samples/` | **fictional test samples** — spec workbooks, PDFs, planted errors and their expected results; product fixtures, each owned by a record in the register's table (Arpit, 2026-10-18). Never a real workbook | a sample is added, regenerated or retired — with its owning record |
 
 **Records live in [`../records/`](../records/README.md), and nowhere else.**
 

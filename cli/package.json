@@ -30,7 +30,8 @@
   "files": [
     "dist/index.js",
     "dist/pdf.worker.mjs",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc --noEmit && node build.mjs",

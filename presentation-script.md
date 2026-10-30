@@ -256,8 +256,6 @@ Work through it in this order. Say what you're clicking as you click it.
 >
 > Worth saying — the CLI doesn't have its own copy of the comparison code. It imports the same
 > code the app uses. So it can't give you a different answer than the screen does.
->
-> There's a Python version too, if that suits your workflow better.
 
 ---
 
@@ -306,8 +304,8 @@ Work through it in this order. Say what you're clicking as you click it.
 
 ## 13 · Architecture  — 60 sec
 
-> This is the shape of it. One engine in the middle. The app, the Node CLI and the Python CLI
-> all sit on top of it.
+> This is the shape of it. One engine in the middle. The app and the CLI both sit on top
+> of it.
 >
 > The engine is imported, not copied. That was a deliberate call — if I'd forked it, the CLI
 > and the app could drift, and then you'd have the app saying pass and CI saying fail on the

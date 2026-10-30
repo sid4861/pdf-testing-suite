@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compare — report and export</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab on" href="Compare-SideBySide.dc.html" aria-current="page">Compare</a>
+<a class="wtab" href="Spec-Results.dc.html">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+<div class="row" style="gap: 8px; flex: 1 1 420px; min-width: 0; flex-wrap: wrap">
+<div class="file" style="flex: 1 1 200px; max-width: 280px"><span class="role role-g">Golden</span><span class="nm">invoice-original.pdf</span><span class="meta">6 pp</span><a class="btn btn-g btn-sm btn-i" href="Viewer-Suite.dc.html" aria-label="View invoice-original.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a></div>
+<div class="file" style="flex: 1 1 200px; max-width: 280px"><span class="role">To test</span><span class="nm">invoice-recreated.pdf</span><span class="meta">5 pp</span><a class="btn btn-g btn-sm btn-i" href="Viewer-Suite.dc.html" aria-label="View invoice-recreated.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a></div>
+</div>
+<div class="hdr-r" style="position: relative">
+<button class="btn btn-g" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM3 3h18v4H3zM10 11h4"/></svg>Import ZIP</button>
+<button class="btn" type="button" aria-expanded="true" style="border-color: #2346C8; box-shadow: 0 0 0 1px #2346C8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Export</button>
+<div class="menu" style="top: 46px; right: 0" role="menu">
+<button class="mi hov" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span class="stack" style="gap: 2px"><span class="tt">HTML report</span><span class="dd">Printable, with diff images · Save as PDF</span></span></button>
+<button class="mi" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="stack" style="gap: 2px"><span class="tt">Markdown fix-list</span><span class="dd">What to change in the template · for an AI agent</span></span></button>
+<button class="mi" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4H5v16h3M16 4h3v16h-3"/></svg><span class="stack" style="gap: 2px"><span class="tt">JSON</span><span class="dd">Full metrics + verdict, machine-readable</span></span></button>
+<button class="mi" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 4v16"/></svg><span class="stack" style="gap: 2px"><span class="tt">CSV</span><span class="dd">Per-page metrics table</span></span></button>
+<div class="mi-sep"></div>
+<button class="mi" type="button" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM3 3h18v4H3zM10 11h4"/></svg><span class="stack" style="gap: 2px"><span class="tt">ZIP bundle</span><span class="dd">Every report, comments and both PDFs annotated</span></span></button>
+</div>
+</div>
+</header>
+
+<div class="sub">
+<nav class="seg" aria-label="Compare scope"><a class="on" aria-current="page" href="Compare-SideBySide.dc.html">One</a><a href="Bulk.dc.html">Many</a></nav>
+<span aria-hidden="true" style="width: 1px; height: 20px; background: #E2E2DD"></span>
+<nav class="seg" aria-label="Compare view">
+<a href="Compare-SideBySide.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg>Side by side</a>
+<a href="Compare-Overlapping.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="13" height="13" rx="1"/><rect x="8" y="8" width="13" height="13" rx="1"/></svg>Overlapping</a>
+<a class="on" href="Compare-Report.dc.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Report</a>
+</nav>
+<span class="chip chip-fail"><span class="dot"></span>4 of 6 pages differ</span>
+<span class="spacer"></span>
+<button class="btn btn-sm" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>Re-compare</button>
+</div>
+
+<div class="split">
+<div class="main stack" style="gap: 16px">
+<section class="panel" style="padding: 20px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap">
+<span class="verdict v-fail" style="height: 44px; padding: 0 16px; font-size: 16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>FAIL</span>
+<div class="stack" style="gap: 4px; flex: 1 1 280px">
+<span class="h3">4 of 6 page pairs differ</span>
+<span class="small muted">A page fails if it differs at all. Changes marked expected are listed, not counted.</span>
+</div>
+<dl class="row" style="gap: 28px; margin: 0">
+<div class="stack" style="gap: 2px"><dt class="xs faint">Identical</dt><dd class="mono h3" style="margin: 0">1</dd></div>
+<div class="stack" style="gap: 2px"><dt class="xs faint">Differ</dt><dd class="mono h3 t-fail" style="margin: 0">4</dd></div>
+<div class="stack" style="gap: 2px"><dt class="xs faint">Missing</dt><dd class="mono h3 t-fail" style="margin: 0">1</dd></div>
+<div class="stack" style="gap: 2px"><dt class="xs faint">Expected</dt><dd class="mono h3" style="margin: 0">2</dd></div>
+</dl>
+</section>
+
+<section class="panel">
+<div class="panel-hd"><span class="h4">Pages</span><span class="spacer"></span><label class="check xs"><input type="checkbox"> Show passing pages</label></div>
+<div class="scroll">
+<table class="tbl">
+<thead><tr><th>Pair</th><th>Verdict</th><th>What changed</th><th class="r">Text match</th><th class="r">Pixels</th><th class="r">Max offset</th><th></th></tr></thead>
+<tbody>
+<tr><td class="mono">1 ↔ 1</td><td><span class="verdict v-fail v-sm">FAIL</span></td><td class="small muted">2 text · header recoloured · rule shifted</td><td class="r">98.4 %</td><td class="r">3.1 %</td><td class="r">0.08 in</td><td><a class="btn btn-sm btn-g" href="Compare-SideBySide.dc.html">Open</a></td></tr>
+<tr class="sel"><td class="mono">2 ↔ 2</td><td><span class="verdict v-fail v-sm">FAIL</span></td><td class="small muted">1 changed · 1 row removed · 31 moved</td><td class="r">91.2 %</td><td class="r">12.6 %</td><td class="r">0.44 in</td><td><a class="btn btn-sm btn-g" href="Compare-SideBySide.dc.html">Open</a></td></tr>
+<tr><td class="mono">4 ↔ 4</td><td><span class="verdict v-fail v-sm">FAIL</span></td><td class="small muted">pixels only — chart has no text layer</td><td class="r">—</td><td class="r">1.5 %</td><td class="r">—</td><td><a class="btn btn-sm btn-g" href="Compare-Overlapping.dc.html">Open</a></td></tr>
+<tr><td class="mono">5 ↔ 5</td><td><span class="verdict v-fail v-sm">FAIL</span></td><td class="small muted">page size: landscape vs portrait</td><td class="r">96.0 %</td><td class="r">—</td><td class="r">2.10 in</td><td><a class="btn btn-sm btn-g" href="States.dc.html">Open</a></td></tr>
+<tr><td class="mono">6 ↔ <span class="t-fail">—</span></td><td><span class="verdict v-fail v-sm">FAIL</span></td><td class="small muted">missing from the PDF to test</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<div style="padding: 10px 16px; border-top: 1px solid #E2E2DD" class="xs faint">1 passing pair hidden — reports list failures only.</div>
+</section>
+</div>
+
+<aside class="side panel" aria-label="Report preview" style="overflow: hidden">
+<div class="utabs" style="padding: 0 8px">
+<button class="utab on" type="button">HTML report</button>
+<button class="utab" type="button">Markdown fix-list</button>
+<span class="spacer"></span>
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Print or save as PDF" style="align-self: center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 17H3v-8h18v8h-3M6 14h12v7H6z"/></svg></button>
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Open full screen" style="align-self: center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</div>
+<div style="background: #EFEFEB; padding: 16px">
+<div style="background: #fff; box-shadow: 0 0 0 1px #E2E2DD; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div class="row"><span class="h4">Comparison report</span><span class="spacer"></span><span class="verdict v-fail v-sm">FAIL</span></div>
+<span class="xs faint mono">invoice-original.pdf ↔ invoice-recreated.pdf</span>
+<div style="height: 1px; background: #E2E2DD"></div>
+<span class="xs" style="font-weight: 600">Pair 2 ↔ 2</span>
+<div class="row" style="gap: 8px">
+<div style="flex: 1; aspect-ratio: 8.5/11; background: #F6F6F4; box-shadow: 0 0 0 1px #E2E2DD; position: relative"><div class="hl hl-rem" style="top: 42%; left: 8%; width: 34%; height: 3%"></div><div class="hl hl-rem" style="top: 54%; left: 8%; width: 84%; height: 3%"></div></div>
+<div style="flex: 1; aspect-ratio: 8.5/11; background: #F6F6F4; box-shadow: 0 0 0 1px #E2E2DD; position: relative"><div class="hl hl-add" style="top: 42%; left: 8%; width: 26%; height: 3%"></div><div class="hl hl-mov" style="top: 58%; left: 60%; width: 32%; height: 3.4%"></div></div>
+<div style="flex: 1; aspect-ratio: 8.5/11; background: #1E1F23; box-shadow: 0 0 0 1px #E2E2DD; position: relative"><div style="position: absolute; top: 55%; left: 8%; width: 84%; height: 1.5%; background: #E5484D"></div><div style="position: absolute; top: 43%; left: 30%; width: 10%; height: 1.5%; background: #E5484D"></div></div>
+</div>
+<div class="ba">1 · <del>Consulting — March</del> → <ins>Consulting</ins></div>
+<div class="ba">2 · <del>Travel · 2 · 140.00</del></div>
+<div class="ba faint">3 · Total Δy −0.44 in</div>
+</div>
+</div>
+<div class="row" style="padding: 12px 14px; border-top: 1px solid #E2E2DD; gap: 8px">
+<span class="xs faint">Sandboxed preview — scripts off</span><span class="spacer"></span>
+<button class="btn btn-sm" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Download .html</button>
+</div>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

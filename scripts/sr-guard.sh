@@ -24,6 +24,16 @@ staged="$(git --no-optional-locks diff --cached --name-only)"
 msg_file="${1:?sr-guard.sh must run as a commit-msg hook with the message file as \$1}"
 [ -f "$msg_file" ] || exit 0
 
+# SR-WORK-LIFECYCLE decisions 4a–4c: an open item file must not land without
+# its At-a-glance table. Checked before the escape hatch — `no SR affected` is a
+# claim about ownership, not about this. The rule lives in that record.
+if grep -qE '^work/(open/W-[0-9]+-[^/]*\.md|OPEN-WORK\.md)$' <<<"$staged"; then
+  if ! glance="$(bash "$ROOT/scripts/check-work-items.sh")"; then
+    printf '\n  Item-file check (SR-WORK-LIFECYCLE decisions 4a–4c):\n%s\n\n' "$glance" >&2
+    exit 1
+  fi
+fi
+
 if grep -qiE '^[[:space:]]*(no[ -]sr[ -]affected|\[no-sr\])[[:space:]]*$' "$msg_file"; then
   exit 0
 fi

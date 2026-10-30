@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Specification — edit the workbook</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab" href="Compare-SideBySide.dc.html">Compare</a>
+<a class="wtab on" href="Spec-Results.dc.html" aria-current="page">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+<div class="row" style="gap: 8px; flex: 1 1 420px; min-width: 0">
+<div class="file" style="flex: 1 1 220px; max-width: 340px"><span class="role">Spec</span><span class="nm">report-spec.xlsx</span><span class="meta t-accent">3 unsaved edits</span></div>
+</div>
+</header>
+
+<div class="sub">
+<span class="chip chip-info">sheetpane · Edit mode</span>
+<div class="row" style="gap: 4px">
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Redo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5M20 9H9a5 5 0 0 0 0 10h3"/></svg></button>
+</div>
+<button class="btn btn-sm" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Insert row</button>
+<button class="btn btn-sm btn-g" type="button">Delete row</button>
+<span class="chip chip-fail">✕ 1 error left</span>
+<span class="xs faint">re-validated as you type</span>
+<span class="spacer"></span>
+<a class="btn btn-g" href="Spec-Intake.dc.html">Discard</a>
+<a class="btn btn-p" href="Spec-Intake.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Save .xlsx</a>
+</div>
+
+<div class="split">
+<section class="main sheetwrap" aria-label="report-spec.xlsx, editing" style="position: relative">
+<div class="fx">
+<span class="ref">G11</span>
+<span class="fxi" aria-hidden="true">fx</span>
+<label class="row" style="flex: 1; gap: 0"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Value of G11</span><input class="input mono" value="in" style="height: 28px; flex: 1; max-width: 320px; border-color: #2346C8"></label>
+<span class="xs faint">from the <strong>Lists</strong> sheet · Units</span>
+</div>
+<div class="grid-scroll" style="position: relative">
+<div class="srow ch"><span class="rh" style="justify-content: center"></span><sc-for list="{{cols}}" as="c" hint-placeholder-count="10"><span style="{{c.w}}">{{c.l}}</span></sc-for></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="17">
+<div class="srow"><span class="rh"><span class="g {{r.gc}}">{{r.g}}</span>{{r.n}}</span><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="10"><span class="{{c.cls}}" style="{{c.w}}" title="{{c.tip}}">{{c.v}}</span></sc-for></div>
+</sc-for>
+<div class="pick" role="listbox" aria-label="Units" style="top: 332px; left: 646px">
+<button class="hov" type="button" role="option" aria-selected="true">in <span class="faint">inches</span></button>
+<button type="button" role="option">pt <span class="faint">points</span></button>
+<button type="button" role="option">mm <span class="faint">millimetres</span></button>
+<button type="button" role="option">% <span class="faint">percent</span></button>
+</div>
+</div>
+<nav class="stabs" aria-label="Sheets">
+<button class="stab" type="button">Pages List</button>
+<button class="stab" type="button">Cover</button>
+<button class="stab on" type="button" aria-current="true">Statement p1 <span class="cnt cnt-e">1</span></button>
+<button class="stab" type="button">Statement cont.</button>
+<button class="stab" type="button">Disclosures</button>
+<button class="stab" type="button">Lists</button>
+<button class="stab" type="button">Settings</button>
+</nav>
+</section>
+
+<aside class="side panel" style="flex: 1 1 300px; max-width: 360px">
+<div class="panel-hd"><span class="h4">Edits</span><span class="spacer"></span><span class="count">3</span></div>
+<div class="divide">
+<div class="find"><span class="g g-ok" style="width: 14px; margin-top: 3px">✓</span><span class="bd"><span class="t">Range replaced by one value</span><span class="ba"><del>0.50–0.75</del> → <ins>7.14</ins></span><span class="m">F9 · error cleared</span></span></div>
+<div class="find"><span class="g g-ok" style="width: 14px; margin-top: 3px">✓</span><span class="bd"><span class="t">Parameter renamed</span><span class="ba"><del>Lineheight</del> → <ins>Line spacing</ins></span><span class="m">E13 · warning cleared</span></span></div>
+<div class="find hov"><span class="g g-err" style="width: 14px; margin-top: 3px">✕</span><span class="bd"><span class="t">Unit being picked</span><span class="ba"><del>ins</del> → <ins>in</ins></span><span class="m">G11 · error clears on Enter</span></span></div>
+</div>
+<p class="xs faint" style="padding: 12px 14px; border-top: 1px solid #E2E2DD">Saving writes only the edited cells into the original file; everything else — styles, comments, other sheets — stays exactly as it was.</p>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var W = [64, 150, 82, 74, 104, 120, 52, 84, 64, 80];
+    var L = 'ABCDEFGHIJ'.split('');
+    var data = [
+      ['ID', 'Element', 'Part', 'Group', 'Parameter', 'Value', 'Unit', 'From', 'Check?', 'Tolerance'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Wording', 'Account summary', '', '', 'Yes', ''],
+      ['T-01', 'Account summary', 'text', 'Header', 'Font size', '14', 'pt', '', 'Yes', '0.5'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Colour', 'Navy', '', '', 'Yes', ''],
+      ['T-01', 'Account summary', 'text', 'Header', 'Left', '0.68', 'in', 'left edge', 'Yes', ''],
+      ['T-01', 'Account summary', 'text', 'Header', 'Top', '2.49', 'in', 'top edge', 'Yes', ''],
+      ['IMG-01', 'Logo', 'image', 'Header', 'Height', '0.66', 'in', '', 'Yes', '0.06'],
+      ['IMG-01', 'Logo', 'image', 'Header', 'Width', '1.53', 'in', '', 'Yes', '0.06'],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Width', '7.14', 'in', '', 'Yes', '0.06'],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Left', '0.68', 'in', 'left edge', 'Yes', ''],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Row height', '0.25', 'in', '', 'Yes', ''],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Top', '6.05', 'in', 'top edge', 'Yes', ''],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Line spacing', '12', 'pt', '', 'Yes', '0.03'],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Wording', '<<dynamic>>', '', '', 'Yes', ''],
+      ['WM-01', 'Watermark', 'image', 'Body', 'Opacity', '30', '%', '', 'Note', ''],
+      ['F-01', 'Footer logo', 'image', 'Footer', 'Width', '0.80', 'in', '', 'Yes', ''],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Left', '0.68', 'in', 'left edge', 'Yes', '']
+    ];
+    var edited = { F9: 1, E13: 1, G11: 1 };
+    var marks = { G11: 'error', F14: 'warning', F15: 'info', A16: 'info', F17: 'info' };
+    var rank = { error: 3, warning: 2, info: 1 };
+    var G = { 3: ['✕', 'g-err'], 2: ['!', 'g-warn'], 1: ['i', 'g-info'], 0: ['✓', 'g-ok'] };
+    var rows = data.map(function (r, i) {
+      var n = i + 1, worst = 0;
+      var cells = r.map(function (v, j) {
+        var ref = L[j] + n, m = marks[ref], cls = [];
+        if (n === 1) cls.push('c-hd');
+        if (m) { cls.push('m-' + m); worst = Math.max(worst, rank[m]); }
+        if (edited[ref]) cls.push('c-edited');
+        if (n === 16) cls.push('c-strike');
+                if (ref === 'G11') { cls.push('c-sel'); v = 'in'; }
+        if (j === 5 && /^[0-9.–]+$/.test(v)) cls.push('c-num');
+        return { v: v, w: 'width:' + W[j] + 'px', cls: cls.join(' '), tip: edited[ref] ? 'Edited' : '' };
+      });
+      var g = n === 1 ? ['', ''] : G[worst];
+      return { n: n, g: g[0], gc: g[1], cells: cells };
+    });
+    var cols = L.map(function (l, j) { return { l: l, w: 'width:' + W[j] + 'px' }; });
+    return { cols: cols, rows: rows };
+  }
+}
+</script>
+</body>
+</html>

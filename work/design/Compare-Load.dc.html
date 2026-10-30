@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compare — load two PDFs</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab on" href="Compare-SideBySide.dc.html" aria-current="page">Compare</a>
+<a class="wtab" href="Spec-Results.dc.html">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+<div class="hdr-r">
+<button class="btn btn-g" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM3 3h18v4H3zM10 11h4"/></svg>Import ZIP</button>
+<button class="btn" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Export</button>
+</div>
+</header>
+<div class="sub">
+<nav class="seg" aria-label="Compare scope"><a class="on" aria-current="page" href="Compare-SideBySide.dc.html">One</a><a href="Bulk.dc.html">Many</a></nav>
+<span aria-hidden="true" style="width: 1px; height: 20px; background: #E2E2DD"></span>
+<span class="small faint">Two PDFs, page by page</span>
+</div>
+
+<main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 20px">
+<div style="width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<h1 class="h1">Compare two PDFs</h1>
+<p class="muted" style="font-size: 15px; max-width: 600px">Checks text on every page, pixel-level layout and exact text positions — then gives a pass/fail report you can export.</p>
+</div>
+
+<div class="grid2">
+<div class="stack" style="gap: 8px">
+<div class="row"><span class="role role-g">Golden</span><span class="small muted">the reference</span></div>
+<div class="drop" style="min-height: 180px; justify-content: center">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+<span style="font-weight: 500">Drop the golden PDF</span>
+<span class="small faint">or <button class="link" type="button">browse your files</button></span>
+</div>
+</div>
+<div class="stack" style="gap: 8px">
+<div class="row"><span class="role">To test</span><span class="small muted">the recreated PDF</span></div>
+<div class="drop" style="min-height: 180px; justify-content: center">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+<span style="font-weight: 500">Drop the PDF to test</span>
+<span class="small faint">or <button class="link" type="button">browse your files</button></span>
+</div>
+</div>
+</div>
+
+<div class="row" style="justify-content: space-between; flex-wrap: wrap; gap: 12px">
+<span class="small faint">PDFs stay in this browser — nothing is uploaded.</span>
+<a class="btn btn-g" href="Compare-SideBySide.dc.html">Load example invoices</a>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

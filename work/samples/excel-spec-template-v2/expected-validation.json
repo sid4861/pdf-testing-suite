@@ -1,0 +1,102 @@
+{
+  "schema": "pdfsuite.expected-validation/1",
+  "workbook": "report-spec-with-errors.xlsx",
+  "rule": "SR-SPEC-INTAKE decisions 7a, 9, 13",
+  "errors": [
+    {
+      "sheet": "1",
+      "row": 23,
+      "cell": "F23",
+      "code": "unit-missing",
+      "severity": "error",
+      "message": "Font size needs a unit (pt); the Unit cell is blank — nothing is assumed",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "1",
+      "row": 34,
+      "cell": "E34",
+      "code": "unit-in-value",
+      "severity": "error",
+      "message": "the Value holds text (\"14 pt\"); put the number in Value and pt in Unit",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "1",
+      "row": 15,
+      "cell": "F15",
+      "code": "px-without-density",
+      "severity": "error",
+      "message": "px used but Settings · Pixels per inch is blank",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "1",
+      "row": 11,
+      "cell": "E11",
+      "code": "colour-name-mismatch",
+      "severity": "error",
+      "message": "Cloud Grey is #EEF1F4 on the Lists sheet, not #E4E9F2",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "1",
+      "row": 55,
+      "cell": "E55",
+      "code": "approximate-value",
+      "severity": "error",
+      "message": "\"~10\" is approximate; state the number and a Tolerance",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "2",
+      "row": 71,
+      "cell": "F71",
+      "code": "unit-unknown",
+      "severity": "error",
+      "message": "\"inch\" is not a unit on the Lists sheet (use in)",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "2",
+      "row": 31,
+      "cell": "G31",
+      "code": "from-missing",
+      "severity": "error",
+      "message": "a position needs its reference edge (From); blank",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "3",
+      "row": 7,
+      "cell": "D7",
+      "code": "parameter-unknown",
+      "severity": "error",
+      "message": "\"Fnt size\" is not on the Lists sheet — nearest: Font size",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "3",
+      "row": 41,
+      "cell": "E41",
+      "code": "number-expected",
+      "severity": "error",
+      "message": "Rows takes a number; the Value is prose",
+      "assertion": "none — the row is removed from the check and listed"
+    },
+    {
+      "sheet": "4",
+      "row": 42,
+      "cell": "E42",
+      "code": "range-and-tolerance",
+      "severity": "error",
+      "message": "a range and a Tolerance on the same row — give one or the other",
+      "assertion": "none — the row is removed from the check and listed"
+    }
+  ],
+  "cleanWorkbook": {
+    "file": "report-spec.xlsx",
+    "errors": 0,
+    "warnings": 0
+  }
+}

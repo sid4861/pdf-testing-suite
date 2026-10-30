@@ -41,6 +41,7 @@ decision 13.
 | how the product is built — app, tabs, CLI | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
 | why a command fails on *this* machine | [`work/MACHINE.md`](work/MACHINE.md) |
 | the stages a feature moves through | [SR-WORK-LIFECYCLE](records/0053_WORK-lifecycle.md) |
+| how a work-item file must open (the *At a glance* table) | [SR-WORK-LIFECYCLE](records/0053_WORK-lifecycle.md) decisions 4a–4d · template in [`work/open/README.md`](work/open/README.md) |
 | what a session owes before it ends, and how long an answer may be | [SR-WORK-SESSION](records/0054_WORK-session.md) |
 | what a task owes the documentation | [SR-WORK-DOCS](records/0055_WORK-docs.md) |
 | what to do when you cannot proceed without Siddharth or Arpit | [SR-WORK-BLOCKERS](records/0056_WORK-blockers.md) |
@@ -59,6 +60,9 @@ Each law is stated in exactly one record and is **not restated here**:
 
 - **L0** — SRs are the only source of truth; Law records outrank every other record — [SR-LAW-0](records/0002_LAW-0-authority.md)
 - **L1** — a retired record is archived, never deleted — [SR-LAW-1](records/0003_LAW-1-retired-records-archived.md)
+- **L2** — only open-source dependencies; nothing paid — [SR-LAW-2](records/0004_LAW-2-open-source-only.md)
+- **L3** — the UI and the CLI run the same functions; every difference is named and ratified — [SR-LAW-3](records/0005_LAW-3-one-function-ui-and-cli.md)
+- **L4** — pdfsuite is UI + CLI; a single package is its CLI only; one version; upgrades never overwrite your changes — [SR-LAW-4](records/0006_LAW-4-how-packages-work.md)
 
 [SR-LAWS](records/0001_LAWS.md) assigns the handles and routes each to its
 record; that is all it does. Add a law by adding a record in the law range and
@@ -137,6 +141,6 @@ docs/        WHAT THE PROJECT IS — the glossary, the architecture diagrams
 archive/     THE ONE ARCHIVE — everything retired, mirroring the live tree
 scripts/     the commit guard, the inbox check, the boundary check, the zip refresh
 .claude/     hooks and their wiring
-src/ cli/ cli-py/ public/ tools/   the product — owned by W-01 until each has a record
+src/ cli/ public/ tools/   the product — owned by W-01 until each has a record
 src/features/spec/   A SEALED FEATURE — its own contract, see its README.md
 ```

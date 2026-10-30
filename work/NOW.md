@@ -3,4 +3,4 @@ type: Pointer
 description: "One line: the current state and the immediate next step. Overwritten every session."
 ---
 
-uncommitted — 2026-10-16: Compare got **page pairing** (`pagePairs.ts`, `PagePairing.tsx`) — pick which golden page meets which tested page, with content-based auto-match; `cli/` is publishable as npm `pdfsuite` (lean or sealed portable folders, `START-HERE.html`); compare-tab group ignores + ignored regions; spec-tab workbook pairing; sealed `src/features/spec/` (its copy here is a stale mirror — do not edit). All builds + CLI verifies clean. Next: decide on `npm publish`, then commit and push.
+idle — 2026-10-19: sheetpane ruled the one Excel loader and viewer (SR-SPEC-INTAKE decision 3; W-02, W-11, W-46, W-47); pushed to PR #5. Next: sheetpane on npm, then W-05 → W-02.

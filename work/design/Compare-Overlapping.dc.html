@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compare — overlapping</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab on" href="Compare-SideBySide.dc.html" aria-current="page">Compare</a>
+<a class="wtab" href="Spec-Results.dc.html">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+<div class="row" style="gap: 8px; flex: 1 1 420px; min-width: 0; flex-wrap: wrap">
+<div class="file" style="flex: 1 1 200px; max-width: 280px"><span class="role role-g">Golden</span><span class="nm">invoice-original.pdf</span><span class="meta">6 pp</span><a class="btn btn-g btn-sm btn-i" href="Viewer-Suite.dc.html" aria-label="View invoice-original.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a></div>
+<div class="file" style="flex: 1 1 200px; max-width: 280px"><span class="role">To test</span><span class="nm">invoice-recreated.pdf</span><span class="meta">5 pp</span><a class="btn btn-g btn-sm btn-i" href="Viewer-Suite.dc.html" aria-label="View invoice-recreated.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a></div>
+</div>
+<div class="hdr-r">
+<button class="btn btn-g" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM3 3h18v4H3zM10 11h4"/></svg>Import ZIP</button>
+<a class="btn" href="Compare-Report.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Export</a>
+</div>
+</header>
+
+<div class="sub">
+<nav class="seg" aria-label="Compare scope"><a class="on" aria-current="page" href="Compare-SideBySide.dc.html">One</a><a href="Bulk.dc.html">Many</a></nav>
+<span aria-hidden="true" style="width: 1px; height: 20px; background: #E2E2DD"></span>
+<nav class="seg" aria-label="Compare view">
+<a href="Compare-SideBySide.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg>Side by side</a>
+<a class="on" href="Compare-Overlapping.dc.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="13" height="13" rx="1"/><rect x="8" y="8" width="13" height="13" rx="1"/></svg>Overlapping</a>
+<a href="Compare-Report.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Report</a>
+</nav>
+<span class="chip chip-fail"><span class="dot"></span>4 of 6 pages differ</span>
+<span class="spacer"></span>
+<a class="btn btn-sm" href="Compare-PairPages.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4L3 8l4 4M3 8h14M17 12l4 4-4 4M21 16H7"/></svg>Pair pages</a>
+<div class="nav">
+<button class="btn btn-sm btn-i" type="button" aria-label="Previous change"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 6l-6 6 6 6M7 6v12"/></svg></button>
+<button class="btn btn-sm btn-i" type="button" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+<span class="pos">2 / 6</span>
+<button class="btn btn-sm btn-i" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+<button class="btn btn-sm" type="button">Next change<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 6l6 6-6 6M17 6v12"/></svg></button>
+</div>
+</div>
+<div class="strip" aria-label="Pages: red differ"><i class="c"></i><i class="c cur"></i><i></i><i class="c"></i><i class="c"></i><i class="c"></i></div>
+
+<div class="split">
+<div class="main stack" style="gap: 10px">
+<div class="row" style="flex-wrap: wrap; gap: 16px">
+<div class="seg" role="group" aria-label="Overlap view">
+<button type="button">Pages over each other</button>
+<button class="on" type="button">Pixel diff</button>
+</div>
+<div class="row" style="gap: 10px">
+<label class="lbl" for="sens">Sensitivity</label>
+<input id="sens" type="range" min="0" max="100" value="60" style="width: 140px; accent-color: #2346C8">
+<span class="mono xs muted">0.10</span>
+</div>
+<label class="check"><input type="checkbox"> Count anti-aliasing</label>
+<span class="spacer"></span>
+<div class="legend">
+<span><i class="sw" style="border-color: #B42318"></i>text <span class="mono faint">1</span></span>
+<span><i class="sw" style="border-color: #6B55CC"></i>style <span class="mono faint">1</span></span>
+<span><i class="sw" style="border-color: #C46A00"></i>layout <span class="mono faint">2</span></span>
+<span><i class="sw" style="border-color: #45484F; border-style: dashed"></i>pixels only <span class="mono faint">1</span></span>
+</div>
+</div>
+
+<div class="stage" style="padding: 24px">
+<div class="pcol" style="max-width: 560px">
+<div class="page">
+<sc-for list="{{a}}" as="l" hint-placeholder-count="34"><div class="ln" style="{{l.s}}; opacity: .28"></div></sc-for>
+<div style="position: absolute; top: 6%; left: 8%; width: 30%; height: 2.6%; background: rgba(229,72,77,.75)"></div>
+<div style="position: absolute; top: 43%; left: 32%; width: 8%; height: 1.1%; background: rgba(229,72,77,.75)"></div>
+<div style="position: absolute; top: 55%; left: 8%; width: 84%; height: 1.1%; background: rgba(229,72,77,.6)"></div>
+<div style="position: absolute; top: 59%; left: 62%; width: 30%; height: 1.6%; background: rgba(229,72,77,.6)"></div>
+<div style="position: absolute; top: 63%; left: 62%; width: 30%; height: 1.6%; background: rgba(229,72,77,.6)"></div>
+<div style="position: absolute; top: 67.5%; left: 8%; width: 84%; height: 0.3%; background: rgba(229,72,77,.75)"></div>
+<div style="position: absolute; top: 69%; left: 8%; width: 84%; height: 0.3%; background: rgba(229,72,77,.75)"></div>
+<div style="position: absolute; top: 14%; left: 62%; width: 30%; height: 1.1%; background: rgba(229,72,77,.55)"></div>
+<div class="hl hl-exp" style="top: 5%; left: 7%; width: 32%; height: 4.8%"></div>
+<div class="hl hl-sty" style="top: 13%; left: 61%; width: 32%; height: 3%"></div>
+<div class="hl hl-rem" style="top: 42%; left: 31%; width: 10%; height: 3%"></div>
+<div class="hl hl-mov" style="top: 53.6%; left: 7%; width: 86%; height: 3.8%"></div>
+<div class="hl hl-mov" style="top: 57.8%; left: 61%; width: 32%; height: 7.6%"></div>
+<div class="tip" style="top: 10.2%; left: 7%">Header bar · fill #2A2B2F → #2C3E78</div>
+<div class="tip" style="top: 66%; left: 58%">Total · Δy −0.44 in</div>
+</div>
+</div>
+</div>
+<p class="xs faint">One box per change group, coloured by its strongest cause: text, then style, then layout. A dashed box changed pixels with no text change.</p>
+</div>
+
+<aside class="side panel" aria-label="Geometry">
+<div class="panel-hd"><span class="h4">Geometry</span><span class="faint xs">matched text runs</span><span class="spacer"></span>
+<label class="lbl" for="flag">Flag over</label><span class="unit" style="height: 28px"><input id="flag" value="0.10" style="height: 26px; width: 52px"><span>in</span></span></div>
+<div class="scroll">
+<table class="tbl">
+<thead><tr><th>Run</th><th class="r">Δx</th><th class="r">Δy</th><th class="r">Offset</th></tr></thead>
+<tbody>
+<tr class="sel"><td class="small">Total due</td><td class="r">0.00</td><td class="r t-fail">−0.44</td><td class="r t-fail">0.44</td></tr>
+<tr><td class="small">1,240.00</td><td class="r">0.00</td><td class="r t-fail">−0.44</td><td class="r t-fail">0.44</td></tr>
+<tr><td class="small">Payment terms</td><td class="r">0.00</td><td class="r t-fail">−0.16</td><td class="r t-fail">0.16</td></tr>
+<tr><td class="small">Consulting</td><td class="r">0.00</td><td class="r">0.00</td><td class="r">0.00</td></tr>
+<tr><td class="small">Invoice no.</td><td class="r">0.02</td><td class="r">0.00</td><td class="r">0.02</td></tr>
+<tr><td class="small">Bill to</td><td class="r">0.00</td><td class="r">0.00</td><td class="r">0.00</td></tr>
+<tr><td class="small">Date issued</td><td class="r">0.00</td><td class="r">0.01</td><td class="r">0.01</td></tr>
+</tbody>
+</table>
+</div>
+<div style="padding: 10px 14px; border-top: 1px solid #E2E2DD" class="row xs faint"><span>Inches · 3 of 34 runs over 0.10 in</span><span class="spacer"></span><button class="btn btn-sm btn-g" type="button">Show all 34</button></div>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var L = [];
+    function b(t, l, w, h, c) { L.push({ s: 'top:' + t + '%;left:' + l + '%;width:' + w + '%' + (h ? ';height:' + h + '%' : '') + (c ? ';background:' + c : '') }); }
+    b(6, 8, 30, 2.6, '#2A2B2F');
+    b(14, 8, 34); b(17, 8, 28); b(20, 8, 22); b(14, 62, 30); b(17, 62, 24); b(20, 62, 26);
+    b(29, 8, 84, 3.2, '#E8E8E3');
+    [35, 39, 43, 47, 51].forEach(function (t, i) { b(t, 8, i === 2 ? 24 : 32); b(t, 54, 12); b(t, 78, 14); });
+    b(59, 62, 30, 1.6, '#9C9EA4'); b(67.5, 8, 84, 0.3, '#B5B5AF');
+    b(75, 8, 46); b(78, 8, 38); b(88, 8, 20, 0.8);
+    return { a: L };
+  }
+}
+</script>
+</body>
+</html>

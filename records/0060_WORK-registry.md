@@ -81,22 +81,25 @@ cannot be told apart from a stale one.
 
 | Document | Update trigger | Last verified | Notes |
 |---|---|---|---|
-| `CLAUDE.md` | any rule or pointer changes | 2026-10-14 | 2026-10-14 — pointer to `docs/ARCHITECTURE.md` added |
-| `work/README.md` | a file is added to or removed from `work/` | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/OPEN-WORK.md` | the same change as the work it tracks | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/BACKLOG.md` | a record names something nobody is doing | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/open/README.md` | the item-file contract changes | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/INTERVIEW.md` | direction, a decision or the live state changes — during the session | 2026-10-14 | 2026-10-14 — architecture doc noted in state of play |
-| `work/IMPLEMENTATION.md` | something lands | 2026-10-14 | 2026-10-14 — architecture doc landed |
+| `CLAUDE.md` | any rule or pointer changes | 2026-10-18 | 2026-10-18 — laws L0–L4 in file order; L2 = open source only (SR-LAW-2, `0004`) |
+| `work/README.md` | a file is added to or removed from `work/` | 2026-10-18 | 2026-10-18 — `design/` added |
+| `work/OPEN-WORK.md` | the same change as the work it tracks | 2026-10-18 | 2026-10-18 — W-44 (monorepo) and W-45 (rename) filed; inbox row for the name |
+| `work/design/README.md` | the Design canvas changes — every file re-exported in one change | 2026-10-18 | 2026-10-18 — created: Proof design system and 15 screen boards exported |
+| `work/BACKLOG.md` | a record names something nobody is doing | 2026-10-18 | 2026-10-18 — B-014; B-015–B-017 (viewer, designer, creator) |
+| `work/open/README.md` | the item-file contract changes | 2026-10-18 | 2026-10-18 — template opens with *At a glance*; front matter gains `filed_by`, `updated`, `updated_by` |
+| `work/INTERVIEW.md` | direction, a decision or the live state changes — during the session | 2026-10-16 | 2026-10-16 — Excel-spec rulings recorded; four records filed |
+| `work/IMPLEMENTATION.md` | something lands | 2026-10-16 | 2026-10-16 — records 0101–0104 filed, nothing built yet |
 | `work/LESSONS.md` | a failure teaches something durable | 2026-10-13 | 2026-10-13 — created at setup |
 | `work/MACHINE.md` | a surface breaks in a way the code did not cause | 2026-10-13 | 2026-10-13 — created at setup |
 | `work/compare/README.md` | a fork opens, closes, or its trigger fires | 2026-10-13 | 2026-10-13 — created at setup |
-| `work/proposals/README.md` | an idea is filed, graduates, or is rejected | 2026-10-13 | 2026-10-13 — created at setup |
-| `docs/GLOSSARY.md` | a term is coined or redefined | 2026-10-14 | 2026-10-14 — golden PDF, candidate, letterbox added |
-| `records/README.md` | a record's state, ownership or number changes | 2026-10-14 | 2026-10-14 — ownership rows for `docs/ARCHITECTURE.md` and `docs/architecture/` |
+| `work/proposals/README.md` | an idea is filed, graduates, or is rejected | 2026-10-16 | 2026-10-16 — excel-spec-comparison graduated |
+| `docs/GLOSSARY.md` | a term is coined or redefined | 2026-10-18 | 2026-10-18 — core, surface |
+| `records/README.md` | a record's state, ownership or number changes | 2026-10-18 | 2026-10-18 — law files renumbered 0003–0006 to match handles L1–L4; SR-LAW-2 open source at 0004 |
 | `records/TEMPLATE.md` | the convention changes | 2026-10-13 | 2026-10-13 — created at setup |
-| `docs/ARCHITECTURE.md` | a change to `src/`, `cli/` or `cli-py/` alters a flow, a store, a tab, a command, a flag or a verdict rule | 2026-10-14 | 2026-10-14 — created from the code |
-| `docs/architecture/` | a Mermaid block in `docs/ARCHITECTURE.md` changes — re-render its SVG | 2026-10-14 | 2026-10-14 — 18 SVGs rendered with mermaid 10.9.1 |
+| `docs/ARCHITECTURE.md` | a change to `src/` or `cli/` alters a flow, a store, a tab, a command, a flag or a verdict rule | 2026-10-18 | 2026-10-18 — re-verified against the code; Part 4 rewritten as the ruled target (review session) |
+| `docs/architecture/` | a Mermaid block in `docs/ARCHITECTURE.md` changes — re-render its SVG | 2026-10-18 | 2026-10-18 — all 25 re-rendered; 17 (page pairing), 19–25 added; 18 replaced, old 18 archived |
+| `work/proposals/excel-spec-comparison.md` | the research behind the spec records changes; archived when W-02 and W-04 close | 2026-10-16 | 2026-10-16 — graduated into four records; open questions answered |
+| `work/samples/excel-spec-template-v2/README.md` | `generate.ts`'s rows, planted errors or the PDFs change | 2026-10-18 | 2026-10-18 — moved from `tools/samples/`; legacy sample deleted; expected results carried over |
 
 (`WORKLOG.md`, `NOW.md`, `BLOCKED.json` and `archive/README.md` carry no row:
 the first is append-only, the next two are overwritten every session, the last

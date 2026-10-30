@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Proof — design system</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps" style="width: 1440px; min-height: 2480px; padding: 64px; gap: 56px">
+
+<section style="display: flex; flex-direction: column; gap: 16px; max-width: 860px">
+<div class="over">PDF Suite · design system · v1</div>
+<h1 class="h1" style="font-size: 48px; letter-spacing: -0.02em">Proof</h1>
+<p class="muted" style="font-size: 18px; line-height: 1.5">A quieter system for a tool whose job is to be believed. Neutral surfaces, one accent for action and selection — and every other colour on screen means a change on the page.</p>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div class="panel panel-bd" style="display: flex; flex-direction: column; gap: 6px">
+<div class="h3">Colour means change</div>
+<p class="small muted">Red, green, orange and violet are reserved for removed, added, moved and restyled. Chrome stays grey; the accent marks what you can act on or have selected.</p>
+</div>
+<div class="panel panel-bd" style="display: flex; flex-direction: column; gap: 6px">
+<div class="h3">Numbers carry units</div>
+<p class="small muted">Measurements are set in Plex Mono with tabular figures and always say <span class="mono">in</span>, <span class="mono">pt</span> or <span class="mono">%</span>. A finding names its page, and its source cell when it has one.</p>
+</div>
+<div class="panel panel-bd" style="display: flex; flex-direction: column; gap: 6px">
+<div class="h3">Page first</div>
+<p class="small muted">The rendered page is the largest thing on screen. Lists sit beside it and link by hover; nothing hides the page except a dialog the user opened.</p>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div class="over">01 · Colour</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+
+<div class="stack" style="gap: 10px">
+<div class="h4">Neutrals</div>
+<sc-for list="{{neutrals}}" as="c" hint-placeholder-count="8">
+<div class="row" style="gap: 12px">
+<div style="width: 40px; height: 32px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(22,23,26,.12); background: {{c.hex}}"></div>
+<div class="stack" style="gap: 2px">
+<span class="small" style="font-weight: 500">{{c.name}}</span>
+<span class="xs mono faint">{{c.hex}} · {{c.use}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div class="stack" style="gap: 10px">
+<div class="h4">Accent — action &amp; selection</div>
+<sc-for list="{{accent}}" as="c" hint-placeholder-count="3">
+<div class="row" style="gap: 12px">
+<div style="width: 40px; height: 32px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(22,23,26,.12); background: {{c.hex}}"></div>
+<div class="stack" style="gap: 2px">
+<span class="small" style="font-weight: 500">{{c.name}}</span>
+<span class="xs mono faint">{{c.hex}} · {{c.use}}</span>
+</div>
+</div>
+</sc-for>
+<div class="h4" style="margin-top: 14px">Status — verdicts only</div>
+<sc-for list="{{status}}" as="c" hint-placeholder-count="3">
+<div class="row" style="gap: 12px">
+<div style="width: 40px; height: 32px; border-radius: 6px; display: flex; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(22,23,26,.12)"><div style="flex: 1; background: {{c.hex}}"></div><div style="flex: 1; background: {{c.soft}}"></div></div>
+<div class="stack" style="gap: 2px">
+<span class="small" style="font-weight: 500">{{c.name}}</span>
+<span class="xs mono faint">{{c.hex}} / {{c.soft}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div class="stack" style="gap: 10px; grid-column: span 2">
+<div class="h4">Changes — always colour + glyph, never colour alone</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div class="panel" style="padding: 14px; display: flex; gap: 12px; align-items: center"><span class="cg cg-rem">−</span><div class="stack" style="gap: 2px"><span class="small" style="font-weight: 500">Removed</span><span class="xs mono faint">#B42318 · only on the golden page</span></div></div>
+<div class="panel" style="padding: 14px; display: flex; gap: 12px; align-items: center"><span class="cg cg-add">+</span><div class="stack" style="gap: 2px"><span class="small" style="font-weight: 500">Added</span><span class="xs mono faint">#2F9A5A · only on the page under test</span></div></div>
+<div class="panel" style="padding: 14px; display: flex; gap: 12px; align-items: center"><span class="cg cg-mov">↔</span><div class="stack" style="gap: 2px"><span class="small" style="font-weight: 500">Moved</span><span class="xs mono faint">#C46A00 · same text, new position</span></div></div>
+<div class="panel" style="padding: 14px; display: flex; gap: 12px; align-items: center"><span class="cg cg-sty">Aa</span><div class="stack" style="gap: 2px"><span class="small" style="font-weight: 500">Restyled</span><span class="xs mono faint">#6B55CC · font, size, weight or colour</span></div></div>
+</div>
+<p class="xs faint" style="max-width: 560px">The four differ in lightness as well as hue, so they still separate in greyscale prints and for red–green colour blindness. Highlights use a 1.5 px stroke and a 10–12 % fill of the same colour.</p>
+</div>
+
+</div>
+</section>
+
+<section style="display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 48px">
+<div class="stack" style="gap: 20px">
+<div class="over">02 · Type — IBM Plex Sans + IBM Plex Mono</div>
+<div class="stack" style="gap: 14px">
+<div class="row" style="gap: 24px; align-items: baseline"><span class="xs mono faint" style="width: 120px">28 / 600</span><span class="h1">Compare two PDFs</span></div>
+<div class="row" style="gap: 24px; align-items: baseline"><span class="xs mono faint" style="width: 120px">20 / 600</span><span class="h2">4 differences on page 2</span></div>
+<div class="row" style="gap: 24px; align-items: baseline"><span class="xs mono faint" style="width: 120px">16 / 600</span><span class="h3">Changes on this page</span></div>
+<div class="row" style="gap: 24px; align-items: baseline"><span class="xs mono faint" style="width: 120px">14 / 400 body</span><span>Drop the golden PDF and the PDF to test.</span></div>
+<div class="row" style="gap: 24px; align-items: baseline"><span class="xs mono faint" style="width: 120px">13 / 500 UI</span><span class="small" style="font-weight: 500">Mark expected</span></div>
+<div class="row" style="gap: 24px; align-items: baseline"><span class="xs mono faint" style="width: 120px">12 / 400 caption</span><span class="xs faint">Hover a change for before → after</span></div>
+<div class="row" style="gap: 24px; align-items: baseline"><span class="xs mono faint" style="width: 120px">13 mono</span><span class="mono small">Δx +0.12 in · Δy −0.04 in · 10.5 pt</span></div>
+<div class="row" style="gap: 24px; align-items: baseline"><span class="xs mono faint" style="width: 120px">11 mono caps</span><span class="over">Golden · page 2 of 6</span></div>
+</div>
+</div>
+<div class="stack" style="gap: 20px">
+<div class="over">03 · Space, radius, depth</div>
+<div class="row" style="gap: 10px; align-items: flex-end">
+<sc-for list="{{space}}" as="s" hint-placeholder-count="7">
+<div class="stack" style="gap: 6px; align-items: center"><div style="background: #2346C8; opacity: .85; width: {{s.px}}; height: {{s.px}}"></div><span class="xs mono faint">{{s.v}}</span></div>
+</sc-for>
+</div>
+<div class="row" style="gap: 16px">
+<div class="stack" style="gap: 6px; align-items: center"><div style="width: 56px; height: 40px; border: 1.5px solid #CBCBC5; border-radius: 4px"></div><span class="xs mono faint">4 tag</span></div>
+<div class="stack" style="gap: 6px; align-items: center"><div style="width: 56px; height: 40px; border: 1.5px solid #CBCBC5; border-radius: 6px"></div><span class="xs mono faint">6 control</span></div>
+<div class="stack" style="gap: 6px; align-items: center"><div style="width: 56px; height: 40px; border: 1.5px solid #CBCBC5; border-radius: 10px"></div><span class="xs mono faint">10 panel</span></div>
+<div class="stack" style="gap: 6px; align-items: center"><div style="width: 56px; height: 40px; border: 1.5px solid #CBCBC5; border-radius: 14px"></div><span class="xs mono faint">14 dialog</span></div>
+</div>
+<div class="row" style="gap: 16px">
+<div class="stack" style="gap: 6px; align-items: center"><div style="width: 88px; height: 56px; background: #fff; border: 1px solid #E2E2DD; border-radius: 10px"></div><span class="xs mono faint">line — panels</span></div>
+<div class="stack" style="gap: 6px; align-items: center"><div style="width: 88px; height: 56px; background: #fff; border-radius: 10px; box-shadow: 0 1px 2px rgba(22,23,26,.06),0 6px 20px rgba(22,23,26,.08)"></div><span class="xs mono faint">shadow — menus</span></div>
+<div class="stack" style="gap: 6px; align-items: center"><div style="width: 88px; height: 56px; background: #fff; border-radius: 14px; box-shadow: 0 24px 64px rgba(22,23,26,.22)"></div><span class="xs mono faint">shadow-lg — dialogs</span></div>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div class="over">04 · Components</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start">
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">Buttons</span></div>
+<div class="panel-bd stack" style="gap: 12px">
+<div class="row" style="flex-wrap: wrap">
+<button class="btn btn-p" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>Compare every page</button>
+<button class="btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Export</button>
+<button class="btn btn-g" type="button">Cancel</button>
+</div>
+<div class="row" style="flex-wrap: wrap">
+<button class="btn btn-sm" type="button">Mark expected</button>
+<button class="btn btn-sm btn-i" type="button" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M11 8v6M8 11h6"/></svg></button>
+<button class="btn btn-sm btn-d" type="button">Remove pair</button>
+<button class="btn btn-sm" type="button" disabled>Export</button>
+</div>
+<p class="xs faint">One primary per screen. Icon-only buttons carry an aria-label.</p>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">Navigation</span></div>
+<div class="panel-bd stack" style="gap: 14px">
+<nav class="row" style="gap: 4px; border-bottom: 1px solid #E2E2DD" aria-label="Workspace tabs example">
+<a class="wtab on" href="#ws" style="min-height: 40px">Compare</a>
+<a class="wtab" href="#ws" style="min-height: 40px">Specification</a>
+<a class="wtab" href="#ws" style="min-height: 40px">Inspect</a>
+</nav>
+<div class="seg" role="group" aria-label="View">
+<button class="on" type="button">Side by side</button>
+<button type="button">Overlapping</button>
+<button type="button">Report</button>
+</div>
+<div class="utabs" style="padding: 0">
+<button class="utab on" type="button">Changes <span class="count">4</span></button>
+<button class="utab" type="button">Diff</button>
+<button class="utab" type="button">Ignored <span class="count">1</span></button>
+</div>
+<p class="xs faint">Workspaces: underline. Scope and views of one thing: segmented (One · Many). Panel sections: small underline.</p>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">Verdicts &amp; chips</span></div>
+<div class="panel-bd stack" style="gap: 12px">
+<div class="row" style="flex-wrap: wrap">
+<span class="verdict v-fail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>FAIL</span>
+<span class="verdict v-pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>PASS</span>
+<span class="verdict v-fail v-sm">FAIL</span>
+<span class="verdict v-pass v-sm">PASS</span>
+</div>
+<div class="row" style="flex-wrap: wrap">
+<span class="chip chip-fail"><span class="dot"></span>4 of 6 pages differ</span>
+<span class="chip chip-pass"><span class="dot"></span>Every page matches</span>
+<span class="chip chip-warn">Not embedded</span>
+<span class="chip chip-info">Imported</span>
+<span class="chip">Scanning 3 / 6</span>
+</div>
+<p class="xs faint">FAIL / PASS badges appear only where a verdict is given; chips summarise.</p>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">Files</span></div>
+<div class="panel-bd stack" style="gap: 10px">
+<div class="drop" style="padding: 20px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+<span class="small"><strong>Golden PDF</strong> — drop here or <button class="link" type="button">browse</button></span>
+</div>
+<div class="file"><span class="role role-g">Golden</span><span class="nm">invoice-original.pdf</span><span class="meta">6 pp</span><span class="spacer"></span><button class="btn btn-g btn-sm btn-i" type="button" aria-label="Replace file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<div class="file"><span class="role">To test</span><span class="nm">invoice-recreated.pdf</span><span class="meta">5 pp</span><span class="spacer"></span><button class="btn btn-g btn-sm btn-i" type="button" aria-label="Replace file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">Page navigation</span></div>
+<div class="panel-bd stack" style="gap: 14px">
+<div class="nav">
+<button class="btn btn-sm btn-i" type="button" aria-label="Previous change"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 6l-6 6 6 6M7 6v12"/></svg></button>
+<button class="btn btn-sm btn-i" type="button" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+<span class="pos">2 / 6</span>
+<button class="btn btn-sm btn-i" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+<button class="btn btn-sm" type="button">Next change<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 6l6 6-6 6M17 6v12"/></svg></button>
+</div>
+<div class="strip" style="padding: 0; border: 0"><i class="c"></i><i class="c cur"></i><i></i><i class="c"></i><i class="c"></i><i class="c"></i></div>
+<p class="xs faint">The strip is one cell per page pair; red cells differ, the outlined one is shown.</p>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">Finding row</span></div>
+<div class="divide">
+<div class="find hov"><span class="cg cg-rem">−</span><div class="bd"><span class="t">Text changed in the line items table</span><span class="ba"><del>Consulting — March</del> → <ins>Consulting</ins></span><span class="m">row 3 · x 0.68 in · y 4.62 in</span></div><button class="btn btn-sm btn-g" type="button">Expected</button></div>
+<div class="find"><span class="cg cg-mov">↔</span><div class="bd"><span class="t">Total moved up</span><span class="m">Δx 0.00 in · Δy −0.44 in</span></div><button class="btn btn-sm btn-g" type="button">Expected</button></div>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">Inputs</span></div>
+<div class="panel-bd stack" style="gap: 12px">
+<div class="field"><label for="ds-in">Reason</label><input class="input" id="ds-in" value="Approved wording change"></div>
+<div class="row" style="gap: 12px; flex-wrap: wrap">
+<div class="field"><label for="ds-sel">Sheet</label><select class="input" id="ds-sel"><option>Statement p.1</option></select></div>
+<div class="field"><label for="ds-u">Position tolerance</label><span class="unit"><input id="ds-u" value="0.06"><span>in</span></span></div>
+</div>
+<label class="check"><input type="checkbox" checked> Lock scroll and zoom</label>
+</div>
+</div>
+
+<div class="panel" style="position: relative; min-height: 280px">
+<div class="panel-hd"><span class="h4">Menu</span></div>
+<div class="menu" style="position: relative; margin: 12px; min-width: 0">
+<button class="mi" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span class="stack" style="gap: 2px"><span class="tt">HTML report</span><span class="dd">Printable, with diff images</span></span></button>
+<button class="mi hov" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="stack" style="gap: 2px"><span class="tt">Markdown fix-list</span><span class="dd">What to change in the template</span></span></button>
+<div class="mi-sep"></div>
+<button class="mi" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM3 3h18v4H3zM10 11h4"/></svg><span class="stack" style="gap: 2px"><span class="tt">ZIP bundle</span><span class="dd">Everything, plus annotated PDFs</span></span></button>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">Banners</span></div>
+<div class="panel-bd stack" style="gap: 8px">
+<div class="banner b-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg><span>Scanned page — text diff does not apply.</span></div>
+<div class="banner b-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg><span>Page sizes differ: Letter vs A4.</span></div>
+<div class="banner b-fail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg><span>XFA form — not supported. Save it as a flat PDF first.</span></div>
+</div>
+</div>
+
+<div class="panel" style="grid-column: span 2">
+<div class="panel-hd"><span class="h4">Table</span></div>
+<div class="scroll">
+<table class="tbl">
+<thead><tr><th>Page</th><th>Verdict</th><th>Changes</th><th class="r">Content</th><th class="r">Pixels</th><th class="r">Max offset</th></tr></thead>
+<tbody>
+<tr><td class="mono">1</td><td><span class="verdict v-fail v-sm">FAIL</span></td><td class="small muted">2 text · 1 pixel-only</td><td class="r">98.4 %</td><td class="r">3.1 %</td><td class="r">0.08 in</td></tr>
+<tr class="sel"><td class="mono">2</td><td><span class="verdict v-fail v-sm">FAIL</span></td><td class="small muted">1 removed · 31 moved</td><td class="r">91.2 %</td><td class="r">12.6 %</td><td class="r">0.44 in</td></tr>
+<tr><td class="mono">3</td><td><span class="verdict v-pass v-sm">PASS</span></td><td class="small faint">—</td><td class="r">100 %</td><td class="r">0.0 %</td><td class="r">0.00 in</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-hd"><span class="h4">On the page</span></div>
+<div class="panel-bd" style="background: #EFEFEB; border-radius: 0 0 10px 10px">
+<div class="page" style="max-width: 300px; margin: 0 auto">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="30"><div class="ln" style="{{l.s}}"></div></sc-for>
+<div class="hl hl-rem" style="top: 34.2%; left: 7%; width: 34%; height: 2.8%"></div>
+<div class="hl hl-add" style="top: 38.2%; left: 53%; width: 14%; height: 2.8%"></div>
+<div class="hl hl-mov" style="top: 62.2%; left: 61%; width: 32%; height: 3.2%"><span class="n" style="background: #C46A00">3</span></div>
+<div class="hl hl-sty" style="top: 13.2%; left: 61%; width: 32%; height: 2.8%"></div>
+<div class="hl hl-sel" style="top: 46.2%; left: 77%; width: 16%; height: 2.8%"></div>
+<div class="hl hl-exp" style="top: 74.2%; left: 7%; width: 48%; height: 2.8%"></div>
+<div class="pin" style="top: 84%; left: 30%">1</div>
+<div class="tip" style="top: 66.5%; left: 50%">Total → Δy −0.44 in</div>
+</div>
+<div class="legend" style="margin-top: 12px; justify-content: center"><span><i class="sw" style="border-color: #2346C8"></i>selected</span><span><i class="sw" style="border-color: #45484F; border-style: dashed"></i>expected (spec)</span><span><i class="pin" style="position: static; width: 14px; height: 14px; font-size: 0; box-shadow: none"></i>comment</span></div>
+</div>
+</div>
+
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2480}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var L = [];
+    function b(t, l, w, h, c) { L.push({ s: 'top:' + t + '%;left:' + l + '%;width:' + w + '%' + (h ? ';height:' + h + '%' : '') + (c ? ';background:' + c : '') }); }
+    b(6, 8, 30, 2.6, '#2A2B2F');
+    b(14, 8, 34); b(17, 8, 28); b(20, 8, 22); b(14, 62, 30); b(17, 62, 24); b(20, 62, 26);
+    b(29, 8, 84, 3.2, '#E8E8E3');
+    [35, 39, 43, 47, 51, 55].forEach(function (t) { b(t, 8, 32); b(t, 54, 12); b(t, 78, 14); });
+    b(63, 62, 30, 1.6, '#9C9EA4'); b(69, 8, 84, 0.3, '#B5B5AF');
+    b(75, 8, 46); b(78, 8, 38); b(88, 8, 20, 0.8);
+    return {
+      lines: L,
+      neutrals: [
+        { name: 'Ground', hex: '#F6F6F4', use: 'app background' },
+        { name: 'Surface', hex: '#FFFFFF', use: 'panels, pages' },
+        { name: 'Sunken', hex: '#EFEFEB', use: 'stage, segmented' },
+        { name: 'Line', hex: '#E2E2DD', use: 'dividers' },
+        { name: 'Line strong', hex: '#CBCBC5', use: 'control borders' },
+        { name: 'Ink 3', hex: '#63666E', use: 'captions · 5.6:1' },
+        { name: 'Ink 2', hex: '#45484F', use: 'secondary text' },
+        { name: 'Ink', hex: '#16171A', use: 'text, active tab' }
+      ],
+      accent: [
+        { name: 'Accent', hex: '#2346C8', use: 'primary, focus' },
+        { name: 'Accent ink', hex: '#1A36A0', use: 'hover, text on soft' },
+        { name: 'Accent soft', hex: '#EBEEFB', use: 'selected row' }
+      ],
+      status: [
+        { name: 'Pass', hex: '#16703E', soft: '#E6F2EA' },
+        { name: 'Fail', hex: '#B42318', soft: '#FBE9E7' },
+        { name: 'Warn', hex: '#875600', soft: '#FBF0D9' }
+      ],
+      space: [4, 8, 12, 16, 20, 24, 32].map(function (v) { return { v: v, px: v + 'px' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

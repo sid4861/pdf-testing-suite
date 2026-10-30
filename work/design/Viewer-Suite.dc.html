@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PDF viewer — inside pdfsuite</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab" href="Compare-SideBySide.dc.html">Compare</a>
+<a class="wtab on" href="Spec-Results.dc.html" aria-current="page">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+</header>
+<div style="flex: 1; background: #EFEFEB"></div>
+
+<div class="scrim" style="padding: 24px">
+<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="v2-title" style="width: 100%; max-width: 1120px; height: 100%">
+<div class="dialog-hd" style="flex-wrap: wrap; gap: 10px">
+<span class="role">To test</span>
+<h2 class="h4" id="v2-title">report.pdf</h2>
+<span class="chip chip-fail"><span class="n" style="background: #B42318; min-width: 16px; height: 16px">3</span>Transactions table · width · Statement p1!F40</span>
+<span class="spacer"></span>
+<div class="nav">
+<button class="btn btn-sm btn-i" type="button" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+<input class="input mono" aria-label="Page" value="2" style="width: 44px; height: 28px; text-align: center">
+<span class="mono xs faint">of 5</span>
+<button class="btn btn-sm btn-i" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+</div>
+<select class="input" style="height: 28px; font-size: 12px" aria-label="Zoom"><option>Fit width</option></select>
+<div class="row" style="gap: 0; border: 1px solid #CBCBC5; border-radius: 6px; height: 28px; padding-left: 8px; background: #fff">
+<svg viewBox="0 0 24 24" fill="none" stroke="#63666E" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" style="width: 14px; height: 14px"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+<input aria-label="Search in this PDF" placeholder="Search" style="border: 0; outline: 0; height: 26px; width: 110px; padding: 0 8px; font: 400 13px/1 var(--sans); background: transparent">
+</div>
+<label class="check xs"><input type="checkbox" checked> Finding boxes</label>
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Download the original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg></button>
+<a class="btn btn-sm btn-g btn-i" href="Spec-Results.dc.html" aria-label="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></a>
+</div>
+<div style="flex: 1; min-height: 0; display: flex; overflow: hidden">
+<nav aria-label="Pages" style="width: 120px; flex: none; border-right: 1px solid #E2E2DD; background: #F6F6F4; padding: 14px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+<sc-for list="{{thumbs}}" as="t" hint-placeholder-count="5">
+<button type="button" style="display: flex; flex-direction: column; gap: 4px; align-items: center; background: none; border: 0; padding: 0; cursor: pointer">
+<span style="width: 72px; aspect-ratio: 8.5/11; background: #fff; display: block; box-shadow: {{t.ring}}"></span>
+<span class="mono xs" style="color: {{t.color}}">{{t.n}}{{t.mark}}</span>
+</button>
+</sc-for>
+</nav>
+<div style="flex: 1; min-width: 0; background: #EFEFEB; overflow: hidden; display: flex; justify-content: center; padding: 24px">
+<div class="page" style="max-width: 560px; flex: none; align-self: flex-start">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="30"><div class="ln" style="{{l.s}}"></div></sc-for>
+<div class="hl hl-exp" style="top: 30%; left: 8%; width: 84%; height: 30%"></div>
+<div class="hl hl-rem" style="top: 30%; left: 8%; width: 78%; height: 30%; background: transparent; outline: 4px solid rgba(180,35,24,.16)"><span class="n" style="background: #B42318">3</span></div>
+<span class="tip" style="top: 61%; left: 8%">width 7.14 in expected · 6.63 in actual</span>
+</div>
+</div>
+</div>
+<div class="dialog-ft xs faint"><span>Same viewer as any app — pdfsuite adds the finding boxes.</span><span class="spacer"></span><span>Esc to close</span></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var L = [];
+    function b(t, l, w, h, c) { L.push({ s: 'top:' + t + '%;left:' + l + '%;width:' + w + '%' + (h ? ';height:' + h + '%' : '') + (c ? ';background:' + c : '') }); }
+    b(5, 8, 18, 8.5, '#D8D8D3'); b(6.5, 60, 32, 1.4); b(23, 8, 28, 1.6, '#3B5BA8');
+    b(31, 8, 78, 3, '#E8E8E3');
+    [36, 40, 44, 48, 52, 56].forEach(function (t) { b(t, 9, 30); b(t, 46, 14); b(t, 70, 14); });
+    [67, 71, 75, 79].forEach(function (t, i) { b(t, 8, i === 3 ? 40 : 70); });
+    var thumbs = [1, 2, 3, 4, 5].map(function (n) {
+      return { n: n, ring: n === 2 ? '0 0 0 2px #2346C8' : '0 0 0 1px #CBCBC5', color: n === 2 ? '#1A36A0' : '#45484F', mark: (n === 2 || n === 4) ? ' ·' : '' };
+    });
+    return { lines: L, thumbs: thumbs };
+  }
+}
+</script>
+</body>
+</html>

@@ -70,6 +70,9 @@ a mechanical tie is crude but it is the only one that runs every time.
 
 - **Enforced today:** decisions 3 and 5, by `scripts/sr-guard.sh` once it is
   installed as the `commit-msg` hook.
+- The same hook also runs SR-WORK-LIFECYCLE's item-file check
+  (`scripts/check-work-items.sh`) when a commit stages an open item file or
+  the queue — one install, two gates; the guard states neither rule.
 - **Judgment today:** `owns:` ↔ table agreement (B-002); decision 7 until CI
   exists.
 - Every product path is owned by `W-01` at setup, so a product change stages

@@ -1,0 +1,200 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-18T07:55:00Z"
+  },
+  "title": "PDF Suite — Proof redesign",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 2480,
+      "title": "Proof — design system"
+    },
+    "Compare-Load.dc.html": {
+      "x": 0,
+      "y": 2900,
+      "w": 1440,
+      "h": 900,
+      "title": "Compare · One · load",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Compare-SideBySide.dc.html": {
+      "x": 1520,
+      "y": 2900,
+      "w": 1440,
+      "h": 1040,
+      "title": "Compare · One · side by side",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Compare-Overlapping.dc.html": {
+      "x": 3040,
+      "y": 2900,
+      "w": 1440,
+      "h": 1100,
+      "title": "Compare · One · overlapping",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Compare-Report.dc.html": {
+      "x": 4560,
+      "y": 2900,
+      "w": 1440,
+      "h": 1040,
+      "title": "Compare · One · report + export",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Compare-PairPages.dc.html": {
+      "x": 6080,
+      "y": 2900,
+      "w": 1440,
+      "h": 900,
+      "title": "Compare · One · pair pages",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Bulk.dc.html": {
+      "x": 7600,
+      "y": 2900,
+      "w": 1440,
+      "h": 1000,
+      "title": "Compare · Many (was Bulk compare)",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Spec-Intake.dc.html": {
+      "x": 0,
+      "y": 4520,
+      "w": 1440,
+      "h": 1000,
+      "title": "Specification · the workbook in sheetpane, validated (W-02, W-46)",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Spec-Results.dc.html": {
+      "x": 1520,
+      "y": 4520,
+      "w": 1440,
+      "h": 1060,
+      "title": "Specification · results on the sheet (W-04, W-46)",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Sheet-Editor.dc.html": {
+      "x": 3040,
+      "y": 4520,
+      "w": 1440,
+      "h": 1000,
+      "title": "Specification · edit in sheetpane (W-47)",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Inspect.dc.html": {
+      "x": 4560,
+      "y": 4520,
+      "w": 1440,
+      "h": 1100,
+      "title": "Inspect (W-14…W-26)",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Viewer.dc.html": {
+      "x": 0,
+      "y": 6100,
+      "w": 1440,
+      "h": 900,
+      "title": "PDF viewer · any app (W-42)",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Viewer-Suite.dc.html": {
+      "x": 1520,
+      "y": 6100,
+      "w": 1440,
+      "h": 900,
+      "title": "PDF viewer · inside pdfsuite (W-42)",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Viewer-Levels.dc.html": {
+      "x": 3040,
+      "y": 6100,
+      "w": 1440,
+      "h": 1240,
+      "title": "PDF viewer · sources, element, levels (W-42)"
+    },
+    "Components.dc.html": {
+      "x": 4560,
+      "y": 6100,
+      "w": 1440,
+      "h": 1320,
+      "title": "Web components (W-42 · sheetpane)"
+    },
+    "States.dc.html": {
+      "x": 6080,
+      "y": 6100,
+      "w": 1440,
+      "h": 1000,
+      "title": "Edge states (W-16, W-18, W-20, W-24)",
+      "expand": "fill"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Compare-Load.dc.html",
+    "Compare-SideBySide.dc.html",
+    "Compare-Overlapping.dc.html",
+    "Compare-Report.dc.html",
+    "Compare-PairPages.dc.html",
+    "Bulk.dc.html",
+    "Spec-Intake.dc.html",
+    "Spec-Results.dc.html",
+    "Sheet-Editor.dc.html",
+    "Inspect.dc.html",
+    "Viewer.dc.html",
+    "Viewer-Suite.dc.html",
+    "Viewer-Levels.dc.html",
+    "Components.dc.html",
+    "States.dc.html"
+  ],
+  "notes": {
+    "t-ds": {
+      "x": 0,
+      "y": -300,
+      "text": "Proof — the design system",
+      "kind": "title1",
+      "maxW": 1440
+    },
+    "t-compare": {
+      "x": 0,
+      "y": 2600,
+      "text": "Compare — One · Many",
+      "kind": "title1",
+      "maxW": 9040
+    },
+    "t-tabs": {
+      "x": 0,
+      "y": 4220,
+      "text": "Specification · Inspect",
+      "kind": "title1",
+      "maxW": 6000
+    },
+    "t-new": {
+      "x": 0,
+      "y": 5800,
+      "text": "Web components — PDF viewer, sheetpane · edge states",
+      "kind": "title1",
+      "maxW": 7520
+    }
+  },
+  "designSystems": []
+}

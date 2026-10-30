@@ -18,7 +18,7 @@ content_sha: ""
 ## §1 — For humans
 
 **`work/OPEN-WORK.md` is the one list of what is being done.** Each item is one
-short row plus a detail file in `work/open/`. Every row opens with one ball
+short row plus a detail file in `work/open/`; the row names who filed it. Every row opens with one ball
 that says whether it can move: 🔴 waiting on Siddharth or Arpit, 🟣 waiting on a date, 🟡
 waiting on another item, 🟢 free to pick up.
 
@@ -86,7 +86,9 @@ gets walked past.
 
 13. One or two lines per item, always.
 14. A row is: ball · optional 🧨 · optional 🔺 · `**W-nn**` · `` `lane` `` ·
-    what is open · `[detail](open/W-nn-slug.md)`.
+    `filed by <name>` · what is open · `[detail](open/W-nn-slug.md)`.
+14a. **The row's `filed by` is the item file's `filed_by`, word for word** —
+    the person, never a model (SR-WORK-LIFECYCLE decision 4e).
 15. At most 280 characters.
 16. No body — no nested bullet, no table, no indented paragraph.
 17. Every row links its own detail file, and the id in the row matches it.
@@ -206,7 +208,8 @@ under its header:
 
 - **Enforced today:** rule 45a, by `.claude/hooks/guard-open-work-inbox.sh`
   running `scripts/check-open-work-inbox.py`; rule 33 is prompted by
-  `.claude/hooks/inject-inbox.sh`.
+  `.claude/hooks/inject-inbox.sh`; rule 14a, by `scripts/check-work-items.sh`
+  (SR-WORK-LIFECYCLE's check, which this record describes).
 - **Judgment today:** every other rule. The row rules (13–19, 42, 45) are
   backlog row B-001; an id resolving nowhere is B-004.
 

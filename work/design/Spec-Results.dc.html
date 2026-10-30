@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Specification — results on the sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab" href="Compare-SideBySide.dc.html">Compare</a>
+<a class="wtab on" href="Spec-Results.dc.html" aria-current="page">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+<div class="row" style="gap: 8px; flex: 1 1 420px; min-width: 0; flex-wrap: wrap">
+<a class="file" href="Spec-Intake.dc.html" style="flex: 1 1 220px; max-width: 320px; text-decoration: none; color: inherit"><span class="role">Spec</span><span class="nm">report-spec.xlsx</span><span class="meta">template v2</span></a>
+<div class="file" style="flex: 1 1 200px; max-width: 280px"><span class="role">To test</span><span class="nm">report.pdf</span><span class="meta">5 pp</span><a class="btn btn-g btn-sm btn-i" href="Viewer-Suite.dc.html" aria-label="View report.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a></div>
+</div>
+<div class="hdr-r">
+<button class="btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Export</button>
+</div>
+</header>
+
+<div class="sub">
+<span class="verdict v-fail v-sm">FAIL</span>
+<span class="small"><strong>6 failures</strong> <span class="faint">· 5 on this sheet</span></span>
+<span class="chip chip-out"><span class="mono">186 of 214</span>&nbsp;rows checked</span>
+<div class="seg" role="group" aria-label="What the marks show">
+<a href="Spec-Intake.dc.html">Validation</a>
+<button class="on" type="button">PDF check</button>
+</div>
+<span class="spacer"></span>
+<div class="seg" role="group" aria-label="What to check"><button class="on" type="button">All pages</button><button type="button">One page</button></div>
+<span class="mono xs muted">Statement p1 → PDF page 2</span>
+</div>
+
+<div class="split">
+<section class="main sheetwrap" aria-label="report-spec.xlsx, PDF check" style="flex: 999 1 600px">
+<div class="fx">
+<span class="ref">F9</span>
+<span class="fxi" aria-hidden="true">fx</span>
+<span class="val">7.14</span>
+<span class="spacer"></span>
+<span class="chip chip-fail">✕ Fail — the PDF measures 6.63 in, outside ± 0.06 in</span>
+</div>
+<div class="grid-scroll">
+<div class="srow ch"><span class="rh" style="justify-content: center"></span><sc-for list="{{cols}}" as="c" hint-placeholder-count="11"><span style="{{c.w}}">{{c.l}}</span></sc-for></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="17">
+<div class="srow"><span class="rh"><span class="g {{r.gc}}">{{r.g}}</span>{{r.n}}</span><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="11"><span class="{{c.cls}}" style="{{c.w}}" title="{{c.tip}}">{{c.v}}</span></sc-for></div>
+</sc-for>
+</div>
+<nav class="stabs" aria-label="Sheets">
+<button class="stab" type="button">Cover <span class="cnt cnt-e">1</span></button>
+<button class="stab on" type="button" aria-current="true">Statement p1 <span class="cnt cnt-e">5</span><span class="cnt cnt-ok">10</span></button>
+<button class="stab" type="button">Statement cont. <span class="cnt cnt-ok">✓</span></button>
+<button class="stab" type="button">Disclosures <span class="cnt cnt-i">not found</span></button>
+</nav>
+</section>
+
+<aside class="side stack" style="gap: 10px; flex: 1 1 400px">
+<div class="row"><span class="h4">PDF page 2</span><span class="spacer"></span><span class="xs faint">select a cell or a box — the other follows</span></div>
+<div class="stage" style="padding: 16px">
+<div class="pcol" style="max-width: 420px">
+<div class="page">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="30"><div class="ln" style="{{l.s}}"></div></sc-for>
+<div class="hl hl-rem" style="top: 5%; left: 8%; width: 18%; height: 8.5%; background: transparent"></div>
+<div class="hl hl-rem" style="top: 22.2%; left: 7.5%; width: 30%; height: 2.6%; background: transparent"></div>
+<div class="hl hl-exp" style="top: 30%; left: 8%; width: 84%; height: 30%"></div>
+<div class="hl hl-rem" style="top: 30%; left: 8%; width: 78%; height: 30%; background: rgba(180,35,24,.06); outline: 4px solid rgba(180,35,24,.16)"><span class="n" style="background: #B42318">F9</span></div>
+<div class="hl hl-rem" style="top: 66%; left: 8%; width: 70%; height: 14%; background: transparent"></div>
+<div class="hl hl-exp" style="top: 84%; left: 30%; width: 40%; height: 8%"></div>
+</div>
+</div>
+</div>
+<div class="legend"><span><i class="sw" style="border-color: #45484F; border-style: dashed"></i>spec</span><span><i class="sw" style="border-color: #B42318"></i>PDF · fail</span><span><i class="sw" style="border-color: #16703E; background: #E6F2EA"></i>pass</span></div>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var W = [56, 118, 70, 60, 92, 82, 40, 70, 52, 64, 120];
+    var L = 'ABCDEFGHIJK'.split('');
+    var data = [
+      ['ID', 'Element', 'Part', 'Group', 'Parameter', 'Value', 'Unit', 'From', 'Check?', 'Tolerance', 'In the PDF'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Wording', 'Account summary', '', '', 'Yes', '', 'Account summary'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Font size', '14', 'pt', '', 'Yes', '0.5', '14.0 pt'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Colour', 'Navy', '', '', 'Yes', '', 'ΔE 7.8'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Left', '0.68', 'in', 'left edge', 'Yes', '', '0.68 in'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Top', '2.49', 'in', 'top edge', 'Yes', '', '2.49 in'],
+      ['IMG-01', 'Logo', 'image', 'Header', 'Height', '0.66', 'in', '', 'Yes', '0.06', '0.94 in'],
+      ['IMG-01', 'Logo', 'image', 'Header', 'Width', '1.53', 'in', '', 'Yes', '0.06', '1.55 in'],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Width', '7.14', 'in', '', 'Yes', '0.06', '6.63 in'],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Left', '0.68', 'in', 'left edge', 'Yes', '', '0.68 in'],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Row height', '0.25', 'in', '', 'Yes', '', '0.25 in'],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Top', '6.05', 'in', 'top edge', 'Yes', '', '6.07 in'],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Line spacing', '12', 'pt', '', 'Yes', '0.03', '14.4 pt'],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Wording', '<<dynamic>>', '', '', 'Yes', '', 'matches pattern'],
+      ['WM-01', 'Watermark', 'image', 'Body', 'Present', 'Yes', '', '', 'Yes', '', 'not found'],
+      ['F-01', 'Footer logo', 'image', 'Footer', 'Width', '0.80', 'in', '', 'Yes', '', 'excluded'],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Left', '0.68', 'in', 'left edge', 'Yes', '', '0.68 in']
+    ];
+    var fail = { 4: 'Colour off by ΔE 7.8 (≤ 3.0)', 7: 'Height 0.94 in, outside ± 0.06', 9: 'Width 6.63 in, outside ± 0.06', 13: 'Line spacing 14.4 pt, outside ± 0.03 in', 15: 'Watermark not found' };
+    var rows = data.map(function (r, i) {
+      var n = i + 1, f = fail[n], excluded = n === 16, head = n === 1;
+      var cells = r.map(function (v, j) {
+        var cls = [], ref = L[j] + n;
+        if (head) cls.push('c-hd');
+        if (excluded) cls.push('c-strike');
+        if (!head && !excluded && (j === 5 || j === 10)) cls.push(f ? 'm-fail' : 'm-pass');
+        if (j === 10 && !head) cls.push('c-actual');
+        if (ref === 'F9') cls.push('c-sel');
+        return { v: v, w: 'width:' + W[j] + 'px', cls: cls.join(' '), tip: f && (j === 5 || j === 10) ? f : '' };
+      });
+      var g = head ? ['', ''] : excluded ? ['–', ''] : f ? ['✕', 'g-err'] : ['✓', 'g-ok'];
+      return { n: n, g: g[0], gc: g[1], cells: cells };
+    });
+    var cols = L.map(function (l, j) { return { l: j === 10 ? 'K · PDF' : l, w: 'width:' + W[j] + 'px' }; });
+    var Ln = [];
+    function b(t, l, w, h, c) { Ln.push({ s: 'top:' + t + '%;left:' + l + '%;width:' + w + '%' + (h ? ';height:' + h + '%' : '') + (c ? ';background:' + c : '') }); }
+    b(5, 8, 18, 8.5, '#D8D8D3'); b(6.5, 60, 32, 1.4); b(23, 8, 28, 1.6, '#3B5BA8');
+    b(31, 8, 78, 3, '#E8E8E3');
+    [36, 40, 44, 48, 52, 56].forEach(function (t) { b(t, 9, 30); b(t, 46, 14); b(t, 70, 14); });
+    [67, 71, 75, 79].forEach(function (t, i) { b(t, 8, i === 3 ? 40 : 70); });
+    return { cols: cols, rows: rows, lines: Ln };
+  }
+}
+</script>
+</body>
+</html>

@@ -18,7 +18,7 @@ Written to be picked up cold. Read §1 and §2 before writing any code.
 | `src/services/specCheck.ts` | `runSpec(pdf, spec, options)` and `validateSpec(json)`. Anchors are implemented. |
 | `src/components/spec/SpecTestView.tsx` | The workspace UI, including **All pages** / **One page** targeting with a PDF-page stepper and a spec-page selector. |
 | `cli/verify/spec-target.ts` | Page-targeting regression suite, 8 checks. Run with `cd cli && npm run verify:spec`. |
-| `tools/samples/` | Where a worked example tab and its expected output belong. |
+| `work/samples/` | Where a worked example tab and its expected output belong (moved from `tools/samples/` 2026-10-18). |
 
 `RunSpecOptions` is `{ onProgress?, specPageIndex?, pdfPageOverride? }` — it checks one
 spec page against any PDF page, which is what lets a single-sheet spec saying `"page": 1`
@@ -180,7 +180,7 @@ Make sure everything in §1.2 is present and consistent: the converter, the font
 them. Add `tools/__pycache__/` to `.gitignore`.
 
 **Done when:** `npm run build` passes, `cd cli && npm run verify` passes (classification
-24/24, spec-target 8/8), and `tools/spec-from-excel.py` runs on `tools/samples/`.
+24/24, spec-target 8/8), and `tools/spec-from-excel.py` runs on `work/samples/`.
 
 ### Step 1 — Survey every tab *(highest value, ~1 day, no commitments)*
 
@@ -242,7 +242,7 @@ Last, once you know what actually remains. Per §3.7.
   pointing at this converter. Converting in-browser would mean porting this to TypeScript —
   a separate decision, not assumed here.
 - **Python, stdlib-first.** `.csv` needs nothing; `.xlsx` needs `openpyxl` behind an
-  optional import. Matches `cli-py`, which is stdlib-only.
+  optional import. (Superseded: the spec pipeline is TypeScript only — SR-STACK-TYPESCRIPT.)
 - **Do not edit `src/` from the converter's side** beyond what Step 0 assembles. The engine
   and the converter are separate deliverables.
 - **Coordinates** are inches from the page's **top-left**; `fontSize` is always points.

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PDF viewer — in any app</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps" style="background: #F3F4F6">
+<header style="display: flex; align-items: center; gap: 16px; padding: 0 24px; height: 56px; background: #fff; border-bottom: 1px solid #E5E7EB">
+<span style="font: 600 15px/1 var(--sans); color: #374151; border: 1.5px dashed #9CA3AF; padding: 6px 10px; border-radius: 6px">[Your app]</span>
+<span class="small" style="color: #4B5563">Documents</span>
+</header>
+<main class="wrap stack" style="gap: 16px; max-width: 980px">
+<h1 class="h2">Your documents</h1>
+<div class="panel">
+<table class="tbl">
+<thead><tr><th>Document</th><th>Comes from</th><th class="r">Size</th><th></th></tr></thead>
+<tbody>
+<tr class="sel"><td class="small" style="font-weight: 500">Statement — September 2026.pdf</td><td class="xs mono faint">API response · base64</td><td class="r">182 KB</td><td style="text-align: right"><button class="btn btn-sm" type="button">Open</button></td></tr>
+<tr><td class="small" style="font-weight: 500">Home loan proposal.pdf</td><td class="xs mono faint">link · /files/proposal.pdf</td><td class="r">1.4 MB</td><td style="text-align: right"><button class="btn btn-sm" type="button">Open</button></td></tr>
+<tr><td class="small" style="font-weight: 500">Signed agreement.pdf</td><td class="xs mono faint">upload · File</td><td class="r">640 KB</td><td style="text-align: right"><button class="btn btn-sm" type="button">Open</button></td></tr>
+</tbody>
+</table>
+</div>
+</main>
+
+<div class="scrim" style="padding: 24px">
+<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="v1-title" style="width: 100%; max-width: 1000px; height: 100%">
+<div class="dialog-hd" style="flex-wrap: wrap; gap: 10px">
+<svg viewBox="0 0 24 24" fill="none" stroke="#63666E" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true" style="width: 18px; height: 18px"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg>
+<h2 class="h4" id="v1-title">Statement — September 2026.pdf</h2>
+<span class="chip mono" style="font-family: var(--mono)">base64 · 182 KB</span>
+<span class="spacer"></span>
+<div class="nav">
+<button class="btn btn-sm btn-i" type="button" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+<input class="input mono" aria-label="Page" value="1" style="width: 44px; height: 28px; text-align: center">
+<span class="mono xs faint">of 4</span>
+<button class="btn btn-sm btn-i" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+</div>
+<select class="input" style="height: 28px; font-size: 12px" aria-label="Zoom"><option>Fit width</option><option>Fit page</option><option>100 %</option></select>
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Download the original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg></button>
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 17H3v-8h18v8h-3M6 14h12v7H6z"/></svg></button>
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+<div style="flex: 1; min-height: 0; background: #EFEFEB; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px">
+<div class="page" style="max-width: 600px; flex: none">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="34"><div class="ln" style="{{l.s}}"></div></sc-for>
+</div>
+</div>
+<div class="dialog-ft xs faint"><span>Shown in this tab with pdf.js — the PDF is not uploaded anywhere.</span><span class="spacer"></span><span>Esc to close</span></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var L = [];
+    function b(t, l, w, h, c) { L.push({ s: 'top:' + t + '%;left:' + l + '%;width:' + w + '%' + (h ? ';height:' + h + '%' : '') + (c ? ';background:' + c : '') }); }
+    b(5, 8, 16, 5, '#2A2B2F'); b(6, 60, 32, 1.4); b(9, 66, 26);
+    b(15, 8, 30, 1.8, '#45484F'); b(19, 8, 26); b(22, 8, 22);
+    b(28, 8, 26, 6, '#E8E8E3'); b(28, 37, 26, 6, '#E8E8E3'); b(28, 66, 26, 6, '#E8E8E3');
+    b(39, 8, 84, 2.6, '#E8E8E3');
+    [44, 47.5, 51, 54.5, 58, 61.5, 65, 68.5, 72].forEach(function (t) { b(t, 9, 12); b(t, 24, 40); b(t, 78, 13); });
+    b(80, 8, 84, 0.3, '#B5B5AF'); b(84, 8, 60, 0.9); b(87, 8, 52, 0.9);
+    return { lines: L };
+  }
+}
+</script>
+</body>
+</html>

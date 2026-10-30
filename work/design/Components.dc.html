@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Web components</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps" style="width: 1440px; min-height: 1320px; padding: 56px 64px; gap: 32px">
+<section class="stack" style="gap: 10px; max-width: 900px">
+<span class="over">W-42 · W-46 · W-47 · sheetpane</span>
+<h1 class="h1">Web components, any framework</h1>
+<p class="muted" style="font-size: 16px">Custom elements with Shadow DOM: an attribute, a property and an event are the whole contract, so React, Vue, Angular and plain HTML all use them the same way. pdfsuite builds the PDF viewer; the sheet and its error list come from <span class="mono">sheetpane</span>, a separate package pdfsuite depends on.</p>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start">
+<sc-for list="{{els}}" as="e" hint-placeholder-count="3">
+<article class="panel">
+<div class="panel-hd" style="flex-direction: column; align-items: flex-start; gap: 4px">
+<span class="mono" style="font-weight: 600; font-size: 15px">&lt;{{e.tag}}&gt;</span>
+<span class="xs faint mono">{{e.pkg}} · {{e.item}}</span>
+</div>
+<div class="panel-bd stack" style="gap: 12px">
+<p class="small muted">{{e.what}}</p>
+<dl class="kv" style="grid-template-columns: 84px 1fr">
+<dt>attributes</dt><dd style="font-size: 12px">{{e.attrs}}</dd>
+<dt>properties</dt><dd style="font-size: 12px">{{e.props}}</dd>
+<dt>events</dt><dd style="font-size: 12px">{{e.events}}</dd>
+<dt>methods</dt><dd style="font-size: 12px">{{e.methods}}</dd>
+</dl>
+</div>
+</article>
+</sc-for>
+</section>
+
+<section class="panel">
+<div class="utabs" style="padding: 0 12px">
+<button class="utab" type="button">Plain HTML</button>
+<button class="utab on" type="button">React</button>
+<button class="utab" type="button">Vue</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 16px">
+<pre class="code">import '@pdfsuite/viewer'
+import 'sheetpane'   // tag names illustrative — sheetpane names its own
+
+export function SpecReview({ workbook, pdf, marks }) {
+  const [cell, setCell] = useState(null)
+  return (
+    &lt;&gt;
+      &lt;sheetpane-sheet mode="view" source={workbook} marks={marks}
+        oncellselect={e =&gt; setCell(e.detail)} /&gt;
+      &lt;sheetpane-errors marks={marks} /&gt;
+      &lt;pdfsuite-pdf-viewer source={pdf}
+        page={cell?.page} open={cell != null} /&gt;
+    &lt;/&gt;
+  )
+}</pre>
+<div class="stack" style="gap: 10px">
+<div class="h4">Rules every element follows</div>
+<ul class="small muted" style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px">
+<li>Names start with <span class="mono">pdfsuite-</span>; events with <span class="mono">pdfsuite-</span>.</li>
+<li>Strings go in attributes; files, arrays and callbacks go in properties.</li>
+<li>Shadow DOM; theming through <span class="mono">--pdfsuite-*</span> custom properties and <span class="mono">::part()</span> — Proof’s tokens are the defaults.</li>
+<li>No framework inside; React 19 and Vue pass properties and events natively.</li>
+<li>Nothing leaves the browser; files are read locally.</li>
+<li>sheetpane owns the sheet and the error list; pdfsuite only hands it marks keyed by sheet and A1 cell.</li>
+</ul>
+</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1320}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      els: [
+        { tag: 'pdfsuite-pdf-viewer', pkg: '@pdfsuite/viewer', item: 'W-42 · built here', what: 'Any PDF — file, URL, bytes or base64 — in a pop-up over the page instead of a new tab. Grows level by level.', attrs: 'src · name · page · open · level', props: 'source · boxes · password', events: 'pdfsuite-open · pdfsuite-close · pdfsuite-page · pdfsuite-error', methods: 'show() · close() · goTo(page)' },
+        { tag: 'sheetpane · sheet', pkg: 'sheetpane (arpitarya/sheetpane)', item: 'W-46, W-47 · a dependency', what: 'An .xlsx or .csv shown like Excel, in View or Edit mode, in a tab or a pop-up. Plain-text cells, merge and centre; no formulas.', attrs: 'set by sheetpane', props: 'marks by sheet + A1 cell — what pdfsuite needs', events: 'cell selected · cell changed', methods: 'go to a cell · save' },
+        { tag: 'sheetpane · errors', pkg: 'sheetpane (arpitarya/sheetpane)', item: 'W-46 · a dependency', what: 'The list of what is wrong and what the fix should be, linked to the sheet behind the scenes: pick a line, the sheet goes to its cell.', attrs: 'set by sheetpane', props: 'the same marks', events: 'item selected', methods: '—' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

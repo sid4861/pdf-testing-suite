@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Specification — the workbook, validated</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab" href="Compare-SideBySide.dc.html">Compare</a>
+<a class="wtab on" href="Spec-Results.dc.html" aria-current="page">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+<div class="row" style="gap: 8px; flex: 1 1 420px; min-width: 0; flex-wrap: wrap">
+<div class="file" style="flex: 1 1 220px; max-width: 320px"><span class="role">Spec</span><span class="nm">report-spec.xlsx</span><span class="meta">template v2</span></div>
+<div class="file" style="flex: 1 1 200px; max-width: 280px"><span class="role">To test</span><span class="nm">report.pdf</span><span class="meta">5 pp</span></div>
+</div>
+<div class="hdr-r">
+<button class="btn" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Export</button>
+</div>
+</header>
+
+<div class="sub">
+<div class="seg" role="group" aria-label="What the marks show">
+<button class="on" type="button">Validation</button>
+<button type="button" disabled style="opacity: .5">PDF check</button>
+</div>
+<span class="chip chip-fail">✕ 2 errors</span>
+<span class="chip chip-warn">! 3 warnings</span>
+<span class="chip chip-info">i 4 info</span>
+<span class="chip chip-pass">✓ 196 rows read</span>
+<span class="spacer"></span>
+<a class="btn btn-sm" href="Sheet-Editor.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>Edit workbook</a>
+<a class="btn btn-p" href="Spec-Results.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>Check the PDF</a>
+</div>
+
+<div class="split">
+<section class="main sheetwrap" aria-label="report-spec.xlsx — sheetpane sheet, View mode">
+<div class="fx">
+<span class="ref">F9</span>
+<span class="fxi" aria-hidden="true">fx</span>
+<span class="val">0.50–0.75</span>
+<span class="spacer"></span>
+<span class="chip chip-fail">✕ Error — a range and a Tolerance (J9) in the same row: keep one</span>
+</div>
+<div class="grid-scroll">
+<div class="srow ch"><span class="rh" style="justify-content: center"></span><sc-for list="{{cols}}" as="c" hint-placeholder-count="10"><span style="{{c.w}}">{{c.l}}</span></sc-for></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="17">
+<div class="srow"><span class="rh"><span class="g {{r.gc}}">{{r.g}}</span>{{r.n}}</span><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="10"><span class="{{c.cls}}" style="{{c.w}}" title="{{c.tip}}">{{c.v}}</span></sc-for></div>
+</sc-for>
+</div>
+<nav class="stabs" aria-label="Sheets">
+<button class="stab" type="button">Pages List <span class="cnt cnt-ok">✓</span></button>
+<button class="stab" type="button">Cover <span class="cnt cnt-w">1</span></button>
+<button class="stab on" type="button" aria-current="true">Statement p1 <span class="cnt cnt-e">2</span><span class="cnt cnt-w">2</span></button>
+<button class="stab" type="button">Statement cont. <span class="cnt cnt-ok">✓</span></button>
+<button class="stab" type="button">Disclosures <span class="cnt cnt-i">1</span></button>
+<button class="stab" type="button">Lists</button>
+<button class="stab" type="button">Settings</button>
+<button class="stab" type="button" style="color: #63666E; font-style: italic">Old layout · hidden</button>
+</nav>
+</section>
+
+<aside class="side stack" style="gap: 16px; flex: 1 1 300px; max-width: 360px">
+<section class="panel">
+<div class="panel-hd"><span class="h4">On this sheet</span><span class="spacer"></span><span class="chip chip-out xs mono" style="font-family: var(--mono)">sheetpane · errors</span></div>
+<div class="divide">
+<sc-for list="{{issues}}" as="v" hint-placeholder-count="6">
+<button class="find" type="button" style="width: 100%; border: 0; background: {{v.bg}}; text-align: left; cursor: pointer">
+<span class="g {{v.gc}}" style="width: 14px; margin-top: 3px">{{v.g}}</span>
+<span class="bd"><span class="t">{{v.msg}}</span><span class="m">{{v.ref}}</span></span>
+</button>
+</sc-for>
+</div>
+</section>
+<section class="panel">
+<div class="panel-hd"><span class="h4">Downloads</span></div>
+<div class="stack" style="padding: 6px; gap: 0">
+<button class="mi" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg><span class="stack" style="gap: 2px"><span class="tt">Validation report</span><span class="dd">Every line with its sheet and cell</span></span></button>
+<button class="mi" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg><span class="stack" style="gap: 2px"><span class="tt">Spec JSON</span><span class="dd">Assertions only · re-uploads unchanged</span></span></button>
+</div>
+</section>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var W = [64, 150, 82, 74, 104, 120, 52, 84, 64, 80];
+    var L = 'ABCDEFGHIJ'.split('');
+    var data = [
+      ['ID', 'Element', 'Part', 'Group', 'Parameter', 'Value', 'Unit', 'From', 'Check?', 'Tolerance'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Wording', 'Account summary', '', '', 'Yes', ''],
+      ['T-01', 'Account summary', 'text', 'Header', 'Font size', '14', 'pt', '', 'Yes', '0.5'],
+      ['T-01', 'Account summary', 'text', 'Header', 'Colour', 'Navy', '', '', 'Yes', ''],
+      ['T-01', 'Account summary', 'text', 'Header', 'Left', '0.68', 'in', 'left edge', 'Yes', ''],
+      ['T-01', 'Account summary', 'text', 'Header', 'Top', '2.49', 'in', 'top edge', 'Yes', ''],
+      ['IMG-01', 'Logo', 'image', 'Header', 'Height', '0.66', 'in', '', 'Yes', '0.06'],
+      ['IMG-01', 'Logo', 'image', 'Header', 'Width', '1.53', 'in', '', 'Yes', '0.06'],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Width', '0.50–0.75', 'in', '', 'Yes', '0.06'],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Left', '0.68', 'in', 'left edge', 'Yes', ''],
+      ['TB-01', 'Transactions', 'table', 'Body', 'Row height', '0.25', 'ins', '', 'Yes', ''],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Top', '6.05', 'in', 'top edge', 'Yes', ''],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Lineheight', '12', 'pt', '', 'Yes', '0.03'],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Wording', '<<dynamic>>', '', '', 'Yes', ''],
+      ['WM-01', 'Watermark', 'image', 'Body', 'Opacity', '30', '%', '', 'Note', ''],
+      ['F-01', 'Footer logo', 'image', 'Footer', 'Width', '0.80', 'in', '', 'Yes', ''],
+      ['P-01', 'Terms', 'paragraph', 'Footer', 'Left', '0.68', 'in', 'left edge', 'Yes', '']
+    ];
+    var marks = {
+      F9: ['error', 'A range and a Tolerance in the same row'], J9: ['error', 'A range and a Tolerance in the same row'],
+      G11: ['error', 'Unknown unit “ins” — in, pt or mm'],
+      E13: ['warning', 'Unknown parameter — nearest: Line spacing'],
+      F14: ['warning', '<<dynamic>> with no Pattern — presence only'],
+      F15: ['info', 'Check? = Note — listed in coverage'],
+      A16: ['info', 'Struck through — left out of the check'],
+      F17: ['info', 'Highlighted: “Confirm with legal”']
+    };
+    var rank = { error: 3, warning: 2, info: 1 };
+    var G = { 3: ['✕', 'g-err'], 2: ['!', 'g-warn'], 1: ['i', 'g-info'], 0: ['✓', 'g-ok'] };
+    var rows = data.map(function (r, i) {
+      var n = i + 1, worst = 0;
+      var cells = r.map(function (v, j) {
+        var ref = L[j] + n, m = marks[ref], cls = [];
+        if (n === 1) cls.push('c-hd');
+        if (m) { cls.push('m-' + m[0]); worst = Math.max(worst, rank[m[0]]); }
+        if (n === 16) cls.push('c-strike');
+                if (ref === 'F9') cls.push('c-sel');
+        if (j === 5 && /^[0-9.–]+$/.test(v)) cls.push('c-num');
+        return { v: v, w: 'width:' + W[j] + 'px', cls: cls.join(' '), tip: m ? m[1] : '' };
+      });
+      var g = n === 1 ? ['', ''] : G[worst];
+      return { n: n, g: g[0], gc: g[1], cells: cells };
+    });
+    var cols = L.map(function (l, j) { return { l: l, w: 'width:' + W[j] + 'px' }; });
+    var issues = [
+      ['✕', 'g-err', 'A range and a Tolerance in the same row', 'F9 · J9', true],
+      ['✕', 'g-err', 'Unknown unit “ins”', 'G11'],
+      ['!', 'g-warn', 'Unknown parameter “Lineheight” — nearest: Line spacing', 'E13'],
+      ['!', 'g-warn', '<<dynamic>> with no Pattern', 'F14'],
+      ['i', 'g-info', 'Struck-through row left out of the check', 'row 16'],
+      ['i', 'g-info', 'Highlighted cell shown as a note', 'F17']
+    ].map(function (x) { return { g: x[0], gc: x[1], msg: x[2], ref: x[3], bg: x[4] ? '#EBEEFB' : 'transparent' }; });
+    return { cols: cols, rows: rows, issues: issues };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compare — side by side</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab on" href="Compare-SideBySide.dc.html" aria-current="page">Compare</a>
+<a class="wtab" href="Spec-Results.dc.html">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+<div class="row" style="gap: 8px; flex: 1 1 420px; min-width: 0; flex-wrap: wrap">
+<div class="file" style="flex: 1 1 200px; max-width: 280px"><span class="role role-g">Golden</span><span class="nm">invoice-original.pdf</span><span class="meta">6 pp</span><a class="btn btn-g btn-sm btn-i" href="Viewer-Suite.dc.html" aria-label="View invoice-original.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a></div>
+<div class="file" style="flex: 1 1 200px; max-width: 280px"><span class="role">To test</span><span class="nm">invoice-recreated.pdf</span><span class="meta">5 pp</span><a class="btn btn-g btn-sm btn-i" href="Viewer-Suite.dc.html" aria-label="View invoice-recreated.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a></div>
+</div>
+<div class="hdr-r">
+<button class="btn btn-g" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM3 3h18v4H3zM10 11h4"/></svg>Import ZIP</button>
+<a class="btn" href="Compare-Report.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Export</a>
+</div>
+</header>
+
+<div class="sub">
+<nav class="seg" aria-label="Compare scope"><a class="on" aria-current="page" href="Compare-SideBySide.dc.html">One</a><a href="Bulk.dc.html">Many</a></nav>
+<span aria-hidden="true" style="width: 1px; height: 20px; background: #E2E2DD"></span>
+<nav class="seg" aria-label="Compare view">
+<a class="on" href="Compare-SideBySide.dc.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg>Side by side</a>
+<a href="Compare-Overlapping.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="13" height="13" rx="1"/><rect x="8" y="8" width="13" height="13" rx="1"/></svg>Overlapping</a>
+<a href="Compare-Report.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Report</a>
+</nav>
+<span class="chip chip-fail"><span class="dot"></span>4 of 6 pages differ</span>
+<span class="spacer"></span>
+<a class="btn btn-sm" href="Compare-PairPages.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4L3 8l4 4M3 8h14M17 12l4 4-4 4M21 16H7"/></svg>Pair pages</a>
+<button class="btn btn-sm" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Add comment</button>
+<div class="nav">
+<button class="btn btn-sm btn-i" type="button" aria-label="Previous change"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 6l-6 6 6 6M7 6v12"/></svg></button>
+<button class="btn btn-sm btn-i" type="button" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+<span class="pos">2 / 6</span>
+<button class="btn btn-sm btn-i" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+<button class="btn btn-sm" type="button">Next change<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 6l6 6-6 6M17 6v12"/></svg></button>
+</div>
+</div>
+<div class="strip" aria-label="Pages: red differ"><i class="c"></i><i class="c cur"></i><i></i><i class="c"></i><i class="c"></i><i class="c"></i></div>
+
+<div class="split">
+<div class="main">
+<div class="stage">
+<div class="pcol">
+<div class="pcap"><span class="role role-g">Golden</span><span class="mono">page 2</span><span class="spacer"></span><span class="faint mono">Letter · 8.5 × 11 in</span></div>
+<div class="page">
+<sc-for list="{{a}}" as="l" hint-placeholder-count="34"><div class="ln" style="{{l.s}}"></div></sc-for>
+<div class="hl hl-sty" style="top: 13.2%; left: 61%; width: 32%; height: 2.8%"><span class="n" style="background: #6B55CC">4</span></div>
+<div class="hl hl-rem hl-hover" style="top: 42.2%; left: 7%; width: 34%; height: 2.8%"><span class="n" style="background: #B42318">1</span></div>
+<div class="hl hl-rem" style="top: 54.2%; left: 7%; width: 86%; height: 2.8%"><span class="n" style="background: #B42318">2</span></div>
+<div class="hl hl-mov" style="top: 62.2%; left: 61%; width: 32%; height: 3.4%"><span class="n" style="background: #C46A00">3</span></div>
+</div>
+</div>
+<div class="pcol">
+<div class="pcap"><span class="role">To test</span><span class="mono">page 2</span><span class="spacer"></span><span class="faint mono">Letter · 8.5 × 11 in</span></div>
+<div class="page">
+<sc-for list="{{b}}" as="l" hint-placeholder-count="31"><div class="ln" style="{{l.s}}"></div></sc-for>
+<div class="hl hl-sty" style="top: 13.2%; left: 61%; width: 32%; height: 2.8%"><span class="n" style="background: #6B55CC">4</span></div>
+<div class="hl hl-add hl-hover" style="top: 42.2%; left: 7%; width: 26%; height: 2.8%"><span class="n" style="background: #2F9A5A">1</span></div>
+<div class="tip" style="top: 46.4%; left: 7%">Consulting — March → Consulting</div>
+<div class="hl hl-mov" style="top: 58.2%; left: 61%; width: 32%; height: 3.4%"><span class="n" style="background: #C46A00">3</span></div>
+<div class="pin" style="top: 64%; left: 30%">1</div>
+</div>
+</div>
+</div>
+<div class="row" style="justify-content: space-between; margin-top: 10px; flex-wrap: wrap">
+<div class="legend"><span><span class="cg cg-rem">−</span>removed</span><span><span class="cg cg-add">+</span>added</span><span><span class="cg cg-mov">↔</span>moved</span><span><span class="cg cg-sty">Aa</span>restyled</span></div>
+<div class="row" style="gap: 4px">
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M8 11h6"/></svg></button>
+<span class="mono xs muted" style="width: 44px; text-align: center">100 %</span>
+<button class="btn btn-sm btn-g btn-i" type="button" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M11 8v6M8 11h6"/></svg></button>
+<button class="btn btn-sm btn-g" type="button">Fit</button>
+</div>
+</div>
+</div>
+
+<aside class="side panel" aria-label="Changes on this page">
+<div class="panel-hd" style="padding-bottom: 10px"><span class="h4">Page 2</span><span class="spacer"></span><span class="verdict v-fail v-sm">FAIL</span></div>
+<div class="utabs">
+<button class="utab on" type="button">Changes <span class="count">4</span></button>
+<button class="utab" type="button">Diff</button>
+<button class="utab" type="button">Ignored <span class="count">0</span></button>
+<button class="utab" type="button">Comments <span class="count">1</span></button>
+</div>
+<div class="divide">
+<div class="find hov"><span class="cg cg-rem">1</span><div class="bd"><span class="t">Text changed in line items</span><span class="ba"><del>Consulting — March</del> → <ins>Consulting</ins></span><span class="m">row 3 · x 0.68 in · y 4.73 in</span></div><button class="btn btn-sm btn-g" type="button">Expected</button></div>
+<div class="find"><span class="cg cg-rem">2</span><div class="bd"><span class="t">Row removed from line items</span><span class="ba"><del>Travel · 2 · 140.00</del></span><span class="m">row 6 · y 6.05 in · 31 runs below moved</span></div><button class="btn btn-sm btn-g" type="button">Expected</button></div>
+<div class="find"><span class="cg cg-mov">3</span><div class="bd"><span class="t">Total moved up</span><span class="m">Δx 0.00 in · Δy −0.44 in</span></div><button class="btn btn-sm btn-g" type="button">Expected</button></div>
+<div class="find"><span class="cg cg-sty">4</span><div class="bd"><span class="t">Invoice number restyled</span><span class="m">Regular → SemiBold · 10 pt</span></div><button class="btn btn-sm btn-g" type="button">Expected</button></div>
+</div>
+<div style="padding: 12px 14px; border-top: 1px solid #E2E2DD" class="xs faint">Hover a row, a highlight or a diff word — the other two light up. “Expected” moves a change to Ignored; it does not change the verdict.</div>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    function doc(v) {
+      var L = [];
+      function b(t, l, w, h, c) { L.push({ s: 'top:' + t + '%;left:' + l + '%;width:' + w + '%' + (h ? ';height:' + h + '%' : '') + (c ? ';background:' + c : '') }); }
+      b(6, 8, 30, 2.6, v === 'b' ? '#2C3E78' : '#2A2B2F');
+      b(14, 8, 34); b(17, 8, 28); b(20, 8, 22); b(14, 62, 30); b(17, 62, 24); b(20, 62, 26);
+      b(29, 8, 84, 3.2, '#E8E8E3');
+      var rows = v === 'b' ? [35, 39, 43, 47, 51] : [35, 39, 43, 47, 51, 55];
+      rows.forEach(function (t, i) { b(t, 8, i === 2 && v === 'b' ? 24 : 32); b(t, 54, 12); b(t, 78, 14); });
+      b(v === 'b' ? 59 : 63, 62, 30, 1.6, '#9C9EA4');
+      b(v === 'b' ? 67.5 : 69, 8, 84, 0.3, '#B5B5AF');
+      b(75, 8, 46); b(78, 8, 38); b(88, 8, 20, 0.8);
+      return L;
+    }
+    return { a: doc('a'), b: doc('b') };
+  }
+}
+</script>
+</body>
+</html>

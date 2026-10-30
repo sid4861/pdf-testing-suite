@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edge states</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<div class="wrap stack" style="gap: 24px; max-width: 1320px; padding: 40px 20px">
+<div class="stack" style="gap: 6px">
+<span class="over">States that interrupt a run</span>
+<h1 class="h2">Locked, unsupported, scanned and mismatched PDFs</h1>
+</div>
+
+<div class="grid2">
+
+<section class="panel" aria-label="Password-protected PDF">
+<div class="panel-hd"><span class="h4">Password-protected PDF</span><span class="spacer"></span><span class="mono xs faint">W-16</span></div>
+<div class="panel-bd" style="background: #EFEFEB; display: flex; justify-content: center; padding: 28px 20px; border-radius: 0 0 10px 10px">
+<div class="dialog" role="dialog" aria-labelledby="pw-title" style="width: 420px">
+<div class="dialog-hd" style="gap: 10px">
+<svg viewBox="0 0 24 24" fill="none" stroke="#16171A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 20px; height: 20px"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+<h2 class="h4" id="pw-title">Password needed</h2>
+</div>
+<div class="panel-bd stack" style="gap: 12px">
+<div class="file"><span class="role">To test</span><span class="nm">statement-encrypted.pdf</span></div>
+<div class="field">
+<label for="pw">Password</label>
+<input class="input" id="pw" type="password" value="••••••••" style="border-color: #B42318">
+<span class="xs t-fail">That password did not open it. Try again.</span>
+</div>
+<p class="xs faint">Used once to open the file. Never stored, and never written to a report.</p>
+</div>
+<div class="dialog-ft" style="justify-content: flex-end"><button class="btn btn-g" type="button">Cancel</button><button class="btn btn-p" type="button">Open</button></div>
+</div>
+</div>
+</section>
+
+<section class="panel" aria-label="XFA form">
+<div class="panel-hd"><span class="h4">XFA form</span><span class="spacer"></span><span class="mono xs faint">W-18</span></div>
+<div class="panel-bd stack" style="gap: 14px">
+<div class="stack" style="gap: 8px">
+<div class="row"><span class="role role-g">Golden</span><span class="small muted">the reference</span></div>
+<div class="drop" style="border-color: #B42318; border-style: solid; background: #FBE9E7; padding: 20px">
+<svg viewBox="0 0 24 24" fill="none" stroke="#B42318" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
+<span style="font-weight: 500">policy-form.pdf is a dynamic XFA form</span>
+<span class="small muted">XFA forms are not supported. Save it as a flat PDF first, then drop it here again.</span>
+<button class="btn btn-sm" type="button">Choose another file</button>
+</div>
+</div>
+<p class="xs faint">Shown in every workspace instead of pdf.js’s fallback page. The command line exits with code 2.</p>
+</div>
+</section>
+
+<section class="panel" aria-label="Scanned page">
+<div class="panel-hd"><span class="h4">Scanned page in Compare</span><span class="spacer"></span><span class="mono xs faint">W-20</span></div>
+<div class="panel-bd stack" style="gap: 12px">
+<div class="banner b-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg><span>Page 4 to test is a <strong>scanned image</strong> with no text layer — the text diff does not apply. Pixels and page size are still compared.</span></div>
+<div class="row" style="gap: 16px; align-items: stretch">
+<div class="stack" style="flex: 1; gap: 6px">
+<div class="pcap"><span class="role role-g">Golden</span><span class="mono">p. 4</span><span class="spacer"></span><span class="chip chip-out">Text</span></div>
+<div class="page" style="max-width: 220px"><div class="ln" style="top: 8%; left: 10%; width: 50%; height: 2%"></div><div class="ln" style="top: 16%; left: 10%; width: 78%"></div><div class="ln" style="top: 20%; left: 10%; width: 70%"></div><div class="ln" style="top: 24%; left: 10%; width: 74%"></div><div style="position: absolute; top: 34%; left: 10%; width: 80%; height: 30%; background: #EFEFEB"></div></div>
+</div>
+<div class="stack" style="flex: 1; gap: 6px">
+<div class="pcap"><span class="role">To test</span><span class="mono">p. 4</span><span class="spacer"></span><span class="chip chip-warn">Scanned</span></div>
+<div class="page" style="max-width: 220px; background: #F2F0EA"><div class="ln" style="top: 8.5%; left: 11%; width: 50%; height: 2%; background: #C9C6BD; transform: rotate(.6deg)"></div><div class="ln" style="top: 16.5%; left: 11%; width: 78%; background: #C9C6BD; transform: rotate(.6deg)"></div><div class="ln" style="top: 20.5%; left: 11%; width: 70%; background: #C9C6BD; transform: rotate(.6deg)"></div><div class="ln" style="top: 24.5%; left: 11%; width: 74%; background: #C9C6BD; transform: rotate(.6deg)"></div><div style="position: absolute; top: 34.5%; left: 11%; width: 80%; height: 30%; background: #E4E1D8; transform: rotate(.6deg)"></div></div>
+</div>
+</div>
+<div class="find" style="padding: 8px 0"><span class="cg cg-rem">−</span><div class="bd"><span class="t">Page kind changed: text → scanned image</span><span class="m">pair 4 ↔ 4 · fails the page</span></div></div>
+</div>
+</section>
+
+<section class="panel" aria-label="Different page sizes">
+<div class="panel-hd"><span class="h4">Different page sizes</span><span class="spacer"></span><span class="mono xs faint">W-24</span></div>
+<div class="panel-bd stack" style="gap: 12px">
+<div class="banner b-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg><span><strong>Page size changed:</strong> Letter 8.50 × 11.00 in → A4 8.27 × 11.69 in. Positions are compared in inches from the top-left; the pixel diff covers the shared area only.</span></div>
+<div class="row" style="gap: 24px; align-items: center; flex-wrap: wrap">
+<div style="position: relative; width: 220px; height: 312px">
+<div style="position: absolute; top: 0; left: 0; width: 212px; height: 274px; border: 2px solid #16171A; background: repeating-linear-gradient(135deg, rgba(35,70,200,.10) 0 6px, transparent 6px 12px)"></div>
+<div style="position: absolute; top: 0; left: 0; width: 206px; height: 292px; border: 2px dashed #C46A00"></div>
+</div>
+<dl class="kv">
+<dt>Golden</dt><dd>Letter · 8.50 × 11.00 in</dd>
+<dt>To test</dt><dd class="t-warn">A4 · 8.27 × 11.69 in</dd>
+<dt>Shared area</dt><dd>8.27 × 11.00 in</dd>
+<dt>Text offsets</dt><dd>in inches, not pixels</dd>
+</dl>
+</div>
+<div class="legend"><span><i class="sw" style="border-color: #16171A"></i>golden</span><span><i class="sw" style="border-color: #C46A00; border-style: dashed"></i>to test</span><span><i class="sw" style="border-color: #2346C8; background: rgba(35,70,200,.15)"></i>compared pixels</span></div>
+</div>
+</section>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

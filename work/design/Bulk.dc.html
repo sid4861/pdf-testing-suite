@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compare — many pairs</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./proof.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2346C8}a:hover{color:#1A36A0}
+</style>
+</helmet>
+<div class="ps">
+<header class="hdr">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="9.5" y="6.5" width="11" height="15" rx="1.5" fill="currentColor"/></svg>pdfsuite</div>
+<nav class="wtabs" aria-label="Workspaces">
+<a class="wtab on" href="Compare-SideBySide.dc.html" aria-current="page">Compare</a>
+<a class="wtab" href="Spec-Results.dc.html">Specification</a>
+<a class="wtab" href="Inspect.dc.html">Inspect</a>
+</nav>
+<div class="hdr-r">
+<button class="btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Export</button>
+</div>
+</header>
+
+<div class="sub">
+<nav class="seg" aria-label="Compare scope"><a href="Compare-SideBySide.dc.html">One</a><a class="on" aria-current="page" href="Bulk.dc.html">Many</a></nav>
+<span aria-hidden="true" style="width: 1px; height: 20px; background: #E2E2DD"></span>
+<span class="h4">7 pairs</span>
+<span class="chip chip-fail"><span class="dot"></span>2 fail</span>
+<span class="chip chip-pass"><span class="dot"></span>3 pass</span>
+<span class="chip">1 running · 1 removed</span>
+<div class="meter" style="width: 160px" aria-label="5 of 6 pairs done"><i style="width: 83%"></i></div>
+<span class="mono xs muted">5 / 6</span>
+<span class="spacer"></span>
+<button class="btn btn-sm" type="button">Auto-pair by order</button>
+<button class="btn btn-sm btn-g" type="button">Clear all</button>
+<button class="btn btn-p" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>Run all pairs</button>
+</div>
+
+<div class="split">
+<aside class="side stack" style="gap: 16px; flex: 1 1 320px; max-width: 380px">
+<section class="panel">
+<div class="panel-hd"><span class="role role-g">Golden</span><span class="h4">PDFs</span><span class="spacer"></span><span class="count">7</span></div>
+<div class="stack" style="padding: 10px; gap: 6px">
+<sc-for list="{{golden}}" as="f" hint-placeholder-count="7">
+<div class="file" style="height: 32px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg><span class="nm small">{{f.n}}</span><span class="spacer"></span><span class="meta">{{f.p}} pp</span></div>
+</sc-for>
+<div class="drop" style="padding: 12px; flex-direction: row; justify-content: center"><span class="small faint">Drop PDFs or <button class="link" type="button">browse</button></span></div>
+</div>
+</section>
+<section class="panel">
+<div class="panel-hd"><span class="role">To test</span><span class="h4">PDFs</span><span class="spacer"></span><span class="count">6</span></div>
+<div class="stack" style="padding: 10px; gap: 6px">
+<sc-for list="{{test}}" as="f" hint-placeholder-count="6">
+<div class="file" style="height: 32px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg><span class="nm small">{{f.n}}</span><span class="spacer"></span><span class="meta">{{f.p}} pp</span></div>
+</sc-for>
+<div class="drop" style="padding: 12px; flex-direction: row; justify-content: center"><span class="small faint">Drop PDFs or <button class="link" type="button">browse</button></span></div>
+</div>
+</section>
+</aside>
+
+<div class="main panel">
+<div class="panel-hd"><span class="h4">Pairs</span><span class="faint xs">run in order, one page at a time</span><span class="spacer"></span><button class="btn btn-sm" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add pair</button></div>
+<div class="scroll">
+<table class="tbl">
+<thead><tr><th style="width: 32px">#</th><th>Golden</th><th>To test</th><th>Result</th><th class="r">Differing</th><th class="r">Worst text</th><th class="r">Worst pixels</th><th class="r">Worst offset</th><th></th></tr></thead>
+<tbody>
+<tr>
+<td class="mono faint">1</td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px" aria-label="Golden PDF for pair 1"><option>statement-jan.pdf</option></select></td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px; color: #16171A" aria-label="PDF to test for pair 1"><option>statement-jan.pdf</option></select></td>
+<td><span class="verdict v-pass v-sm">PASS</span></td>
+<td class="r">0 / 4</td>
+<td class="r">100 %</td>
+<td class="r">0.0 %</td>
+<td class="r">0.00 in</td>
+<td style="text-align: right"><a class="btn btn-sm btn-g" href="Compare-SideBySide.dc.html">Open</a></td>
+</tr>
+<tr>
+<td class="mono faint">2</td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px" aria-label="Golden PDF for pair 2"><option>statement-feb.pdf</option></select></td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px; color: #16171A" aria-label="PDF to test for pair 2"><option>statement-feb.pdf</option></select></td>
+<td><span class="verdict v-fail v-sm">FAIL</span></td>
+<td class="r">1 / 4</td>
+<td class="r">97.8 %</td>
+<td class="r">2.4 %</td>
+<td class="r">0.12 in</td>
+<td style="text-align: right"><a class="btn btn-sm btn-g" href="Compare-SideBySide.dc.html">Open</a></td>
+</tr>
+<tr>
+<td class="mono faint">3</td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px" aria-label="Golden PDF for pair 3"><option>statement-mar.pdf</option></select></td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px; color: #16171A" aria-label="PDF to test for pair 3"><option>statement-mar.pdf</option></select></td>
+<td><span class="verdict v-pass v-sm">PASS</span></td>
+<td class="r">0 / 5</td>
+<td class="r">100 %</td>
+<td class="r">0.0 %</td>
+<td class="r">0.00 in</td>
+<td style="text-align: right"><a class="btn btn-sm btn-g" href="Compare-SideBySide.dc.html">Open</a></td>
+</tr>
+<tr>
+<td class="mono faint">4</td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px" aria-label="Golden PDF for pair 4"><option>invoice-0041.pdf</option></select></td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px; color: #16171A" aria-label="PDF to test for pair 4"><option>invoice-0041.pdf</option></select></td>
+<td><span class="verdict v-pass v-sm">PASS</span></td>
+<td class="r">0 / 2</td>
+<td class="r">100 %</td>
+<td class="r">0.0 %</td>
+<td class="r">0.01 in</td>
+<td style="text-align: right"><a class="btn btn-sm btn-g" href="Compare-SideBySide.dc.html">Open</a></td>
+</tr>
+<tr>
+<td class="mono faint">5</td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px" aria-label="Golden PDF for pair 5"><option>invoice-0042.pdf</option></select></td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px; color: #16171A" aria-label="PDF to test for pair 5"><option>invoice-0042.pdf</option></select></td>
+<td><span class="verdict v-fail v-sm">FAIL</span></td>
+<td class="r">3 / 3</td>
+<td class="r">88.1 %</td>
+<td class="r">14.0 %</td>
+<td class="r">0.52 in</td>
+<td style="text-align: right"><a class="btn btn-sm btn-g" href="Compare-SideBySide.dc.html">Open</a></td>
+</tr>
+<tr>
+<td class="mono faint">6</td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px" aria-label="Golden PDF for pair 6"><option>policy-schedule.pdf</option></select></td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px; color: #16171A" aria-label="PDF to test for pair 6"><option>policy-schedule.pdf</option></select></td>
+<td><span class="chip">Running 4 / 9</span></td>
+<td class="r">—</td>
+<td class="r">—</td>
+<td class="r">—</td>
+<td class="r">—</td>
+<td style="text-align: right"></td>
+</tr>
+<tr>
+<td class="mono faint">7</td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px" aria-label="Golden PDF for pair 7"><option>welcome-letter.pdf</option></select></td>
+<td><select class="input" style="height: 30px; font-size: 13px; width: 100%; min-width: 170px; color: #63666E" aria-label="PDF to test for pair 7"><option>— no PDF to test —</option></select></td>
+<td><span class="chip">Removed</span></td>
+<td class="r">—</td>
+<td class="r">—</td>
+<td class="r">—</td>
+<td class="r">—</td>
+<td style="text-align: right"></td>
+</tr>
+
+</tbody>
+</table>
+</div>
+<div class="row xs faint" style="padding: 10px 16px; border-top: 1px solid #E2E2DD; gap: 6px"><span>“Open” shows that pair in One. The export covers every pair, failures only.</span></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var golden = [['statement-jan.pdf', 4], ['statement-feb.pdf', 4], ['statement-mar.pdf', 5], ['invoice-0041.pdf', 2], ['invoice-0042.pdf', 2], ['policy-schedule.pdf', 9], ['welcome-letter.pdf', 1]].map(function (x) { return { n: x[0], p: x[1] }; });
+    var test = [['statement-jan.pdf', 4], ['statement-feb.pdf', 4], ['statement-mar.pdf', 5], ['invoice-0041.pdf', 2], ['invoice-0042.pdf', 3], ['policy-schedule.pdf', 9]].map(function (x) { return { n: x[0], p: x[1] }; });
+    var F = 'verdict v-fail v-sm', P = 'verdict v-pass v-sm', C = 'chip';
+    var pairs = [
+      { a: 'statement-jan.pdf', b: 'statement-jan.pdf', v: 'PASS', vClass: P, diff: '0 / 4', content: '100 %', px: '0.0 %', off: '0.00 in' },
+      { a: 'statement-feb.pdf', b: 'statement-feb.pdf', v: 'FAIL', vClass: F, diff: '1 / 4', content: '97.8 %', px: '2.4 %', off: '0.12 in' },
+      { a: 'statement-mar.pdf', b: 'statement-mar.pdf', v: 'PASS', vClass: P, diff: '0 / 5', content: '100 %', px: '0.0 %', off: '0.00 in' },
+      { a: 'invoice-0041.pdf', b: 'invoice-0041.pdf', v: 'PASS', vClass: P, diff: '0 / 2', content: '100 %', px: '0.0 %', off: '0.01 in' },
+      { a: 'invoice-0042.pdf', b: 'invoice-0042.pdf', v: 'FAIL', vClass: F, diff: '3 / 3', content: '88.1 %', px: '14.0 %', off: '0.52 in' },
+      { a: 'policy-schedule.pdf', b: 'policy-schedule.pdf', v: 'Running 4 / 9', vClass: C, diff: '—', content: '—', px: '—', off: '—', run: true },
+      { a: 'welcome-letter.pdf', b: '— no PDF to test —', v: 'Removed', vClass: C, diff: '—', content: '—', px: '—', off: '—', none: true }
+    ].map(function (p, i) {
+      p.i = i + 1;
+      p.bColor = p.none ? '#63666E' : '#16171A';
+      p.open = (p.run || p.none) ? 'hidden' : 'visible';
+      return p;
+    });
+    return { golden: golden, test: test, pairs: pairs };
+  }
+}
+</script>
+</body>
+</html>
