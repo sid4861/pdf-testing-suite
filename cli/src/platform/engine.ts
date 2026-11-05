@@ -15,6 +15,14 @@ import path from 'node:path';
 export { loadPdf, comparePage } from '../../../src/services/pdfCompare';
 
 export {
+  BASE_SCALE,
+  MAX_PAGE_WIDTH,
+  PAGE_VERDICT,
+  MOVED_OFFSET_IN,
+  AUTO_SCAN_MAX_PAGES,
+} from '../../../src/services/specConstants';
+
+export {
   buildChanges,
   heatmapBoxes,
   summaryPageDiffers,

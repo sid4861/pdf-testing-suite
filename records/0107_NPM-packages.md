@@ -129,8 +129,10 @@ the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
     the API its user configures.
 13. **Publishing is a human step** — from CI with npm provenance, by Siddharth or Arpit,
     after the `pdfsuite` organisation is claimed; fictional fixtures only.
-14. **`@pdfsuite/spec` is built from the live spec feature,** which lives only on the spec
-    machine; where it is built is owed a ruling (W-32).
+14. **`@pdfsuite/spec` is built from `src/features/spec/` in this repository.** Siddharth
+    ruled on 2026-11-03 (W-32, option B) that it may be developed on any machine, so this
+    repository holds the live version. Real spec workbooks still never leave the spec
+    machine — a rule about data, not code.
 15. **Licence: MIT,** for the repository (`LICENSE` at the root) and for every package (its
     own `LICENSE`, listed in `files`); a package bundling Apache-2.0 code (pdf.js) also ships
     that code's `NOTICE`. Every dependency obeys [L2](0004_LAW-2-open-source-only.md).
@@ -138,7 +140,7 @@ the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
 ### Consequences
 
 - **Open:** W-29 (workspaces), W-30 (CLI host), W-31 (`create`, both modes), W-32 (`spec`,
-  🔴), W-33 (`ui`), W-34 (`--sync`), W-35 (hosting at any URL), W-10 (agents, publishing),
+  🟡 ruled, waits on W-29), W-33 (`ui`), W-34 (`--sync`), W-35 (hosting at any URL), W-10 (agents, publishing),
   W-09 (`compare`, `--each`), W-27 (`comparePair`, `compareMany`).
 - **Enforced today:** nothing; W-29's import check, W-30's version check and W-34's sync
   test become the gates.

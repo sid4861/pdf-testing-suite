@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@sheetpane/import": "0.5.1",
     "diff": "^5.2.0",
     "dompurify": "^3.4.14",
     "jszip": "^3.10.1",

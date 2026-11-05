@@ -13,6 +13,24 @@
 export { runSpec, validateSpec, loadPdf } from './specCheck';
 export { sheetToSpec, parseLength, usableText } from './sheetSpec';
 export { readSheetFile, readWorkbook, readCsv } from './sheetRead';
+
+// Spec intake (W-02): the one workbook reader, over @sheetpane/import.
+export {
+  readSpecWorkbook,
+  uploadKind,
+  SpecIntakeError,
+  colName,
+  cellRef,
+} from './specIntake';
+export type { SpecWorkbook, SpecUploadKind, IntakeNote } from './specIntake';
+
+// Template v2 parsing (W-02 DoD 3).
+export { readTemplate, readLists, readSettings, readPagesList, readPageSheet } from './specTemplate';
+export type { Extraction, Vocabulary, Settings, PageListEntry, SpecRow, ParameterRule } from './specTemplate';
+export { compileSpec } from './specCompile';
+export type { CompiledSpec, CoverageEntry, SourceCell } from './specCompile';
+export { parseNumber, parseNumericValue, bandOf } from './specValues';
+export type { ParsedValue } from './specValues';
 export { exportSpecJson, exportSpecHtml } from './specExport';
 
 export type {

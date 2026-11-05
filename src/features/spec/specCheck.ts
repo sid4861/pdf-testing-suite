@@ -19,17 +19,20 @@ import type {
   TableSpec,
   TextSpec,
 } from './types';
+import { ANCHOR_WITHIN, BASE_SCALE, SPEC_TOLERANCE } from '../../services/specConstants';
 
 export { loadPdf };
 
-const BASE_SCALE = 2;
-
+// Every tunable in the project lives in one file — SR-CONSTANTS.
 const DEFAULT_TOL: Required<SpecTolerance> = {
-  position: 0.06, // spec units
-  size: 0.06,
-  spacing: 0.03,
-  fontSize: 2, // points
+  position: SPEC_TOLERANCE.position, // spec units
+  size: SPEC_TOLERANCE.size,
+  spacing: SPEC_TOLERANCE.spacing,
+  fontSize: SPEC_TOLERANCE.fontSize, // points
 };
+
+/** Points in one inch — the unit SR-CONSTANTS's defaults are stated in. */
+const INCH_PT = 72;
 
 function unitToPt(unit: SpecUnit): number {
   if (unit === 'pt') return 1;
@@ -37,7 +40,59 @@ function unitToPt(unit: SpecUnit): number {
   return 72; // inches
 }
 
-const normalize = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+/**
+ * Ligatures, as PDF text layers emit them (SR-SPEC-CHECK decision 5).
+ *
+ * A workbook says "efficiency"; the PDF's text layer may carry "e\uFB03ciency"
+ * as a single glyph. Comparing the two without expanding is a false failure
+ * about a character nobody typed.
+ */
+const LIGATURES: [RegExp, string][] = [
+  [/\uFB00/g, 'ff'], [/\uFB01/g, 'fi'], [/\uFB02/g, 'fl'],
+  [/\uFB03/g, 'ffi'], [/\uFB04/g, 'ffl'], [/\uFB05/g, 'st'], [/\uFB06/g, 'st'],
+  [/\u0152/g, 'OE'], [/\u0153/g, 'oe'], [/\u00C6/g, 'AE'], [/\u00E6/g, 'ae'],
+];
+
+/**
+ * The spelling both sides are compared in (decisions 5 and 10).
+ *
+ * Everything here is a difference in how a character was *encoded*, never in
+ * what was written: a soft hyphen is an invisible break opportunity, a curly
+ * quote is the same quote, an en dash between words is the same dash. Comparing
+ * these literally produces failures a reader cannot act on, because the two
+ * strings look identical on screen.
+ *
+ * What is deliberately **not** normalised: ®, ™ and superscripts, which decision 10
+ * says are always compared exactly, and letter case, which callers fold
+ * separately so a case check can still see it.
+ */
+function canonical(s: string): string {
+  let out = s.normalize('NFC');
+  for (const [re, to] of LIGATURES) out = out.replace(re, to);
+  return out
+    .replace(/\u00AD/g, '')                 // soft hyphen: a break, not a character
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+    .replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, '-')
+    .replace(/\u2026/g, '...')
+    .replace(/[\u00A0\u2007\u202F\u2009\u200A]/g, ' ')
+    .replace(/[\u200B\u200C\u200D\uFEFF]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const normalize = (s: string) => canonical(s).toLowerCase();
+
+/**
+ * Rejoin a word split across a line end (decision 5).
+ *
+ * Only when the next line starts lower-case: "road\nworks" was one word, while
+ * "North-\nSouth" is a genuine hyphen between two capitalised words and stays.
+ */
+function joinHyphenated(a: string, b: string): string {
+  if (/[a-z]-$/.test(a) && /^[a-z]/.test(b)) return a.slice(0, -1) + b;
+  return a + ' ' + b;
+}
 const median = (xs: number[]) =>
   xs.length ? [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] : 0;
 
@@ -84,42 +139,105 @@ async function extractItems(page: PDFPageProxy): Promise<{ items: PointItem[]; w
   return { items, widthPt: vp.width, heightPt: vp.height };
 }
 
+/**
+ * A gap wider than this much of the text's own height starts a new column.
+ *
+ * Relative to the type, not to the page: a word space is about a quarter of the
+ * font's height, so anything past one whole height is a deliberate separation
+ * rather than spacing. Splitting too eagerly is cheap — anything that belongs
+ * together is re-joined by `rowsWithin` from the box the spec declares — while
+ * splitting too late silently measures the wrong element.
+ */
+const COLUMN_GAP = 1.2;
+
+/** Build a Line from fragments already known to belong together, left to right. */
+function makeLine(items: PointItem[]): Line {
+  const ordered = [...items].sort((a, b) => a.left - b.left);
+  const text = ordered.map((i) => i.str).join(' ').replace(/\s+/g, ' ').trim();
+  return {
+    items: ordered,
+    text,
+    norm: normalize(text),
+    left: Math.min(...ordered.map((i) => i.left)),
+    right: Math.max(...ordered.map((i) => i.left + i.width)),
+    top: Math.min(...ordered.map((i) => i.top)),
+    bottom: Math.max(...ordered.map((i) => i.top + i.height)),
+    baseline: ordered.reduce((sum, i) => sum + i.baseline, 0) / ordered.length,
+    fontHeight: median(ordered.map((i) => i.height)),
+    count: ordered.length,
+  };
+}
+
+/**
+ * Fragments to lines, **within a column** (SR-SPEC-CHECK decision 5).
+ *
+ * Grouped on the baseline rather than the top edge, because the top edge of a
+ * 20pt title and an 11pt line beside it differ by the type size alone; and with
+ * the tolerance taken from the *smaller* of the two, so a large heading cannot
+ * swallow a smaller line near it. Each baseline run is then cut wherever the
+ * horizontal gap says a new column starts.
+ */
 function groupLines(items: PointItem[]): Line[] {
-  const sorted = [...items].sort((a, b) => a.top - b.top || a.left - b.left);
-  const lines: Line[] = [];
+  const sorted = [...items].sort((a, b) => a.baseline - b.baseline || a.left - b.left);
+
+  // 1 ── same baseline?
+  const runs: PointItem[][] = [];
   for (const it of sorted) {
-    const last = lines[lines.length - 1];
-    const tol = Math.max(2, it.height * 0.6);
-    if (last && Math.abs(it.top - last.top) <= tol) {
-      last.items.push(it);
-      last.top = Math.min(last.top, it.top);
-      last.left = Math.min(last.left, it.left);
-      last.right = Math.max(last.right, it.left + it.width);
-      last.bottom = Math.max(last.bottom, it.top + it.height);
+    const run = runs[runs.length - 1];
+    if (run) {
+      const ref = run[run.length - 1];
+      const tol = Math.max(1, Math.min(it.height, ref.height) * 0.4);
+      if (Math.abs(it.baseline - ref.baseline) <= tol) {
+        run.push(it);
+        continue;
+      }
+    }
+    runs.push([it]);
+  }
+
+  // 2 ── same column?
+  const lines: Line[] = [];
+  for (const run of runs) {
+    const ordered = [...run].sort((a, b) => a.left - b.left);
+    let segment: PointItem[] = [ordered[0]];
+    for (let i = 1; i < ordered.length; i++) {
+      const prev = ordered[i - 1];
+      const gap = ordered[i].left - (prev.left + prev.width);
+      const limit = Math.max(2, Math.min(ordered[i].height, prev.height) * COLUMN_GAP);
+      if (gap > limit) {
+        lines.push(makeLine(segment));
+        segment = [ordered[i]];
+      } else {
+        segment.push(ordered[i]);
+      }
+    }
+    lines.push(makeLine(segment));
+  }
+
+  return lines.sort((a, b) => a.top - b.top || a.left - b.left);
+}
+
+/**
+ * The segments inside a declared box, re-joined into one logical row each.
+ *
+ * This is the other half of column-aware grouping: a table row crosses columns
+ * by definition, so it is rebuilt from the box the spec states rather than
+ * guessed at from the page. A segment counts as inside when it sits wholly
+ * within the span, so a neighbouring column never joins the row.
+ */
+function rowsWithin(lines: Line[], left: number, right: number, slack: number): Line[] {
+  const inside = lines.filter((l) => l.left >= left - slack && l.right <= right + slack);
+  const rows: Line[] = [];
+  for (const l of inside.sort((a, b) => a.baseline - b.baseline || a.left - b.left)) {
+    const last = rows[rows.length - 1];
+    const tol = Math.max(1, Math.min(l.fontHeight, last?.fontHeight ?? l.fontHeight) * 0.4);
+    if (last && Math.abs(l.baseline - last.baseline) <= tol) {
+      rows[rows.length - 1] = makeLine([...last.items, ...l.items]);
     } else {
-      lines.push({
-        items: [it],
-        text: '',
-        norm: '',
-        left: it.left,
-        right: it.left + it.width,
-        top: it.top,
-        bottom: it.top + it.height,
-        baseline: it.baseline,
-        fontHeight: it.height,
-        count: 1,
-      });
+      rows.push(l);
     }
   }
-  for (const l of lines) {
-    const ordered = [...l.items].sort((a, b) => a.left - b.left);
-    l.text = ordered.map((i) => i.str).join(' ').replace(/\s+/g, ' ').trim();
-    l.norm = normalize(l.text);
-    l.baseline = l.items.reduce((s, i) => s + i.baseline, 0) / l.items.length;
-    l.fontHeight = median(l.items.map((i) => i.height));
-    l.count = l.items.length;
-  }
-  return lines;
+  return rows;
 }
 
 // ── image extraction via operator list (points, top-left) ─────────────
@@ -173,13 +291,98 @@ const makeFmt = (unit: SpecUnit) => {
 };
 const fmtPtSize = (pt: number) => `${Math.round(pt)}pt`;
 
+/**
+ * The tolerance for one assertion, **in points** (SR-SPEC-CHECK decision 11).
+ *
+ * Resolution order is the row, then the workbook's Settings, then SR-CONSTANTS.
+ * The first two are written in the row's own unit and convert with it; the
+ * fallback is not — SR-CONSTANTS states 0.06 **inches**, a physical distance,
+ * so multiplying it by the spec's unit turned it into 0.06 mm on a millimetre
+ * workbook, a tolerance seventeen times tighter than the record states.
+ *
+ * `fontSize` is in points either way and never converts.
+ */
+function tolPt(
+  el: { tolerance?: SpecTolerance },
+  spec: PdfSpec,
+  key: keyof SpecTolerance,
+  u2p: number,
+): number {
+  const stated = el.tolerance?.[key] ?? spec.tolerance?.[key];
+  if (key === 'fontSize') return stated ?? DEFAULT_TOL.fontSize;
+  if (stated != null) return stated * u2p;
+  return DEFAULT_TOL[key] * INCH_PT; // SR-CONSTANTS is in inches
+}
+
+/**
+ * The page's own size against the one the workbook states (decision 4).
+ *
+ * A warning, not a failure: every position on the page is measured from the
+ * top-left corner, so a page of the wrong size does not make those measurements
+ * wrong — but it does explain a whole page of them being off at once, which is
+ * worth saying before the reader works through them one by one. It becomes an
+ * error only when the workbook pins the size.
+ *
+ * `getViewport` has already applied `/Rotate` and the crop box, so this is the
+ * page as a reader sees it rather than as it was authored.
+ */
+function pageSizeResult(
+  spec: PdfSpec,
+  widthPt: number,
+  heightPt: number,
+  u2p: number,
+  fmt: (n: number) => string,
+): ElementResult | null {
+  const want = spec.pageSize;
+  if (!want) return null;
+
+  const expW = want.width * u2p;
+  const expH = want.height * u2p;
+  // A tenth of an inch: generous enough for rounding in the writer, tight
+  // enough to catch Letter against A4 (which differ by about a quarter inch).
+  const slack = 0.1 * INCH_PT;
+  const ok = Math.abs(widthPt - expW) <= slack && Math.abs(heightPt - expH) <= slack;
+  const pinned = spec.pageSizePinned === true;
+
+  return {
+    id: '__page-size',
+    type: 'text',
+    label: 'Page size',
+    status: ok ? 'pass' : pinned ? 'fail' : 'warning',
+    detail: `${fmt(expW)} × ${fmt(expH)}`,
+    checks: [{
+      name: 'Page size',
+      expected: `${fmt(expW)} × ${fmt(expH)}`,
+      actual: `${fmt(widthPt)} × ${fmt(heightPt)}`,
+      pass: ok,
+      ...(ok ? {} : { delta: pinned ? 'size is pinned' : 'measurements still read from the top-left corner' }),
+    }],
+    expectedBox: null,
+    actualBox: null,
+  };
+}
+
+/**
+ * A page whose text cannot be read (decision 6).
+ *
+ * Outlined type, a scan, or labels baked into an image all produce a page with
+ * images and no text layer. Every text assertion on it would report "not
+ * found", which reads as a defect in the document when it is a limit of the
+ * method. Those elements are **unverifiable** instead — never a pass, and never
+ * a failure the template developer would chase.
+ */
+function noTextLayer(items: PointItem[], images: Box[]): boolean {
+  return items.length === 0 && images.length > 0;
+}
+
+/** Kept for the font-size check, which is already in points. */
 function tol(el: { tolerance?: SpecTolerance }, spec: PdfSpec, key: keyof SpecTolerance): number {
   return el.tolerance?.[key] ?? spec.tolerance?.[key] ?? DEFAULT_TOL[key];
 }
 
 // ── anchors ───────────────────────────────────────────────────────────
 /** How far from the anchor text to search, in spec units, when not stated. */
-const DEFAULT_ANCHOR_WITHIN = 2;
+const DEFAULT_ANCHOR_WITHIN = ANCHOR_WITHIN;
 
 /** The line an anchor refers to, or null when its text is not on the page. */
 function findAnchorLine(anchor: SpecAnchor, lines: Line[]): Line | null {
@@ -275,7 +478,7 @@ function checkText(
 ): ElementResult {
   const expLeft = el.left * u2p;
   const expTop = el.top * u2p;
-  const posTol = tol(el, spec, 'position') * u2p;
+  const posTol = tolPt(el, spec, 'position', u2p);
   const want = normalize(el.text);
   const mode = el.match ?? 'contains';
 
@@ -337,8 +540,8 @@ function checkImage(
   el: ImageSpec, spec: PdfSpec, images: Box[], lines: Line[], u2p: number, fmt: (n: number) => string,
 ): ElementResult {
   const exp: Box = { left: el.left * u2p, top: el.top * u2p, width: el.width * u2p, height: el.height * u2p };
-  const posTol = tol(el, spec, 'position') * u2p;
-  const sizeTol = tol(el, spec, 'size') * u2p;
+  const posTol = tolPt(el, spec, 'position', u2p);
+  const sizeTol = tolPt(el, spec, 'size', u2p);
   const base: ElementResult = {
     id: el.id, type: 'image', label: el.label ?? el.id, status: 'not-found',
     detail: `image ${el.width}×${el.height}`, checks: [], expectedBox: exp, actualBox: null,
@@ -398,8 +601,8 @@ function checkTable(
   const expLeft = el.left * u2p;
   const expTop = el.top * u2p;
   const expWidth = el.width * u2p;
-  const posTol = tol(el, spec, 'position') * u2p;
-  const sizeTol = tol(el, spec, 'size') * u2p;
+  const posTol = tolPt(el, spec, 'position', u2p);
+  const sizeTol = tolPt(el, spec, 'size', u2p);
   const exp: Box = { left: expLeft, top: expTop, width: expWidth, height: 0 };
   const base: ElementResult = {
     id: el.id, type: 'table', label: el.label ?? el.id, status: 'not-found',
@@ -423,9 +626,9 @@ function checkTable(
     startTol = (el.anchor.within ?? DEFAULT_ANCHOR_WITHIN) * u2p;
   }
 
-  const inSpan = lines.filter(
-    (l) => l.count >= 2 && l.left >= expLeft - spanTol && l.left <= expLeft + expWidth + spanTol && l.top >= startTop - spanTol,
-  ).sort((a, b) => a.top - b.top);
+  const inSpan = rowsWithin(lines, expLeft, expLeft + expWidth, spanTol)
+    .filter((l) => l.count >= 2 && l.top >= startTop - spanTol)
+    .sort((a, b) => a.top - b.top);
 
   const rows: Line[] = [];
   for (const l of inSpan) {
@@ -464,8 +667,8 @@ function checkParagraph(
   const expLeft = el.left * u2p;
   const expTop = el.top * u2p;
   const expSpacing = el.lineSpacing * u2p;
-  const posTol = tol(el, spec, 'position') * u2p;
-  const spacingTol = tol(el, spec, 'spacing') * u2p;
+  const posTol = tolPt(el, spec, 'position', u2p);
+  const spacingTol = tolPt(el, spec, 'spacing', u2p);
   const want = normalize(el.text);
   const base: ElementResult = {
     id: el.id, type: 'paragraph', label: el.label ?? el.id, status: 'not-found',
@@ -490,6 +693,7 @@ function checkParagraph(
     para.push(l);
   }
 
+  let unmeasurable = true;
   const checks: CheckResult[] = [{ name: 'Present', expected: 'found', actual: `${para.length} lines`, pass: true }];
   checks.push(posCheck('Left', start.left, expLeft, posTol, fmt));
   checks.push(posCheck('Top', start.top, expTop, posTol, fmt));
@@ -502,13 +706,28 @@ function checkParagraph(
       name: 'Line spacing', expected: fmt(expSpacing), actual: fmt(measured),
       delta: `${d >= 0 ? '+' : ''}${fmt(d)}`, pass: Math.abs(d) <= spacingTol,
     });
+    unmeasurable = false;
   } else {
-    checks.push({ name: 'Line spacing', expected: fmt(expSpacing), actual: 'single line', pass: false });
+    // One line has no gap to measure. The spec may still be right; the page
+    // simply does not carry the evidence, so this is unverifiable rather than
+    // a defect in the document (SR-SPEC-CHECK decisions 6 and 13).
+    checks.push({
+      name: 'Line spacing', expected: fmt(expSpacing),
+      actual: 'one line only — nothing to measure between', pass: false,
+    });
   }
   const bottom = Math.max(...para.map((l) => l.bottom));
   const right = Math.max(...para.map((l) => l.right));
+  // Everything else passing, with only the unmeasurable spacing left over, is
+  // an element nobody can judge — not one that failed.
+  const othersPass = checks.filter((c) => c.name !== 'Line spacing').every((c) => c.pass);
+  const status = checks.every((c) => c.pass)
+    ? 'pass'
+    : unmeasurable && othersPass
+      ? 'unverifiable'
+      : 'fail';
   return {
-    ...base, status: checks.every((c) => c.pass) ? 'pass' : 'fail', checks,
+    ...base, status, checks,
     actualBox: { left: start.left, top: start.top, width: right - start.left, height: bottom - start.top },
   };
 }
@@ -567,6 +786,7 @@ export async function runSpec(
     const pdfPage =
       opts.specPageIndex != null && opts.pdfPageOverride != null ? opts.pdfPageOverride : sp.page;
     const results: ElementResult[] = [];
+    let pageSize: ElementResult | null = null;
     let dataUrl: string | null = null;
     let widthPt = 0;
     let heightPt = 0;
@@ -580,7 +800,31 @@ export async function runSpec(
       const images = await extractImages(page, hp);
       dataUrl = await renderPage(page);
 
+      pageSize = pageSizeResult(spec, wp, hp, u2p, fmt);
+
+      // Nothing to read from: say so once, rather than reporting every text
+      // element on the page as missing.
+      const blind = noTextLayer(items, images);
+
       for (const el of sp.elements) {
+        if (blind && el.type !== 'image') {
+          results.push({
+            id: el.id,
+            type: el.type,
+            label: el.label ?? el.id,
+            status: 'unverifiable',
+            detail: 'no text layer on this page',
+            checks: [{
+              name: 'Readable',
+              expected: 'text layer',
+              actual: 'none — outlined text, a scan, or labels inside an image',
+              pass: false,
+            }],
+            expectedBox: null,
+            actualBox: null,
+          });
+          continue;
+        }
         let r: ElementResult;
         if (el.type === 'text') r = checkText(el, spec, lines, u2p, fmt);
         else if (el.type === 'image') r = checkImage(el, spec, images, lines, u2p, fmt);
@@ -598,14 +842,19 @@ export async function runSpec(
       }
     }
 
-    const passCount = results.reduce((s, r) => s + r.checks.filter((c) => c.pass).length, 0);
-    const failCount = results.reduce((s, r) => s + r.checks.filter((c) => !c.pass).length, 0);
+    const decided = results.filter((r) => r.status === 'pass' || r.status === 'fail' || r.status === 'not-found');
+    const passCount = decided.reduce((s, r) => s + r.checks.filter((c) => c.pass).length, 0);
+    const failCount = decided.reduce((s, r) => s + r.checks.filter((c) => !c.pass).length, 0);
+      + (pageSize && pageSize.status === 'fail' ? 1 : 0);
+    const warnCount = results.filter((r) => r.status === 'warning').length +
+      (pageSize && pageSize.status === 'warning' ? 1 : 0);
+    const unverifiableCount = results.filter((r) => r.status === 'unverifiable').length;
     totalPass += passCount;
     totalFail += failCount;
     elementCount += results.length;
     passElements += results.filter((r) => r.status === 'pass').length;
 
-    pages.push({ page: pdfPage, specPage: sp.page, pageWidthPt: widthPt, pageHeightPt: heightPt, dataUrl, elements: results, passCount, failCount });
+    pages.push({ page: pdfPage, specPage: sp.page, pageWidthPt: widthPt, pageHeightPt: heightPt, dataUrl, elements: results, pageSize, passCount, failCount, warnCount, unverifiableCount });
     onProgress?.(idx + 1, spec.pages.length);
   }
 

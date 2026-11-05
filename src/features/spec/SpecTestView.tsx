@@ -2,6 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { useSpecStore } from './specStore';
 import type { Box, ElementResult, SpecPageResult } from './types';
 
+/** What each verdict is called on screen. Never fold one into another: an
+ *  unverifiable element is not a failure of the document. */
+const STATUS_LABEL: Record<ElementResult['status'], string> = {
+  pass: 'PASS',
+  fail: 'FAIL',
+  'not-found': 'NOT FOUND',
+  warning: 'WARNING',
+  unverifiable: 'UNVERIFIABLE',
+};
+
 const TYPE_ICON: Record<ElementResult['type'], string> = {
   text: '📝',
   image: '🖼️',
@@ -444,7 +454,7 @@ export default function SpecTestView() {
                       <small>{e.detail}</small>
                     </div>
                     <span className={`spec-badge ${e.status}`}>
-                      {e.status === 'pass' ? 'PASS' : e.status === 'fail' ? 'FAIL' : 'NOT FOUND'}
+                      {STATUS_LABEL[e.status]}
                     </span>
                   </div>
                   <table className="spec-checks">

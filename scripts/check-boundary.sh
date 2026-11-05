@@ -1,9 +1,11 @@
 #!/bin/sh
-# Verify the spec-driven feature and the rest of the app stay separable.
+# Verify the spec-driven feature stays a self-contained package surface.
 #
-# The two are worked on from different machines and merged by replacing
-# src/features/spec/ wholesale from a zip, so a crossing here is not a style
-# question: it is a merge that silently loses work or breaks the build.
+# It is no longer sealed — Siddharth ruled on 2026-11-03 that it may be
+# developed on any machine (W-32 option B). What this still protects is the
+# packaging boundary: W-32 publishes this folder as @pdfsuite/spec, so the app
+# and the CLI must reach it only through its two barrels, and it must not
+# scatter its CSS into the shared stylesheet.
 #
 # Run from the repo root, on either machine:   sh scripts/check-boundary.sh
 # Exit 0 = separable. Exit 1 = a crossing, printed.
@@ -29,9 +31,11 @@ if [ -n "$hits" ]; then
   printf '%s\n' "$hits"
 fi
 
-# 2. The feature may import only from its own folder and this allow-list.
-#    Each entry is a frozen, read-only contract — see the README.
-ALLOWED='react|react-dom|zustand|pdfjs-dist|jszip|\.\./\.\./flags'
+# 2. The feature may import its own folder, these packages, and the project's
+#    shared code under src/ — which is what becomes @pdfsuite/core, the
+#    dependency @pdfsuite/spec is meant to have. It may not reach into another
+#    feature.
+ALLOWED='react|react-dom|zustand|pdfjs-dist|jszip|@sheetpane/|\.\./\.\./flags|\.\./\.\./services/|\.\./\.\./types/|\.\./\.\./store/'
 hits=$(grep -rn "from '" "$FEAT" --include='*.ts' --include='*.tsx' \
   | grep -v "from '\./" | grep -vE "from '($ALLOWED)" || true)
 if [ -n "$hits" ]; then
@@ -54,10 +58,10 @@ fi
 
 # 4. No file may live in both halves. A spec file left behind in the old
 #    locations is the shape a bad zip merge takes.
-for stray in src/types/spec.ts src/services/specCheck.ts src/services/specExport.ts \
+for stray in src/services/specCheck.ts src/services/specExport.ts \
              src/services/sheetRead.ts src/services/sheetSpec.ts src/store/specStore.ts \
              src/components/spec; do
-  [ -e "$stray" ] && bad "$stray is back outside the feature; the folder move was undone."
+  [ -e "$stray" ] && bad "$stray belongs inside the feature; it is part of @pdfsuite/spec."
 done
 
 if [ "$fail" -eq 0 ]; then

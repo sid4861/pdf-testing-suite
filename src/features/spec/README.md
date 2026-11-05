@@ -1,38 +1,33 @@
 ---
 type: Contract
-description: "The boundary around the spec-driven comparison feature, and the zip handoff between the two machines that work on it."
+description: "What the spec-driven comparison feature is, what it may depend on, and the surface it publishes as @pdfsuite/spec."
 ---
 
 # The spec-driven comparison feature
 
-Everything this feature is lives in this folder. **Nothing else in the repository
-belongs to it, and it owns nothing outside it.**
+Everything this feature is lives in this folder, and the rest of the app reaches
+it only through two barrels. That is not a wall — it is the shape of a package:
+**W-32** publishes this folder as `@pdfsuite/spec`, and a surface that is already
+narrow is a surface that can be lifted out without a rewrite.
 
-That is not tidiness. Two machines do the work and **nothing travels between
-them except one way**:
+**Siddharth, 2026-11-03:** *“package can be developed on any machine now, remove
+this constraint”* — the ruling owed on
+[W-32](../../../work/open/W-32-spec-package.md), option B. This folder **used to
+be sealed**: developed on a second machine, never edited here, and refreshed one
+way from a zip. That is over. It is ordinary code in this repository, and this
+repository holds the live version.
 
-```
-  app machine                GitHub                spec machine
-  everything except     --push-->  --download zip-->   this folder only
-  this folder                                          (cannot push,
-                                                        cannot send files out)
-```
+### What did not change
 
-So the spec machine refreshes the whole repository from a zip and **keeps its own
-`src/features/spec/`**. A single file shared across that line means every refresh
-either clobbers the spec work or has to be reconciled by hand.
+**Real spec workbooks never leave the spec machine.** That is a rule about data,
+not about code — every fixture in this repository is fictional
+([SR-NPM-PACKAGES](../../../records/0107_NPM-packages.md) decision 13). Nothing
+confidential belongs in this folder, and nothing confidential is in it.
 
-### The copy of this folder on GitHub is a stale mirror
-
-Spec work does not come back. Whatever is in the repository here is frozen at
-the last time it was edited on the app machine, and the real version lives on
-the spec machine. It is kept so the app still builds and the tab still runs.
-
-**On the app machine: do not edit this folder.** An edit here is work the spec
-machine will never see, and it widens a gap that nothing closes.
-
-Run `sh scripts/check-boundary.sh` on either machine to prove the separation
-still holds; it catches all five ways the line gets crossed.
+Run `sh scripts/check-boundary.sh` to prove the surface is still narrow. It
+checks four things: the app and the CLI import only a barrel, this feature
+imports nothing outside its allow-list, its CSS stays in `spec.css`, and no file
+of its has drifted back into `src/services/`.
 
 ## The whole public surface
 
@@ -62,25 +57,28 @@ this folder from anywhere else is the thing the boundary check forbids.
 
 ## What it is allowed to depend on
 
-Four things, all **read-only** from this side. Changing any of them is the app's
-call, not this feature's, and the boundary check enforces the list:
+This is `@pdfsuite/spec`'s dependency list in draft, which is why it is kept
+short. The boundary check enforces it:
 
-1. **npm packages** — `react`, `zustand`, `pdfjs-dist`, `jszip`.
-2. **`src/flags.ts`** — read `flags.*` to hide a control. Adding a *new* flag
-   touches `src/flags.ts` and `flag.env`, which are shared: ask for it rather
-   than editing them in a zip.
+1. **npm packages** — `react`, `zustand`, `pdfjs-dist`, `jszip`, and
+   **`@sheetpane/import`** (pinned exactly; SR-SPEC-INTAKE decision 3 makes it the one
+   workbook reader, in the browser and under Node).
+2. **The project's shared code** — `src/services/` (what becomes
+   `@pdfsuite/core`), `src/types/`, `src/store/`, and `src/flags.ts`. Adding a
+   *new* flag touches `src/flags.ts` and `flag.env`, which the whole app shares.
 3. **The design tokens** in `src/styles.css` — `--indigo`, `--border`,
-   `--panel`, `--radius`, `--shadow` and the rest of `:root`.
+   `--panel`, `--radius`, `--shadow` and the rest of `:root`. Read-only: restyling
+   them is the app's call.
 4. **The shared component classes** — `.card`, `.btn`, `.slot`, `.tabs`,
    `.chip`, `.summary-chip`, `.empty-state`, `.upload-row`, `.spinner`,
    `.zoom-group`, `.overlay-legend`, `.pagestrip`, `.subtoolbar`. Use them;
    never redefine them here. Extending one with an owned modifier is fine —
    `.empty-state.sp-compact`, `.overlay-legend .dot.exp`.
 
-`pdfjs.ts` duplicates about ten lines of `src/services/pdfCompare.ts`
-deliberately: the feature used to import `loadPdf` from the comparison engine,
-which put a shared file across the boundary. The duplication is the cheaper
-mistake, and the comment in the file says so.
+`pdfjs.ts` duplicates about ten lines of `src/services/pdfCompare.ts`. That was
+the right trade while the seal stood — a shared file across it was the more
+expensive mistake. With the seal gone it is just duplication; W-29 replaces it
+with a dependency on `@pdfsuite/core`.
 
 ### CSS naming rule
 
@@ -89,59 +87,27 @@ Everything this feature defines is prefixed **`sp-`**, **`spec-`** or
 checkable, and it is not decoration: `.pair-list` and `.pair-row` were in use by
 Batch compare before this feature borrowed the same two names.
 
-## On the spec machine
+## Working on it
 
-### First time
-
-1. Download the repository zip from GitHub and unpack it.
-2. `npm install`, then `npm run dev`.
-3. **`git init && git add -A && git commit -m "baseline"`.** The zip is not a
-   repository, so there is no history and no undo. This folder is about to
-   become the only copy of real work: a local git, with no remote, still gives
-   you a diff, a log and a way back. Commit before each refresh and after each
-   session.
-
-### Taking a newer app build
-
-The app machine has pushed; you want its changes without losing yours:
+Like any other code in this repository. Before you finish:
 
 ```bash
-sh scripts/update-from-zip.sh ~/Downloads/pdf-testing-suite-main.zip         # prints the plan
-sh scripts/update-from-zip.sh ~/Downloads/pdf-testing-suite-main.zip --yes   # carries it out
-```
-
-It copies this folder to `.spec-backup/<timestamp>/` first, replaces everything
-else from the zip, discards the zip's stale copy of this folder, and leaves your
-`node_modules/`, `flag.env` and `.git/` alone. Files the app machine deleted
-disappear here too, which is the point: a stale `.ts` that still compiles is the
-hardest kind of leftover to spot.
-
-Then:
-
-```bash
-npm install                      # if package.json changed
-sh scripts/check-boundary.sh
+npx tsc --noEmit
 npm run build
+sh scripts/check-boundary.sh
 ```
 
-Keep a copy of `update-from-zip.sh` outside the working copy, in case a zip
-predates it.
+The CLI imports this feature too, through `engine.ts`, so a change to that
+barrel's shape means `cd cli && npm run build && npm run verify:spec`.
 
-### Working
+## What becomes `@pdfsuite/spec`
 
-Change **only files under `src/features/spec/`**. If a change seems to need a
-file outside it, that is a boundary question — write it down and raise it on the
-app machine rather than reaching across, because an edit outside this folder is
-lost at the next refresh.
+W-32 moves this folder to `packages/spec` once W-29 creates the workspace. Two
+things change then and are worth not pre-empting:
 
-`npm run build` and `sh scripts/check-boundary.sh` before you stop.
-
-## On the app machine
-
-Change nothing under `src/features/spec/`. The rest of the repository is yours;
-push as normal.
-
-If the app needs something *from* the feature, it has to come through
-`index.ts` or `engine.ts`, and the spec machine has to be told — its copy of
-those files is the real one, and a refresh will not bring your version of them
-across.
+- `pdfjs.ts` duplicates the loader in `src/services/pdfCompare.ts`. It was
+  duplicated to avoid a shared file across the old seal; with the seal gone it
+  should become a dependency on `@pdfsuite/core` rather than a copy. W-29 does
+  that — removing it now would just move the duplication.
+- The allow-list below is the package's dependency list in draft. Anything added
+  to it is something `@pdfsuite/spec` will have to declare.

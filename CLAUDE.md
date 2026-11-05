@@ -96,32 +96,27 @@ one and the hooks that enforce it — [SR-WORK-BLOCKERS](records/0056_WORK-block
 One archive, [`archive/`](archive/README.md), at the repo root. What may be
 named, what may never be cited — [SR-WORK-ARCHIVE](records/0057_WORK-archive.md).
 
-## The sealed feature boundary
+## The spec feature's boundary
 
-`src/features/spec/` is developed on a second machine that can read the real
-spec workbooks, cannot push, and cannot send files out. Work goes **one way**:
-this machine pushes to GitHub, that machine downloads a zip and refreshes
-everything *except* that folder with `scripts/update-from-zip.sh`.
+**Siddharth, 2026-11-03:** *"package can be developed on any machine now, remove
+this constraint"* — the ruling owed on [W-32](work/open/W-32-spec-package.md),
+option B. `src/features/spec/` **is no longer sealed**: it is edited here like
+any other code, and this repository holds the live version, not a mirror.
 
-**The copy of `src/features/spec/` in this repository is a stale mirror.** The
-live version is on the other machine and does not come back. It is kept here so
-the app builds and the tab runs. **Do not edit it from this machine** — an edit
-here is work the other machine will never see.
+**What has not changed: real spec workbooks never leave the spec machine.** That
+is a rule about data, not about code — fixtures in this repository are
+fictional ([SR-NPM-PACKAGES](records/0107_NPM-packages.md) decision 13).
 
-The folder therefore shares **no file** with the rest of the repository, and the
-rest of the repository reaches it only through `index.ts` (app) or `engine.ts`
-(CLI). The contract, the dependency allow-list, the CSS prefix rule and both
-machines' procedures are stated once in
-[`src/features/spec/README.md`](src/features/spec/README.md).
-
-Before changing anything under `src/` or `cli/`:
+The folder stays **self-contained** behind two barrels — `index.ts` for the app,
+`engine.ts` for the CLI — because that is the surface W-32 publishes as
+`@pdfsuite/spec`. It may now import the project's shared services. The contract
+and the CSS prefix rule are in
+[`src/features/spec/README.md`](src/features/spec/README.md); the check that
+keeps the surface narrow is still:
 
 ```bash
 sh scripts/check-boundary.sh
 ```
-
-If a task seems to need both sides, that is the finding — raise it rather than
-editing across.
 
 ## Hard-won build knowledge
 
@@ -142,5 +137,5 @@ archive/     THE ONE ARCHIVE — everything retired, mirroring the live tree
 scripts/     the commit guard, the inbox check, the boundary check, the zip refresh
 .claude/     hooks and their wiring
 src/ cli/ public/ tools/   the product — owned by W-01 until each has a record
-src/features/spec/   A SEALED FEATURE — its own contract, see its README.md
+src/features/spec/   self-contained behind two barrels — becomes @pdfsuite/spec (W-32)
 ```

@@ -58,7 +58,13 @@ function elementRows(el: ElementResult): string {
   // Passing elements are omitted from the report, and within a failing element
   // only the checks that actually failed are listed.
   if (el.status === 'pass') return '';
-  const badge = el.status === 'fail' ? '<span class="b fail">FAIL</span>' : '<span class="b na">NOT FOUND</span>';
+  const BADGE: Record<string, string> = {
+    fail: '<span class="b fail">FAIL</span>',
+    'not-found': '<span class="b na">NOT FOUND</span>',
+    warning: '<span class="b warn">WARNING</span>',
+    unverifiable: '<span class="b na">UNVERIFIABLE</span>',
+  };
+  const badge = BADGE[el.status] ?? BADGE['not-found'];
   const checks = el.checks
     .filter((c) => !c.pass)
     .map(

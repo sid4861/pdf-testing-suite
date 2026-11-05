@@ -5,6 +5,8 @@ import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import pixelmatch from 'pixelmatch';
+// Both live in one file for the whole project — SR-CONSTANTS.
+import { BASE_SCALE, MAX_PAGE_WIDTH } from './specConstants';
 import { diffWords, diffArrays } from 'diff';
 
 import type {
@@ -24,8 +26,6 @@ import type {
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 // ── Rendering tunables ────────────────────────────────────────────────
-const BASE_SCALE = 2;        // ~144 DPI: 1pt = 2px
-const MAX_PAGE_WIDTH = 1600; // cap on target-box width in px
 
 export interface ComparePageOpts {
   pixelThreshold?: number;

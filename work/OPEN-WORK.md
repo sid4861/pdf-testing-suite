@@ -22,19 +22,19 @@ here. Read that record before changing anything below it.
 
 | what they decide | who | filed | age |
 |---|---|---|---|
-| `pdfsuite compare`, six open points: exit code 3 · `approve` · `expected.json` ledger · masks · `--redact-text` · `--jobs` / `--only` / `--fail-fast` — [W-07](open/W-07-pdfsuite-compare-redesign.md) §*Still open* | either | 2026-10-18 | 0 days |
+| `pdfsuite compare`, six open points: exit code 3 · `approve` · `expected.json` ledger · masks · `--redact-text` · `--jobs` / `--only` / `--fail-fast` — [W-07](open/W-07-pdfsuite-compare-redesign.md) §*Still open* | either | 2026-10-18 | 16 days |
 | ↳ **blocks:** W-07 | | | |
-| `@pdfsuite/spec`: build it on the spec machine (A), move the checker off the seal (B), or publish the mirror as preview (C) — [W-32](open/W-32-spec-package.md) | either | 2026-10-18 | 0 days |
-| ↳ **blocks:** W-32 | | | |
-| Confirm the tab names and order: **Compare** (One · Many) · **Specification** · **Inspect** — [W-06](open/W-06-rename-workspace-tabs.md) | Arpit | 2026-10-18 | 0 days |
+| `@sheetpane/import` declares `engines: node >=22`; `pdfsuite` publishes `node >=20`. Raise pdfsuite's floor to 22, or ask Arpit for 20 upstream — [W-02](open/W-02-excel-spec-comparison.md) §Hazards | either | 2026-11-04 | 0 days |
+| ↳ **blocks:** nothing yet — it bites when W-11 puts the spec check on the CLI | | | |
+| Confirm the tab names and order: **Compare** (One · Many) · **Specification** · **Inspect** — [W-06](open/W-06-rename-workspace-tabs.md) | Arpit | 2026-10-18 | 16 days |
 | ↳ **blocks:** W-06 | | | |
-| Build `<pdfsuite-pdf-viewer>` — any PDF in a pop-up instead of a new tab — Arpit says when — [W-42](open/W-42-pdf-viewer-popup.md) | Arpit | 2026-10-18 | 0 days |
+| Build `<pdfsuite-pdf-viewer>` — any PDF in a pop-up instead of a new tab — Arpit says when — [W-42](open/W-42-pdf-viewer-popup.md) | Arpit | 2026-10-18 | 16 days |
 | ↳ **blocks:** W-42 | | | |
-| L4 ruling: `@pdfsuite/viewer` as a **web-component package** outside `ui` (recommended), or the viewer inside `ui` — [W-42](open/W-42-pdf-viewer-popup.md) | either | 2026-10-18 | 0 days |
+| L4 ruling: `@pdfsuite/viewer` as a **web-component package** outside `ui` (recommended), or the viewer inside `ui` — [W-42](open/W-42-pdf-viewer-popup.md) | either | 2026-10-18 | 16 days |
 | ↳ **blocks:** W-42 | | | |
-| Repository name and owner — `pdfsuite` under `sid4861` (recommended), under a new GitHub organisation (the account `pdfsuite` is taken), or a new name — [W-45](open/W-45-rename-repository.md) | either | 2026-10-18 | 0 days |
+| Repository name and owner — `pdfsuite` under `sid4861` (recommended), under a new GitHub organisation (the account `pdfsuite` is taken), or a new name — [W-45](open/W-45-rename-repository.md) | either | 2026-10-18 | 16 days |
 | ↳ **blocks:** W-45 | | | |
-| Verdict effect of the new finding types — font embedding (W-14, default reported), annotations (W-19, fails), tags (W-21, informational), page size (W-24, fails), signatures and versions (W-25, informational), document properties (W-26, informational) — [SR-COMPARE](../records/0111_COMPARE.md) §1 *Not failing* | either | 2026-10-18 | 0 days |
+| Verdict effect of the new finding types — font embedding (W-14, default reported), annotations (W-19, fails), tags (W-21, informational), page size (W-24, fails), signatures and versions (W-25, informational), document properties (W-26, informational) — [SR-COMPARE](../records/0111_COMPARE.md) §1 *Not failing* | either | 2026-10-18 | 16 days |
 | ↳ **blocks:** nothing else in the queue — each item builds with its default; the ruling flips one flag in `pageVerdict` | | | |
 
 ---
@@ -43,9 +43,9 @@ here. Read that record before changing anything below it.
 
 ### build
 
-- 🟢 **W-05** · `agent` · filed by Arpit — one constants file, `src/services/specConstants.ts`; move today's scattered tunables into it, values unchanged. **Sonnet.** [detail](open/W-05-constants-file.md)
-- 🟡 **W-02** · `agent` · filed by Arpit — spec intake: upload `.xlsx` or JSON, validate it, compile to spec JSON with every value's cell; loaded with sheetpane's `@sheetpane/import`. Waiting on W-05 and sheetpane on npm. **Opus.** [detail](open/W-02-excel-spec-comparison.md)
-- 🟡 **W-04** · `agent` · filed by Arpit — spec checker per SR-SPEC-CHECK: fix today's false failures, then pages, fonts, colour, coverage. Waiting on W-05. **Opus.** [detail](open/W-04-spec-check-v2.md)
+
+- 🟢 **W-02** · `agent` · filed by Arpit — spec intake. **DoD 1, 2, 3, 5 and 7 landed 2026-11-04** — workbook → spec JSON end to end; the fixture's matching PDF now reports **0 failures** and its deviations PDF reports 8 of 9 detectable. Next: DoD 4, 6, 8, 9, 10. **Opus.** [detail](open/W-02-excel-spec-comparison.md)
+- 🟢 **W-04** · `agent` · filed by Arpit — spec checker per SR-SPEC-CHECK. DoD 1 ✅, DoD 3 part-done (2026-11-03). **Unblocked 2026-11-04** — W-02's compiler produces spec JSON, so DoD 2, 4 and 6 can start. **Opus.** [detail](open/W-04-spec-check-v2.md)
 - 🟡 **W-48** · `agent` · filed by Arpit — the workbook validation as a contract: every doubtful unit an error, each accepted row in plain words, the `.xlsx` handed back with red cells; same from the tab and `pdfsuite spec --validate-only`. Waiting on W-02. **Sonnet.** [detail](open/W-48-validation-report-contract.md)
 - 🔴 **W-06** · `agent` · filed by Arpit — workspace tabs: Compare · Specification · Inspect, with Bulk compare folded into Compare as *Many*; names owed Arpit's confirmation. **Sonnet.** [detail](open/W-06-rename-workspace-tabs.md)
 - 🟢 **W-08** · `agent` · filed by Arpit — `pdfsuite compare` console output: header, one line per pair, one summary line with report path and exit code; everything else to stderr. **Sonnet.** [detail](open/W-08-cli-console-output.md)
@@ -60,7 +60,7 @@ here. Read that record before changing anything below it.
 - 🟢 **W-29** · `agent` · filed by Arpit — npm workspaces: `packages/core`, `compare`, `cli`, `agents`, `create`; engine moved unchanged; Compare and Bulk import `@pdfsuite/compare`. **Opus.** [detail](open/W-29-npm-workspaces-packages.md)
 - 🟡 **W-30** · `agent` · filed by Arpit — `@pdfsuite/cli` hosts `pdfsuite` and loads compare and spec; they depend on it and add `pdfsuite-compare` / `pdfsuite-spec`. Waiting on W-29. **Sonnet.** [detail](open/W-30-cli-command-host.md)
 - 🟡 **W-31** · `agent` · filed by Arpit — `npm create @pdfsuite`: a new app, or pdfsuite added to an existing one, as a thin shell over `@pdfsuite/ui`. Waiting on W-33. **Opus.** [detail](open/W-31-create-pdfsuite-app.md)
-- 🔴 **W-32** · `agent` · filed by Arpit — `@pdfsuite/spec`: the spec feature as a package used by the Spec tab and `pdfsuite spec`; where it is built is owed a ruling. **Opus.** [detail](open/W-32-spec-package.md)
+- 🟡 **W-32** · `agent` · filed by Arpit — `@pdfsuite/spec`: the spec feature as a package used by the Spec tab and `pdfsuite spec`. Ruled 2026-11-03 (B, developed here); waiting on W-29 for `packages/`. **Opus.** [detail](open/W-32-spec-package.md)
 - 🟡 **W-33** · `agent` · filed by Arpit — `@pdfsuite/ui`: the screens as React components and `<PdfSuiteApp/>`; this repo's app becomes a thin shell. Waiting on W-29. **Opus.** [detail](open/W-33-ui-package.md)
 - 🟡 **W-34** · `agent` · filed by Arpit — `--sync`: upgrade a created app — versions bumped together, untouched files replaced, edited ones never overwritten. Waiting on W-31. **Sonnet.** [detail](open/W-34-create-sync.md)
 - 🟡 **W-35** · `agent` · filed by Arpit — the app as a static single-page app at any URL and sub-path: relative assets, hash routing, pdf.js assets beside it. Waiting on W-33. **Sonnet.** [detail](open/W-35-spa-any-url.md)

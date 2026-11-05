@@ -21,9 +21,7 @@ import BatchView from './components/batch/BatchView';
 
 type Workspace = 'compare' | 'spec' | 'measure' | 'batch';
 
-// Auto-run a full scan on load for documents up to this many pages, so the
-// summary chip and changed-pages strip have data without an explicit click.
-const AUTO_SCAN_MAX_PAGES = 60;
+import { AUTO_SCAN_MAX_PAGES } from './services/specConstants';
 
 // Tab order and labels in one place: the header renders straight from this.
 const WORKSPACE_TABS: [Workspace, string][] = [

@@ -91,6 +91,11 @@ export interface PdfSpec {
   title?: string;
   units?: SpecUnit;
   pageSize?: { width: number; height: number };
+  /**
+   * When the workbook pins the page size, a different size is an error rather
+   * than a warning (SR-SPEC-CHECK decision 4).
+   */
+  pageSizePinned?: boolean;
   tolerance?: SpecTolerance;
   pages: SpecPage[];
 }
@@ -115,7 +120,15 @@ export interface ElementResult {
   id: string;
   type: SpecElement['type'];
   label: string;
-  status: 'pass' | 'fail' | 'not-found';
+  /**
+   * - `pass` / `fail` — checked, and the answer.
+   * - `not-found` — looked for, not there.
+   * - `warning` — true but not a failure: a page out of order, a page size
+   *   that differs without being pinned.
+   * - `unverifiable` — could not be checked at all, e.g. a page with no text
+   *   layer. Never a pass (SR-SPEC-CHECK decision 13).
+   */
+  status: 'pass' | 'fail' | 'not-found' | 'warning' | 'unverifiable';
   detail: string;      // one-line summary (e.g. the expected text)
   checks: CheckResult[];
   expectedBox: Box | null;
@@ -135,8 +148,18 @@ export interface SpecPageResult {
   pageHeightPt: number;
   dataUrl: string | null;
   elements: ElementResult[];
+  /**
+   * The page-size finding, when the workbook states a size. Kept out of
+   * `elements` because that list is the spec's own rows, which coverage counts.
+   */
+  pageSize: ElementResult | null;
   passCount: number;
+  /** Failed checks only, from elements that were actually decided. */
   failCount: number;
+  /** Elements true but not failing — a page out of order, an unpinned size. */
+  warnCount: number;
+  /** Elements that could not be checked at all; never passes. */
+  unverifiableCount: number;
 }
 
 export interface SpecReport {

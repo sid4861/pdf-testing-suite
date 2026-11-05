@@ -126,6 +126,12 @@
 .spec-badge.pass { background: var(--emerald-soft); color: var(--emerald); }
 .spec-badge.fail { background: var(--red-soft); color: var(--red); }
 .spec-badge.not-found { background: var(--amber-soft); color: var(--amber); }
+/* A warning is true but not a failure; unverifiable could not be checked at
+   all. Neither is coloured like a defect in the document. */
+.spec-badge.warning { background: var(--amber-soft); color: var(--amber); }
+.spec-badge.unverifiable { background: #f1f5f9; color: var(--muted); }
+.spec-el.warning { border-left-color: var(--amber); }
+.spec-el.unverifiable { border-left-color: var(--border-strong); }
 
 table.spec-checks { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 table.spec-checks td { padding: 4px 14px; border-top: 1px solid #f1f5f9; }

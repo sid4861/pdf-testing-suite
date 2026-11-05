@@ -5,8 +5,8 @@ description: "Arpit, 2026-10-16: create src/services/specConstants.ts — one fi
 item: W-05
 filed: 2026-10-16
 filed_by: Arpit
-updated: 2026-10-18
-updated_by: Arpit
+updated: 2026-11-03
+updated_by: agent
 ball: agent
 ---
 
@@ -19,8 +19,8 @@ ball: agent
 | **What** | One file, `src/services/specConstants.ts`, for every default and limit; today's scattered values move into it unchanged |
 | **Why** | The same value lives in up to three places today, and W-02 and W-04 need one place to read theirs from |
 | **Done when** | Every engine and CLI module reads from the one file, both builds pass, and the CLI regression run gives the same verdicts |
-| **Status** | 🟢 ready · 0 of 5 DoD done |
-| **Waits on** | nothing — W-02 and W-04 wait on this |
+| **Status** | ✅ done 2026-11-03 · 5 of 5 DoD |
+| **Waits on** | nothing — W-02 and W-04 are free to start |
 | **Who** | `agent` · Sonnet |
 | **Record** | SR-CONSTANTS |
 
@@ -54,15 +54,30 @@ CLI module reads from it. No value changes.
 
 | DoD | what | state |
 |---|---|---|
-| 1 · file | `src/services/specConstants.ts`: zero dependencies, every key typed and required, the defaults in SR-CONSTANTS decision 2 | ⏳ |
-| 2 · move | `DEFAULT_TOL`, `DEFAULT_ANCHOR_WITHIN` (`specCheck.ts`), `BASE_SCALE` (three copies: `pdfCompare.ts`, `pdfElements.ts`, `specCheck.ts`), `MAX_PAGE_WIDTH` (`pdfCompare.ts`), the page-verdict limits (`changes.ts`), `MOVED_OFFSET_IN` (`exportReport.ts`), `AUTO_SCAN_MAX_PAGES` (`App.tsx`), `DEFAULT_THRESHOLDS` (`cli/src/core/pairs.ts`) moved with values unchanged | ⏳ |
-| 3 · CLI | the CLI build imports the same file through its engine seam | ⏳ |
-| 4 · check | `npm run build` and the CLI build pass; the CLI regression run gives the same verdicts as before | ⏳ |
-| 5 · record | SR-CONSTANTS `built` set to yes in the register; its Consequences updated | ⏳ |
+| 1 · file | `src/services/specConstants.ts`: zero dependencies, every key typed and required, the defaults in SR-CONSTANTS decision 2 | ✅ |
+| 2 · move | all of them, values unchanged: `BASE_SCALE` ×3 (`pdfCompare.ts`, `pdfElements.ts`, `specCheck.ts`), `MAX_PAGE_WIDTH`, the page-verdict limits (`changes.ts`), `MOVED_OFFSET_IN` (`exportReport.ts`), `AUTO_SCAN_MAX_PAGES` (`App.tsx`), `DEFAULT_TOL` and `DEFAULT_ANCHOR_WITHIN` (`specCheck.ts`, after the 2026-11-03 ruling). `DEFAULT_THRESHOLDS` no longer exists | ✅ |
+| 3 · CLI | the CLI build imports the same file through its engine seam | ✅ `cli/src/platform/engine.ts` re-exports it |
+| 4 · check | `npm run build` and the CLI build pass; the CLI regression run gives the same verdicts as before | ✅ both build, `verify:regression` unchanged, `verify:spec` 8/8 |
+| 5 · record | SR-CONSTANTS `built` set to yes in the register; its Consequences updated | ✅ |
 
 ## Blockers
 
-None.
+**DoD 2 is part-done and the rest is blocked on W-32.** Moved: `BASE_SCALE` ×2,
+`MAX_PAGE_WIDTH`, the page-verdict limits, `MOVED_OFFSET_IN`, `AUTO_SCAN_MAX_PAGES`.
+
+Not moved, and not movable from this machine: `DEFAULT_TOL`, `DEFAULT_ANCHOR_WITHIN` and
+the third `BASE_SCALE`, all in `src/features/spec/specCheck.ts`. That folder is sealed —
+CLAUDE.md §*The sealed feature boundary* forbids editing it here, and
+`scripts/check-boundary.sh` rule 2 forbids it importing from `src/services/`, which is
+what reading the shared file would require. Doing it anyway breaks the build check and
+writes work the spec machine never receives.
+
+**W-32 decides it.** Option B (move the checker off the seal) dissolves this; under A or C
+the spec checker keeps its own constants and SR-CONSTANTS decision 4 needs amending to
+say so.
+
+`DEFAULT_THRESHOLDS` in `cli/src/core/pairs.ts` is named in the DoD but no longer exists —
+thresholds came out of the CLI on 2026-10-16.
 
 ## Record affected
 

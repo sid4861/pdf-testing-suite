@@ -119,7 +119,7 @@ Start from `TEMPLATE.md`.
 | [0060](0060_WORK-registry.md) | **SR-WORK-REGISTRY** | The doc registry — rules in §2, the table in §3 | accepted | yes |
 | [0101](0101_SPEC-intake.md) | **SR-SPEC-INTAKE** | The spec workbook, its validation, and its conversion to spec JSON | accepted | no |
 | [0102](0102_SPEC-check.md) | **SR-SPEC-CHECK** | Checking a PDF against spec JSON — pages, reading, comparing, coverage | accepted | no |
-| [0103](0103_CONSTANTS.md) | **SR-CONSTANTS** | One constants file for every default and limit | accepted | no |
+| [0103](0103_CONSTANTS.md) | **SR-CONSTANTS** | One constants file for every default and limit | accepted | yes |
 | [0104](0104_STACK-typescript.md) | **SR-STACK-TYPESCRIPT** | The product is TypeScript; the Python CLI is removed | accepted | yes |
 | [0105](0105_PDF-support.md) | **SR-PDF-SUPPORT** | Which kinds of PDF each tab and CLI can read — today's table, every gap tied to its work item | accepted | yes |
 | [0106](0106_SURFACE-parity.md) | **SR-SURFACE-PARITY** | Every step and where it lives — core, UI only or CLI only — each exception ratified | accepted | no |

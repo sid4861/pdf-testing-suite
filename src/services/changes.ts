@@ -2,6 +2,7 @@
 // so the on-screen highlights and the exported report stay in sync.
 
 import type { PageComparison, PageSummary, StyleDiff, TextItem } from '../types/compare';
+import { PAGE_VERDICT } from './specConstants';
 
 // Three kinds of difference, deliberately kept apart:
 //
@@ -222,9 +223,9 @@ export function changeSummary(members: Change[]): string {
 export function summaryPageDiffers(p: PageSummary): boolean {
   return (
     p.missing ||
-    p.contentMatch < 0.9999 ||
-    p.pixelRatio > 0.002 ||
-    p.maxOffset > 2
+    p.contentMatch < PAGE_VERDICT.contentMatchFloor ||
+    p.pixelRatio > PAGE_VERDICT.pixelRatioFloor ||
+    p.maxOffset > PAGE_VERDICT.maxOffsetPx
   );
 }
 
@@ -351,9 +352,9 @@ export function pageHasChange(pc: PageComparison, movedThresholdIn: number): boo
   if (!pc.imageA || !pc.imageB) return true; // page exists on only one side
   if (pc.match.onlyA.length > 0 || pc.match.onlyB.length > 0) return true;
   if (pc.match.matched.some((m) => m.offset > movedThresholdIn * pc.pxPerInch)) return true;
-  if (pc.contentMatch < 0.9999) return true;
+  if (pc.contentMatch < PAGE_VERDICT.contentMatchFloor) return true;
   // Pixel-only changes (e.g. recoloured header, moved rule, chart graphics) have no
   // text delta — catch them via the pixel diff so purely-visual pages aren't skipped.
-  if (pc.pixel && pc.pixel.ratio > 0.002) return true;
+  if (pc.pixel && pc.pixel.ratio > PAGE_VERDICT.pixelRatioFloor) return true;
   return false;
 }

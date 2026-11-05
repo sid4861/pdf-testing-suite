@@ -16,7 +16,9 @@ export interface ExportMeta {
 }
 
 /** What counts as "moved" in a report, in inches. Fixed, not user-tunable. */
-export const MOVED_OFFSET_IN = 0.02;
+import { MOVED_OFFSET_IN } from './specConstants';
+// Re-exported because exportMarkdown.ts and the CLI import it from here.
+export { MOVED_OFFSET_IN };
 
 export const pct = (n: number) => (n * 100).toFixed(1) + '%';
 export const inchStr = (px: number, pxPerInch: number) => (px / pxPerInch).toFixed(2) + '″';

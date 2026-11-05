@@ -8,7 +8,7 @@ import { loadPdf } from './pdfCompare'; // reuses worker setup + loader
 
 export { loadPdf };
 
-const BASE_SCALE = 2;
+import { BASE_SCALE } from './specConstants';
 
 export interface PageElement {
   id: string;

@@ -81,7 +81,19 @@ different places.
 
 ### Consequences
 
-- **Built today:** nothing — **W-05** creates the file and moves the literals.
+- **Built, 2026-11-03 (W-05):** `src/services/specConstants.ts` holds every key in
+  decision 2, and **every literal named in *Context* now reads from it**, values
+  unchanged — `BASE_SCALE` ×3 (`pdfCompare.ts`, `pdfElements.ts`,
+  `src/features/spec/specCheck.ts`), `MAX_PAGE_WIDTH`, the page-verdict limits
+  (`changes.ts`), `MOVED_OFFSET_IN` (`exportReport.ts`), `AUTO_SCAN_MAX_PAGES`
+  (`App.tsx`), `DEFAULT_TOL` and `DEFAULT_ANCHOR_WITHIN` (`specCheck.ts`). The CLI reads
+  the same file through `cli/src/platform/engine.ts`. Decision 4 holds.
+- **The spec checker reached it only after the 2026-11-03 ruling** (W-32, option B) lifted
+  the seal on `src/features/spec/`; before that, the boundary check forbade it importing
+  from `src/services/`.
+- **`DEFAULT_THRESHOLDS` no longer exists.** *Context* and *Reference* still name it in
+  `cli/src/core/pairs.ts`; thresholds were removed from the CLI on 2026-10-16, so there
+  was nothing to move.
 - **Debt:** nothing checks decision 4 — backlog **B-011**.
 - Moving the literals does not unify the app's and the CLI's page verdict; it makes the
   two values sit side by side where the difference is visible.

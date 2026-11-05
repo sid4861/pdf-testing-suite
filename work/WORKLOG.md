@@ -280,6 +280,106 @@ entry is corrected by a new one. Distinct from `INTERVIEW.md`, which is the
 
 ---
 
+## 2026-11-04 (cont. 2) — W-02 DoD 5 and 7: workbook → spec JSON, end to end  ·  Claude Code (Opus 5)
+
+- **Asked:** *continue with DoD 5 and DoD 7.*
+- **DoD 5, decision 9:** `specValues.ts` reads the spellings (`2 1/8`, `0,5`, `.5`, `3/8`) and refuses the two things that are *not* spellings — `~10` ("state the number and a Tolerance") and a range **plus** a Tolerance ("a range is already the tolerance"). A range becomes a band whose half-width is the tolerance. Decision 11's strikethrough comes from the style tables: a struck row is listed and not checked.
+- **DoD 7:** `specCompile.ts` turns the extraction into the spec JSON — every element carrying `source: {sheet, cell}`, plus the workbook's SHA-256, its template version and its own tolerances. Coverage accounts for **all 290 rows** as checked, noted, excluded or unreadable.
+- **The result that matters:** compiled from the workbook, the fixture's matching PDF reports **0 failures**, and the deviations PDF reports **8 of the 9 detectable deviations** its README tables — title font size, logo width, table left, summary line spacing, map height, table rows, footnote wording, graph top.
+- **Four compiler defects, all the same mistake — asserting what the sheet does not support.** A filled container and a vector graph were compiled as **images**, sending the checker after pictures that are not there; `Line break after` was ignored, so "Fleet Highlights" was asserted as one line when the workbook says it is two; and a paragraph's whole text was asserted when `ParagraphSpec.text` is documented as the *starting snippet* — no single line ever contains a wrapped paragraph. Each now goes to coverage or is narrowed.
+- **One checker change:** a paragraph found on a single line reported a failed line spacing. One line has no gap to measure, so that is **unverifiable**, not a defect in the document.
+- **Two mistakes of mine, caught by the tests:** I patched the single-line rule into `checkImage` instead of `checkParagraph` (an over-broad match on a `return`), and I asserted that a range yields a per-element tolerance against the *clean* workbook, which states no range — the range is in the errors fixture. That test moved to the parser, where it belongs.
+- **One real gap the oracle exposed:** 18 of 290 rows were missing from coverage, because an element whose wording had nothing matchable noted only its wording row and dropped the rest. Decision 13 says nothing passes silently; all 290 are now accounted for.
+- **Checked:** spec-compile 26/26, spec-template 28/28, spec-intake 17/17, spec-reading 14/14, spec-columns 7/7, verify:spec 8/8, regression unchanged, app build and boundary check clean.
+- **Not done, and named:** decision 10 (rich-text per-word styles) and decision 12 (relative values) — no fixture row exercises either, so building them would be writing untested guesses. Deviation 12, the missing page number, is not reported; worth a look with DoD 6. The downloads and the re-upload round trip are UI work.
+- **Next:** **W-04 is unblocked** — its DoD 2, 4 and 6 were waiting on exactly this spec JSON.
+
+---
+
+## 2026-11-04 (cont.) — W-02 DoD 3: Template v2 reads  ·  Claude Code (Opus 5)
+
+- **Asked:** *continue with DoD 3.*
+- **Looked at the real workbook before writing a parser.** Pages List stops at the first blank row (what follows is the sheet's own prose). Settings is name/value, so it is read by name — inserting a row cannot shift every value by one. **Lists is seven short tables side by side across 17 columns** (groups, units, parameters with kind/allowed units/required flags, edges, Check?, Case, fonts, named colours with hex). Page sheets carry real merge ranges like `A2:A6`.
+- **`specTemplate.ts`** reads all four kinds. The rule under everything: read what the sheet states, never what it implies. A merged label is taken from the **declared range** — forward-filling the last non-blank value would give the same answer on this fixture and a wrong one the moment a label is genuinely missing, which is a mistake worth catching.
+- **Decision 7a in full:** blank unit on a unit-taking parameter, a unit written inside Value, a unit the parameter cannot take, `px` with no *Pixels per inch*, a non-numeric value where the kind needs a number, an unknown parameter, a missing From — each an error on its own cell, each removing the row from the check rather than guessing it.
+- **Result against the oracle:** the clean fixture reads **0 errors, 0 warnings, 290 rows, 4 pages** — 290 is exactly what its README states. The with-errors fixture yields **exactly its ten**, none missed, none extra.
+- **Three gaps the oracle exposed, all fixed:** I had no colour-name check (the Notes cell names the colour and Lists holds its hex — `Cloud Grey` is `#EEF1F4`, not `#E4E9F2`); I had *From missing* as a warning when the oracle calls it an error; and a unit written into Value produced **two** messages on one cell, which would have had the reviewer fix one defect twice.
+- **Checked:** `cli/verify/spec-template.ts` 28/28, plus spec-intake 17/17, spec-reading 14/14, spec-columns 7/7, verify:spec 8/8, regression unchanged, app build and boundary check clean.
+- **Noted, not inferred:** the fixture marks the page size as pinned only in a human *Note* column ("pinned: a PDF page of another size is a finding"). There is no Settings row for it, and parsing prose to decide is what decision 7 forbids — so it reads as not pinned (a warning, per W-04). Either the template needs a *Page size pinned* row or the record should say the Note carries it.
+- **Still to remove:** `sheetRead.ts` and `sheetSpec.ts`. The Template v2 parser can replace them now, but the Spec tab still calls them; they go with the UI pass.
+- **Next:** DoD 5 (values — ranges, `~`, rich text, editing marks, relative values) and DoD 7 (the spec JSON with every value's source cell).
+
+---
+
+## 2026-11-04 — W-02 started: spec intake, DoD 1 and 2  ·  Claude Code (Opus 5)
+
+- **Asked:** *start W-02.*
+- **Checked the blockers first rather than assuming.** Both are gone: W-05 landed yesterday, and `@sheetpane/import` is now on npm — **0.5.1, MIT, Arpit's repo** (it was absent when this was last checked on 2026-10-19). Installed with `--save-exact`, as decision 3 requires.
+- **Built `src/features/spec/specIntake.ts`:** `uploadKind` decides on the extension before a byte is read, giving `.xls`, `.xlsm` and `.csv` three *different* ways out rather than one shared refusal. `readSpecWorkbook` checks the raw size against `MAX_UPLOAD_BYTES` before unzipping, passes `MAX_UNZIPPED_BYTES` as the reader's `maxTotalSize`, maps every `ImportError` to a message naming the fix, and accounts for everything it did not read — hidden sheets, hidden rows, filtered rows, hidden columns, formula cells — each with its sheet and cell. Exported from `engine.ts`, so W-11's CLI uses the same reader.
+- **A defect the test caught:** `read()` also accepts CSV and decides partly on the bytes, so a file *named* `.xlsx` that is not a zip came back as a one-sheet CSV instead of a refusal — a reviewer would have been handed a nonsense spec built from parsed text. Now refused on `wb.source !== 'xlsx'`.
+- **Two hazards resolved, one new:** the "unzipped cap is sheetpane's" hazard is settled — 0.5.1 takes `maxTotalSize`, so no upstream change is needed. But `@sheetpane/import` declares **`engines: node >=22`** while `cli/package.json` publishes **`node >=20`**; filed in the inbox, because it bites when W-11 puts the spec check on the CLI.
+- **The boundary check earned its keep twice:** it caught the new dependency before it went in undeclared (now in the allow-list and the feature README), and caught my test importing a file inside the feature instead of the barrel.
+- **Checked:** `cli/verify/spec-intake.ts` 17/17 — which also proves the reader runs under Node, as decision 3 requires — plus spec-reading 14/14, spec-columns 7/7, verify:spec 8/8, regression unchanged, app build and boundary check clean.
+- **Still there, to be removed when DoD 3 lands:** `sheetRead.ts` and `sheetSpec.ts`, the jszip reader and heuristic converter from before this record existed. Decision 3's "one reader" is not met while both are in the tree; they still back today's Spec tab, so they go when the Template v2 parser can replace them.
+- **Next:** DoD 3 — Pages List, page sheets, Lists and Settings per decision 7, and units per 7a.
+
+---
+
+## 2026-11-03 (cont. 3) — W-04: DoD 1 finished, DoD 3 part-done  ·  Claude Code (Opus 5)
+
+- **Asked:** *continue with DoD 1 remainder and DoD 3.*
+- **A real bug, decision 11:** tolerances resolved in the wrong unit. SR-CONSTANTS states 0.06 **inches**, but the fallback was multiplied by the spec's unit — on a millimetre workbook that is 0.06 mm, a tolerance seventeen times tighter than the record. A row's *own* stated tolerance is in its unit and still converts; only the constant is absolute. New `tolPt` separates the two.
+- **Decision 4:** the page size was never checked. Now reported — a **warning**, because every position is measured from the top-left corner so a wrong page size does not invalidate them, but it explains a whole page being off at once. An error when the workbook pins the size.
+- **Decisions 5 and 10:** `normalize` was whitespace and case only. Now soft hyphens dropped, ligatures expanded, smart quotes and dashes folded, NBSP and zero-widths handled, line-end hyphenation rejoined only when the next line is lower-case. ®, ™ and superscripts deliberately left exact, per decision 10.
+- **Decision 6:** a page with images and no text layer reported every text element as *not found* — a limit of the method presented as a defect in the document. Those elements are now **unverifiable**.
+- **Two type changes the record already required:** `status` gained `warning` and `unverifiable` (decision 13 names them), and `failCount` excludes both — otherwise a page-size warning would have failed the CLI's exit code.
+- **My own error, caught by the test:** I first pushed the page-size result into `elements`, which inflated `elementCount` and broke positional access. Coverage counts the workbook's rows, and a page-size finding is not one — it moved to its own `pageSize` field. The two test failures that exposed it were my test's indexing, not the checker's behaviour; I checked before claiming either way.
+- **Not done, and why:** fonts (7), colour (8) and image content (9). `TextSpec` carries no font, weight or colour field, so there is nothing for a checker to compare against until W-02's intake emits them. Writing the checks now would mean writing them against data that cannot exist. Form XObject images likewise — no fixture contains one.
+- **Checked:** `cli/verify/spec-reading.ts` (new, 14/14), `spec-columns` 7/7, `verify:spec` 8/8, `verify:regression` unchanged, both builds, both typechecks, boundary check.
+- **Next:** W-02 is the gate for the rest of W-04. Six rulings still owed, oldest 16 days.
+
+---
+
+## 2026-11-03 (cont. 2) — W-04 DoD 1: lines grouped within a column  ·  Claude Code (Opus 5)
+
+- **Asked:** *start* — W-04, the spec checker.
+- **Picked DoD 1 first**, as its own Hazards section says: a correct PDF must not fail, and until that lands the fixture false-fails. DoD 2, 4 and 6 need W-02's spec JSON, which does not exist yet; DoD 1 and 3 do not.
+- **Measured before changing anything.** Loaded the fixture's `report.pdf` through pdf.js and printed every baseline run with its horizontal gaps. Two defects, both silent mis-measurement rather than an error: on page 3 the graph title and y-axis labels sit **327 and 391 points** from the regional table on the same baselines and were merged into its rows; and the vertical tolerance was taken from the *current* item's height against the line's `top`, so a 20pt sidebar heading absorbed an 11pt table line nine points below it.
+- **The design question I nearly got wrong:** my first instinct was to detect page columns by gutter. The fixture killed it — a table's own inter-cell gaps (194pt on page 2) are wider than some genuine column gaps, so no page-wide threshold separates them. The spec already states each element's Left and Width, which is better evidence than a gutter. So: **split on geometry, re-join on what the spec declares** — fragments become column segments, and `rowsWithin` rebuilds a table row from the declared box.
+- **Result on the fixture's matching PDF, against `report-spec.xlsx`'s own values:** regional table Left 6.75″, Top 1.40″, Width 3.50″, Rows 7, Columns 4 — every one exact; graph title and sidebar heading each their own line. `cli/verify/spec-columns.ts` (new, 7/7) is in `npm run verify`.
+- **My mistake:** I invented the sidebar's coordinates (7.6″/0.78″) instead of reading them, and reported a failure that was my test's, not the code's — the workbook says 0.4″/0.75″ under *Left sidebar*, which is exactly what the checker had read. Corrected before claiming anything.
+- **Not done, and why:** DoD 6 wants the *whole* fixture checked from the workbook, which needs W-02's converter; this test carries two elements written out by hand. The fixture README's *known false failures* section stays until that runs.
+- **Checked:** `verify:spec` 8/8, `verify:regression` unchanged, both typechecks and builds, boundary check.
+- **Next:** DoD 1's remainder (unit-aware tolerances, HTML escaping, Form XObject images) and DoD 3 (fonts, colour by ΔE, no-text-layer) — neither needs W-02.
+
+---
+
+## 2026-11-03 (cont.) — the seal is lifted; W-05 done  ·  Claude Code (Opus 5)
+
+- **Ruled by Siddharth:** *"package can be developed on any machine now, remove this constraint"* — **W-32 option B**, the ruling owed since 2026-10-18 (16 days).
+- **Scope I held to:** the seal was on *code*. **Real spec workbooks still never leave the spec machine** — a rule about data, which I did not touch, and which is now stated in every place the old seal was.
+- **Unsealed:** CLAUDE.md §*The sealed feature boundary* → §*The spec feature's boundary*; `src/features/spec/README.md` rewritten from a two-machine protocol into a package contract; `docs/ARCHITECTURE.md` (four places); SR-NPM-PACKAGES decision 14. `scripts/check-boundary.sh` now guards the **packaging** surface rather than a machine boundary — same four rules, but the allow-list admits `src/services/`, `src/types/`, `src/store/`, which is the `@pdfsuite/core` dependency W-32 wants.
+- **W-05 finished (5 of 5):** `DEFAULT_TOL`, `DEFAULT_ANCHOR_WITHIN` and the third `BASE_SCALE` moved out of `specCheck.ts` into `src/services/specConstants.ts`, values unchanged. SR-CONSTANTS decision 4 now holds and the register reads `built = yes`.
+- **Checked:** `tsc --noEmit` clean app and CLI; `npm run build` and the CLI build pass; **`verify:spec` 8/8 and `verify:regression` unchanged on the sample corpus** — the spec checker's verdicts did not move; boundary check clean.
+- **Queue:** the W-32 inbox row is gone (six left). W-02 🔴→🟡 (only sheetpane on npm left), W-04 🔴→🟢, W-48 unblocked through W-02, W-32 🔴→🟡 waiting on W-29 for `packages/`. W-05 closed to `IMPLEMENTATION.md`.
+- **Left deliberately:** `src/features/spec/pdfjs.ts` still duplicates ten lines of `pdfCompare.ts`. Removing it now would just move the duplication — W-29 makes it a dependency on `@pdfsuite/core`. Noted in the README and on W-32.
+- **Next:** W-04 is 🟢 and Opus-sized — the spec checker's false failures. Six rulings still owed, oldest 16 days.
+
+---
+
+## 2026-11-03 — W-05 built as far as the seal allows; the spec stream is blocked  ·  Claude Code (Opus 5)
+
+- **Asked:** *start implementing the work items for spec driven comparison.*
+- **Triage:** seven items blocked on Siddharth or Arpit, filed 2026-10-18 — **16 days**, not the "0 days" the inbox table showed; the age column was stale and is corrected.
+- **The finding, raised rather than worked around:** every spec-driven item names files inside `src/features/spec/` — W-02 (`types.ts`, `SpecTestView.tsx`), W-04 (`specCheck.ts`, `specExport.ts`), W-48, W-46, W-47, and three of W-05's constants. That folder is **sealed**: CLAUDE.md forbids editing it from this machine, and `scripts/check-boundary.sh` rule 2 forbids it importing from `src/services/`, which is exactly what reading a shared constants file requires. **None of the spec stream can be built here.** W-32's ruling decides it — option B (move the checker off the seal) unblocks all four at once. OPEN-WORK now says so on the W-32 row, and W-02/W-04 moved 🟡 → 🔴.
+- **Built anyway, the part outside the seal — W-05, 4 of 5 DoD:** `src/services/specConstants.ts` holds every key in SR-CONSTANTS decision 2. Moved with values unchanged: `BASE_SCALE` (`pdfCompare.ts`, `pdfElements.ts`), `MAX_PAGE_WIDTH`, the page-verdict limits (`changes.ts`), `MOVED_OFFSET_IN` (`exportReport.ts`), `AUTO_SCAN_MAX_PAGES` (`App.tsx`). `cli/src/platform/engine.ts` re-exports it, so the CLI reads the same file through the seam (DoD 3).
+- **Checked:** `npm run build` and the CLI build pass, `tsc --noEmit` clean on both, `verify:regression` **unchanged on the sample corpus**, `verify:spec` 8/8, boundary check clean.
+- **Two stale specs found:** `DEFAULT_THRESHOLDS` is named in W-05's DoD and SR-CONSTANTS's Context/Reference but no longer exists — thresholds came out of the CLI on 2026-10-16. And SR-CONSTANTS decision 4 ("no tunable literal outside this file") cannot be satisfied while the checker is sealed; the record's Consequences now say so, and `built` in the register is **partly**, not yes.
+- **Mistakes:** a bare `export { X } from` in `exportReport.ts` does not bind the name locally, and that file uses `MOVED_OFFSET_IN` twice — caught by the typecheck, fixed with an import plus a re-export.
+- **Next:** the W-32 ruling. With B, W-05's remainder is minutes and W-02/W-04 open up. Unrelated and still open: `npm publish` for `pdfsuite` needs a LICENSE holder and a public/private ruling.
+
+---
+
 ## 2026-10-16 (cont.) — page pairing in Compare  ·  Claude Code (Opus 5)
 
 - **Asked:** *let me choose which page in the test PDF is compared with which page in the golden — a dropped page shifts everything after it, so page 5 and page 5 are not the same page. Make the UI intuitive.*
