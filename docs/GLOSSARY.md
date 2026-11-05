@@ -20,11 +20,12 @@ description: "Recurring terms, defined once."
 | veto condition | the checkable condition under which a decision reopens |
 | golden PDF | the reference PDF (side A); its page sets the target box every comparison draws into |
 | candidate | the PDF under test (side B); the CLI's `--candidate` folder |
-| spec JSON | the only input the spec checker runs: assertions compiled from a workbook (or uploaded directly), each with `source: {sheet, cell}`, plus the workbook's hash and template version — SR-SPEC-INTAKE |
-| extraction JSON | every row the workbook reader saw: sheet, cell, raw text, parsed value, status (parsed · note · excluded · unreadable) — SR-SPEC-INTAKE |
-| validation report | the error · warning · info lines found in an uploaded spec before any PDF check, each with its cell — SR-SPEC-INTAKE |
-| template v2 | the spec workbook format for new and edited sheets: Pages List, one row per parameter, no merged cells, Lists and Settings sheets — SR-SPEC-INTAKE |
-| Pages List | the workbook's first sheet: one row per PDF page — tab, name, type (Required · Optional · Conditional), variant group, repeats, identifying text |
-| inferred | a spec value read with lower confidence — from a legacy prose sheet, a `~`, or rich-text formatting |
-| spec coverage | every spec row ends as checked, noted, unverifiable or excluded, each with its cell — shown beside pass/fail ("N of M rows checked") — SR-SPEC-CHECK |
+| spec JSON | the only input the spec checker runs: assertions compiled from a workbook (or uploaded directly), each with `source: {sheet, cell}`, plus the workbook's hash and template version — SR-SPEC-INTAKE · **built** |
+| extraction JSON | every row the workbook reader saw: sheet, cell, raw text, parsed value, status (parsed · note · excluded · unreadable) — SR-SPEC-INTAKE · **built**, frozen as a fixture oracle |
+| validation report | the error · warning · info lines found in an uploaded spec before any PDF check, each with its cell, and every accepted assertion in plain words — SR-SPEC-INTAKE · **built**, shown in the Spec tab |
+| template v2 | the spec workbook format for new and edited sheets: Pages List, Settings and Lists sheets, one page sheet per page, one row per parameter, one cell one fact; Element, Part and Group merged over the rows they label and read from the declared range — SR-SPEC-INTAKE · **built** |
+| Pages List | the workbook's first sheet: one row per PDF page — tab, name, type (Required · Optional · Conditional), variant group, repeats, identifying text. Its absence is what marks a workbook as legacy · **built** |
+| inferred | a value the reader worked out rather than read — from a legacy prose sheet. It never becomes an assertion: it is written into a **draft v2 workbook**, amber, for a person to confirm · **built** |
+| draft v2 workbook | what a legacy upload produces instead of a check: Template v2 with the inferred cells amber, the unreadable ones red and Check? = Note throughout — SR-SPEC-INTAKE decision 8 · **built** |
+| spec coverage | every spec row ends as checked, noted, unverifiable or excluded, each with its cell — shown beside pass/fail ("N of M rows checked") — SR-SPEC-CHECK · **built** |
 | letterbox | scaling a candidate page of a different shape to fit the golden page's box, centred; its glyph sizes are then not compared |

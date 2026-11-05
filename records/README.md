@@ -99,6 +99,9 @@ Start from `TEMPLATE.md`.
 
 ## The register
 
+**built** is `yes` when every decision in the record is in the product, `partly` when
+some are and the record's Consequences name the rest, `no` when none are.
+
 | # | name | title | status | built |
 |---|------|-------|--------|-------|
 | [0001](0001_LAWS.md) | **SR-LAWS** | The laws have exactly one home each; this record routes the handles | accepted | yes |
@@ -117,16 +120,16 @@ Start from `TEMPLATE.md`.
 | [0058](0058_WORK-ownership.md) | **SR-WORK-OWNERSHIP** | `owns` and `describes`, and the commit guard | accepted | yes |
 | [0059](0059_WORK-governance.md) | **SR-WORK-GOVERNANCE** | The governance map — which file governs what; no counts | accepted | yes |
 | [0060](0060_WORK-registry.md) | **SR-WORK-REGISTRY** | The doc registry — rules in §2, the table in §3 | accepted | yes |
-| [0101](0101_SPEC-intake.md) | **SR-SPEC-INTAKE** | The spec workbook, its validation, and its conversion to spec JSON | accepted | no |
+| [0101](0101_SPEC-intake.md) | **SR-SPEC-INTAKE** | The spec workbook, its validation, and its conversion to spec JSON | accepted | partly |
 | [0102](0102_SPEC-check.md) | **SR-SPEC-CHECK** | Checking a PDF against spec JSON — pages, reading, comparing, coverage | accepted | no |
 | [0103](0103_CONSTANTS.md) | **SR-CONSTANTS** | One constants file for every default and limit | accepted | yes |
 | [0104](0104_STACK-typescript.md) | **SR-STACK-TYPESCRIPT** | The product is TypeScript; the Python CLI is removed | accepted | yes |
 | [0105](0105_PDF-support.md) | **SR-PDF-SUPPORT** | Which kinds of PDF each tab and CLI can read — today's table, every gap tied to its work item | accepted | yes |
 | [0106](0106_SURFACE-parity.md) | **SR-SURFACE-PARITY** | Every step and where it lives — core, UI only or CLI only — each exception ratified | accepted | no |
 | [0107](0107_NPM-packages.md) | **SR-NPM-PACKAGES** | The seven `@pdfsuite` packages — what each installs; how an app is created, synced and hosted; which tab uses which | accepted | no |
-| [0108](0108_REPORT-html.md) | **SR-REPORT-HTML** | report.html — what it shows and how it looks; one self-contained, script-free file from result.json | accepted | no |
-| [0109](0109_REPORT-json.md) | **SR-REPORT-JSON** | result.json — the source of truth: schema, stable ids, wall-clock in one block | accepted | no |
-| [0110](0110_MANIFEST.md) | **SR-MANIFEST** | manifest.json — every input and output with size and SHA-256 | accepted | no |
+| [0108](0108_REPORT-html.md) | **SR-REPORT-HTML** | report.html — what it shows and how it looks; one self-contained, script-free file from result.json | accepted | partly |
+| [0109](0109_REPORT-json.md) | **SR-REPORT-JSON** | result.json — the source of truth: schema, stable ids, wall-clock in one block | accepted | partly |
+| [0110](0110_MANIFEST.md) | **SR-MANIFEST** | manifest.json — every input and output with size and SHA-256 | accepted | partly |
 | [0111](0111_COMPARE.md) | **SR-COMPARE** | How comparing one pair works — pairing, three signals, changes, one page rule | accepted | no |
 | [0112](0112_SPEC.md) | **SR-SPEC** | Spec-driven checking end to end — routes to SR-SPEC-INTAKE and SR-SPEC-CHECK | accepted | no |
 | [0113](0113_BULK-compare.md) | **SR-BULK-COMPARE** | How comparing many pairs works — pairing by name, compareMany, orphans fail | accepted | no |

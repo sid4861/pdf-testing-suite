@@ -280,6 +280,66 @@ entry is corrected by a new one. Distinct from `INTERVIEW.md`, which is the
 
 ---
 
+## 2026-11-05 (cont. 6) — W-04 DoD 6: the fixture becomes the acceptance test  ·  Claude Code (Opus 5)
+
+- **Asked:** *“continue with DoD 6”.*
+- **Done:** `cli/verify/spec-fixture.ts` drives `work/samples/excel-spec-template-v2/README.md`'s deviations table row by row — nine detectable deviations on the named check, nothing else, and the three undetectable ones as neither a finding nor a pass; `report.pdf` reports no failure and no page finding. The README's *known false failures* section is deleted and its “not detectable today” note now gives each of the three its own reason. 18/18, in `npm run verify`. Uncommitted.
+- **Decided / left open:** positions are converted to a distance from the page's **top-left at compile time**, where the page size is known, rather than teaching the checker about edges — otherwise every check would have to carry the page around to understand what the spec meant. Only the edges a workbook stated are checked: an element placed from the bottom-right does not silently also claim a top.
+- **Mistakes:** two of my own regexes, not the product's — deviation 4 matched its siblings and deviation 11 used a label the workbook does not use. Both read as product failures for a few minutes.
+- **The finding:** the compiler **dropped every element placed from the bottom or the right**, with the reason “states no Top and Left” — the fixture's own three page-number footers among them, which is a whole class of page furniture never checked. The README tabled deviation 12 as a result the product could not produce, and no test had noticed. Fixed: `report.pdf` goes 17/19 → 20/22 elements with still no failure, coverage 91 → 112 of 290 rows.
+- **Next:** W-04 DoD 7 — the record: SR-SPEC-CHECK's built status and the ARCHITECTURE diagram.
+
+## 2026-11-05 (cont. 5) — W-04 DoD 5: result.json, report.html, manifest.json  ·  Claude Code (Opus 5)
+
+- **Asked:** *“continue with DoD 5”.*
+- **Done:** one builder each, in `src/features/spec/` behind `engine.ts` so **W-11**'s `pdfsuite spec` calls the same functions rather than growing a second writer: `buildResultJson` (`pdfsuite.result/1`, with `schema/result.v1.json` shipped beside it), `buildReportHtml` (reads `result.json` and nothing else), `buildManifest` (written last, no timestamp) and `buildFixList`, which stays a UI-only view per SR-SURFACE-PARITY. The Export menu offers the three as one zip plus the fix list. `cli/verify/spec-outputs-run.ts` 25/25. Uncommitted.
+- **Decided / left open:** `specExport.ts` is **deleted** rather than kept beside the new builders — it wrote its own HTML and its own JSON shape, and two report formats from one tab is exactly what “one builder” exists to prevent. The schema is validated by a small checker inside the test instead of adding a JSON Schema library: the claim being tested is that the file matches the shipped schema, not that we own a validator. These three records now say **partly** built in the register, with the spec kind named and compare and inspect still owed.
+- **Mistakes:** none that survived. One weak test caught while writing it — “images only for failing pages” was exercised on a document where every page failed, so it compared `true === true`; it now runs against the clean fixture, where no page may carry an image unless asked.
+- **Not verified:** the Export click itself. The window is closed, so the pane's `requestAnimationFrame` is frozen and no run can finish (the lesson filed earlier today). The builders were run in the browser directly, which proves `crypto.subtle` and the env detection there.
+- **Next:** W-04 DoD 6 — fixtures.
+
+## 2026-11-05 (cont. 4) — W-04 DoD 4: wording, tolerances, source cells, coverage, the pair  ·  Claude Code (Opus 5)
+
+- **Asked:** *“continue with DoD 4”.*
+- **Done:** SR-SPEC-CHECK decisions 10–14. Wording became its own `Text` check — a line is located with everything normalised but judged strictly, so Exact text = Yes is character for character and a match that only appears after normalising passes with a note. `CheckResult` gained `cell` and `note`; one `withSource` mapping fills the cell for every check, so a new check cannot quietly arrive without one. `SpecReport` gained `coverage` and `pair`; the store hashes the PDF as it loads it. The tab shows the cell beside each check, the coverage line beside the verdict and the pair beneath it. `cli/verify/spec-comparing.ts` 15/15, in `npm run verify`. Uncommitted.
+- **Decided / left open:** locating and judging are deliberately different strictnesses — locating a line with raw text would report a non-breaking space as *missing*, which is a worse answer than a qualified one; judging it loosely would let the report say two strings agree when they do not.
+- **Mistakes:** a real defect found by writing the test, not by reading the code: **a row's Tolerance cell was read in the spec's unit rather than the row's**, so a 2 mm band compiled to 2 inches — twenty-five times too permissive, in the direction that hides defects. No fixture row has a Tolerance cell, so the whole suite was blind to it. Fixed and covered.
+- **Not verified:** the app-level view of this one. The window was closed, so the Browser pane's `requestAnimationFrame` is frozen and pdf.js never finishes a render (the lesson filed earlier today). The engine is proven in Node and both builds are clean; the three new UI bits are unseen.
+- **Next:** W-04 DoD 5 — outputs: the three files of SR-REPORT-JSON, SR-REPORT-HTML and SR-MANIFEST.
+
+## 2026-11-05 (cont. 3) — W-04 DoD 2: the Pages List decides which page is which  ·  Claude Code (Opus 5)
+
+- **Asked:** *“continue with W-04 DoD 2”.*
+- **Done:** `specPages.ts` — SR-SPEC-CHECK decisions 1–3. Each Pages List entry is bound to a PDF page by its **identifying text**: Optional absent is noted, Conditional absent is never a failure, Required absent is an error, a variant group must match exactly one, a page out of order is a warning and is still checked, an unclaimed PDF page is a warning, and a repeating page is counted against its Repeats range. `SpecPage` carries the Pages List, `SpecReport` carries `pageFindings`, `runSpec` walks bindings. `cli/verify/spec-pages.ts` 25/25, in `npm run verify`. Uncommitted.
+- **Decided / left open:** occurrences past the top of a Repeats range are still bound and checked, and the range breach is reported as an error — the first draft stopped consuming at the maximum, which turned “three where two are allowed” into the weaker and wrong finding “a PDF page nobody claimed”. Page findings live in their own list rather than among the element results, because they are not spec rows and coverage must not count them. A spec JSON with no Pages List keeps the old by-number behaviour.
+- **Mistakes:** half an hour lost to a hang that was not in the code — see `work/LESSONS.md`, 2026-11-05: a backgrounded Browser pane freezes `requestAnimationFrame`, so pdf.js's `page.render()` never settles while every headless call still works.
+- **Next:** W-04 DoD 4 — comparing and coverage.
+
+## 2026-11-05 (cont. 2) — W-02 DoD 7: the four downloads, the annotated workbook among them  ·  Claude Code (Opus 5)
+
+- **Asked:** *“continue with DoD 7”.*
+- **Done:** `specOutputs.ts` — the validation report as printable HTML, the extraction JSON, the spec JSON, and `annotateWorkbook`, which marks up **the uploaded file** instead of rebuilding one: one fill and one format appended to `styles.xml`, `s=` set on each error cell (inserting the `<c>` element in column order where the cell is blank), and a `Validation` sheet appended. `readSpecWorkbook` now keeps the uploaded bytes. All four are in the Spec tab's Export menu, which opens as soon as a workbook is read rather than waiting for a check. `cli/verify/spec-outputs.ts` 19/19, in `npm run verify`. Uncommitted.
+- **Decided / left open:** the annotated workbook edits the author's own file because rebuilding it would throw away their formatting, their Notes column and their screenshots — most of what makes it theirs. The Export menu gained two headings, *From the workbook* and *From the check*: three of the four outputs exist to fix a workbook that never got as far as a check, so gating them on a report would have made them unreachable exactly when they are needed.
+- **Mistakes:** none that survived. Two bits of first-draft debris in `specOutputs.ts` — a no-op anchor in the cell-insertion path and a sheet count where a maximum `sheetId` belonged — were cleaned up before the test ran.
+- **Not verified:** that **Excel itself opens the annotated workbook**. Our reader reads it back whole — 290 rows identical, the same ten errors, the ten cells red — but no copy of Excel has opened it here.
+- **Next:** W-04 DoD 2 (pages), then 4, 5, 6, 7.
+
+## 2026-11-05 (cont.) — W-02 finished to 7 of 10: legacy drafts, the oracle, the docs  ·  Claude Code (Opus 5)
+
+- **Asked:** the same — one DoD after another, no checking in.
+- **Done:** DoD 8 (`cli/verify/spec-oracle.ts` freezes the extraction, spec and coverage of the clean fixture; `--update` re-freezes deliberately), DoD 4 (`specLegacy.ts` + `specDraft.ts`: a legacy workbook returns a draft v2 `.xlsx`, amber where inferred, red where unreadable, Check? = Note throughout, and asserts nothing — `sheetRead.ts` and `sheetSpec.ts` deleted), DoD 9 (`spec-standard.md` §7 replaced; the ARCHITECTURE spec diagram re-drawn and its SVG re-rendered; glossary marked built) and DoD 10 (the record's Consequences; the register says **partly**). Suite 8/7/15/17/28/26/22/21/7/17, both builds and the boundary check clean. Uncommitted.
+- **Decided / left open:** the register's `built` column gained a third value, **partly**, with its meaning stated above the table — decisions 10 and 12 and three of decision 14's four downloads are unbuilt, and `yes` would have been a false claim. DoD 8's legacy clause is covered by DoD 4 landing in the same session. `updated_by: agent` on W-02 and W-04 changed to `Siddharth` per SR-WORK-LIFECYCLE 4e; W-05 and W-32 still say `agent` and were not touched.
+- **Mistakes:** two caught by the new tests rather than by reading. The oracle found `mark()` naming a **refused** cell as an assertion's source (Rows, Columns, Font size were marked whether or not the value parsed). Writing the draft found **Check? = Note being asserted anyway** when the row was one the compiler consumes — the column was read only after the element had been built. Both fixed. The spec SVG was rendered twice: mermaid 11 defaults to `foreignObject` labels, which every other SVG in the folder avoids because they render blank outside a browser.
+- **Next:** W-02 DoD 7's four downloads and the re-upload round trip, then W-04 DoD 2.
+
+## 2026-11-05 — W-04 DoD 3 (fonts, colour) and W-02 DoD 6 (the validation report)  ·  Claude Code (Opus 5)
+
+- **Asked:** *“start and finish one by one, but do not ask me again and again”* — the DoDs, sequentially, without checking in.
+- **Done:** `specFonts.ts` and `specColour.ts` (subset prefixes, weight words, CIEDE2000) with the reading wired into `extractItems`, and `specValidate.ts` + `SpecValidation.tsx` — the three severities, coverage, and every assertion in plain words with its cell. The Spec tab's upload now goes `readSpecWorkbook → readTemplate → compileSpec`; the pre-v2 per-sheet reader is kept only for a workbook with no Pages List. `cli/verify/spec-fonts-colour.ts` 22/22 and `cli/verify/spec-validation.ts` 21/21, both in `npm run verify`. Uncommitted.
+- **Decided / left open:** a sentence states the band **actually applied**, falling back to the Settings sheet's figure — the first pass omitted it where the element had no Tolerance cell, which reads as a stricter claim than the check being run. Colour is matched to text by **position**, not by order: the fixture's page 2 has 60 text items against 35 paint operations, so counting lines them up silently wrongly. Decision 13's `info` goes to coverage, so the tab lists the unchecked rows from coverage rather than inventing a fourth note list.
+- **Mistakes:** staged everything with `git add -A` without being asked; unstaged it. A dead `+ (…)` after a `;` had meant a pinned page-size difference never reached `failCount` — found and fixed, `spec-reading` now asserts it.
+- **Next:** W-02 DoD 8 — freeze the expected extraction and spec JSON as an oracle, with a test that fails on drift.
+
 ## 2026-11-04 (cont. 2) — W-02 DoD 5 and 7: workbook → spec JSON, end to end  ·  Claude Code (Opus 5)
 
 - **Asked:** *continue with DoD 5 and DoD 7.*

@@ -88,7 +88,12 @@ JSON (SR-SURFACE-PARITY). Arpit ruled three files with `result.json` as the sour
 
 ### Consequences
 
-- Built by W-27 (`compare`, `compare-many`), W-11 (`spec`), W-28 (`inspect`).
+- **`kind: spec` is built (2026-11-05, W-04 DoD 5):** `buildResultJson` in
+  `src/features/spec/`, with the schema beside it at `schema/result.v1.json`; every file it
+  writes is validated against that schema in `cli/verify/spec-outputs-run.ts`, and two runs
+  over the same files are byte-identical outside `run`. It moves to `@pdfsuite/core` with the
+  rest of the feature (W-32); the CLI calls the same function when **W-11** lands.
+- Still to build: `compare` and `compare-many` (W-27), `inspect` (W-28).
 - Pipelines that read today's CLI JSON need the migration note (W-09).
 
 ### Alternatives considered

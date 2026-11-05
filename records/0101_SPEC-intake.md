@@ -208,8 +208,15 @@ is the same kind of report written in Template v2 (the legacy-layout sample was 
 
 ### Consequences
 
-- **Built today:** a JSON spec upload and `validateSpec` (shape only). Everything else in
-  this record is unbuilt — **W-02** builds it, after **W-05** creates the constants file.
+- **Built today (2026-11-05, W-02):** decisions 1–9, 11, 13, 14 and 16. An `.xlsx` is read over
+  `@sheetpane/import`, parsed as Template v2, validated into a three-severity report shown in
+  the Spec tab with every line's cell and every accepted assertion in plain words, and
+  compiled to a spec JSON in which each value names its sheet and cell. A legacy nested
+  workbook comes back as a draft v2 workbook and asserts nothing. The clean fixture's
+  extraction, spec and coverage are frozen; a parser change that alters them fails the suite.
+- **Not built, and named:** decision 10 (rich-text per-word styles), decision 12 (relative
+  values — "centered", "same as above"), and the blank template artefact decision 7 implies.
+  The register therefore says **partly**, not yes.
 - **Deferred by Arpit (2026-10-16), in the backlog:** stale-pair detection (B-008),
   Draft/Ready status per page sheet (B-009), version diff between two spec JSONs (B-010).
 - **Owned:** `spec-standard.md` (the JSON format and template v2, rewritten by W-02),
@@ -221,7 +228,8 @@ is the same kind of report written in Template v2 (the legacy-layout sample was 
   data, never a real workbook.
 - **The Validate tab** — the validation report, the plain-words preview and the annotated
   workbook inside the Spec tab — is **W-46**.
-- **Enforced today:** nothing; decision 16 becomes a gate when W-02's fixtures land.
+- **Enforced today:** decision 16 is a gate — `cli/verify/spec-oracle.ts` fails on any drift in
+  the frozen extraction, spec or coverage, and `npm run verify` runs it.
 
 ### Alternatives considered
 

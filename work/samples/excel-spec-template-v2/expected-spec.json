@@ -1,0 +1,867 @@
+{
+ "title": "report-spec.xlsx",
+ "units": "in",
+ "pageSize": {
+  "width": 11,
+  "height": 8.5
+ },
+ "tolerance": {
+  "position": 0.06,
+  "size": 0.06,
+  "spacing": 0.03,
+  "fontSize": 2
+ },
+ "pages": [
+  {
+   "page": 1,
+   "elements": [
+    {
+     "id": "cover-artwork-cover-image",
+     "label": "Cover artwork · Cover image",
+     "top": 0,
+     "left": 0,
+     "type": "image",
+     "width": 11,
+     "height": 4.25,
+     "source": {
+      "top": {
+       "sheet": "1",
+       "cell": "E2"
+      },
+      "left": {
+       "sheet": "1",
+       "cell": "E3"
+      },
+      "width": {
+       "sheet": "1",
+       "cell": "E5"
+      },
+      "height": {
+       "sheet": "1",
+       "cell": "E4"
+      }
+     }
+    },
+    {
+     "id": "title-block-company-logo",
+     "label": "Title block · Company logo",
+     "top": 5,
+     "left": 1,
+     "type": "image",
+     "width": 1.75,
+     "height": 0.5,
+     "source": {
+      "top": {
+       "sheet": "1",
+       "cell": "E12"
+      },
+      "left": {
+       "sheet": "1",
+       "cell": "E13"
+      },
+      "width": {
+       "sheet": "1",
+       "cell": "E15"
+      },
+      "height": {
+       "sheet": "1",
+       "cell": "E14"
+      }
+     }
+    },
+    {
+     "id": "title-block-report-title",
+     "label": "Title block · Report title",
+     "top": 5.75,
+     "left": 1,
+     "type": "text",
+     "text": "Fleet Operations Review",
+     "match": "exact",
+     "fontSize": 28,
+     "font": "Helvetica",
+     "bold": true,
+     "italic": false,
+     "colour": "#0B3C5D",
+     "source": {
+      "top": {
+       "sheet": "1",
+       "cell": "E17"
+      },
+      "left": {
+       "sheet": "1",
+       "cell": "E18"
+      },
+      "text": {
+       "sheet": "1",
+       "cell": "E19"
+      },
+      "fontSize": {
+       "sheet": "1",
+       "cell": "E23"
+      },
+      "font": {
+       "sheet": "1",
+       "cell": "E22"
+      },
+      "bold": {
+       "sheet": "1",
+       "cell": "E24"
+      },
+      "italic": {
+       "sheet": "1",
+       "cell": "E25"
+      },
+      "colour": {
+       "sheet": "1",
+       "cell": "E27"
+      }
+     }
+    },
+    {
+     "id": "footer-disclaimer",
+     "label": "Footer · Disclaimer",
+     "top": 7.85,
+     "left": 0.75,
+     "type": "paragraph",
+     "text": "For internal planning use. Figures are unaudited",
+     "lineSpacing": 0.1388888888888889,
+     "source": {
+      "top": {
+       "sheet": "1",
+       "cell": "E48"
+      },
+      "left": {
+       "sheet": "1",
+       "cell": "E49"
+      },
+      "text": {
+       "sheet": "1",
+       "cell": "E51"
+      },
+      "lineSpacing": {
+       "sheet": "1",
+       "cell": "E55"
+      }
+     }
+    }
+   ],
+   "name": "Cover",
+   "kind": "required",
+   "repeats": {
+    "min": 1,
+    "max": 1
+   },
+   "identifyingText": "Fleet Operations Review"
+  },
+  {
+   "page": 2,
+   "elements": [
+    {
+     "id": "left-sidebar-page-title",
+     "label": "Left sidebar · Page title",
+     "top": 0.75,
+     "left": 0.4,
+     "type": "paragraph",
+     "text": "Fleet",
+     "lineSpacing": 0.3611111111111111,
+     "source": {
+      "top": {
+       "sheet": "2",
+       "cell": "E8"
+      },
+      "left": {
+       "sheet": "2",
+       "cell": "E9"
+      },
+      "text": {
+       "sheet": "2",
+       "cell": "E10"
+      },
+      "lineSpacing": {
+       "sheet": "2",
+       "cell": "E15"
+      }
+     }
+    },
+    {
+     "id": "left-sidebar-sidebar-note",
+     "label": "Left sidebar · Sidebar note",
+     "top": 7.2,
+     "left": 0.4,
+     "type": "paragraph",
+     "text": "All figures are for the quarter ending",
+     "lineSpacing": 0.16666666666666666,
+     "source": {
+      "top": {
+       "sheet": "2",
+       "cell": "E20"
+      },
+      "left": {
+       "sheet": "2",
+       "cell": "E21"
+      },
+      "text": {
+       "sheet": "2",
+       "cell": "E23"
+      },
+      "lineSpacing": {
+       "sheet": "2",
+       "cell": "E27"
+      }
+     }
+    },
+    {
+     "id": "highlights-table",
+     "label": "Highlights table",
+     "top": 0.75,
+     "left": 3.25,
+     "type": "table",
+     "width": 7,
+     "rows": 6,
+     "columns": 4,
+     "source": {
+      "top": {
+       "sheet": "2",
+       "cell": "E31"
+      },
+      "left": {
+       "sheet": "2",
+       "cell": "E32"
+      },
+      "width": {
+       "sheet": "2",
+       "cell": "E33"
+      },
+      "rows": {
+       "sheet": "2",
+       "cell": "E39"
+      },
+      "columns": {
+       "sheet": "2",
+       "cell": "E35"
+      }
+     }
+    },
+    {
+     "id": "summary-heading",
+     "label": "Summary · Heading",
+     "top": 3.15,
+     "left": 3.25,
+     "type": "text",
+     "text": "Quarter in Brief",
+     "match": "exact",
+     "fontSize": 14,
+     "font": "Helvetica",
+     "bold": true,
+     "italic": false,
+     "colour": "#0B3C5D",
+     "source": {
+      "top": {
+       "sheet": "2",
+       "cell": "E48"
+      },
+      "left": {
+       "sheet": "2",
+       "cell": "E49"
+      },
+      "text": {
+       "sheet": "2",
+       "cell": "E50"
+      },
+      "fontSize": {
+       "sheet": "2",
+       "cell": "E53"
+      },
+      "font": {
+       "sheet": "2",
+       "cell": "E52"
+      },
+      "bold": {
+       "sheet": "2",
+       "cell": "E54"
+      },
+      "italic": {
+       "sheet": "2",
+       "cell": "E55"
+      },
+      "colour": {
+       "sheet": "2",
+       "cell": "E57"
+      }
+     }
+    },
+    {
+     "id": "summary-paragraph",
+     "label": "Summary · Paragraph",
+     "top": 3.5,
+     "left": 3.25,
+     "type": "paragraph",
+     "text": "Deliveries rose for the third quarter in",
+     "lineSpacing": 0.20833333333333331,
+     "source": {
+      "top": {
+       "sheet": "2",
+       "cell": "E58"
+      },
+      "left": {
+       "sheet": "2",
+       "cell": "E59"
+      },
+      "text": {
+       "sheet": "2",
+       "cell": "E61"
+      },
+      "lineSpacing": {
+       "sheet": "2",
+       "cell": "E65"
+      }
+     }
+    },
+    {
+     "id": "depot-map-image",
+     "label": "Depot map · Image",
+     "top": 5,
+     "left": 3.25,
+     "type": "image",
+     "width": 3.4,
+     "height": 2.4,
+     "source": {
+      "top": {
+       "sheet": "2",
+       "cell": "E69"
+      },
+      "left": {
+       "sheet": "2",
+       "cell": "E70"
+      },
+      "width": {
+       "sheet": "2",
+       "cell": "E72"
+      },
+      "height": {
+       "sheet": "2",
+       "cell": "E71"
+      }
+     }
+    },
+    {
+     "id": "depot-map-caption",
+     "label": "Depot map · Caption",
+     "top": 7.55,
+     "left": 3.25,
+     "type": "text",
+     "text": "Depot coverage, Q3 2026",
+     "match": "exact",
+     "fontSize": 9,
+     "font": "Helvetica",
+     "bold": false,
+     "italic": false,
+     "colour": "#52514E",
+     "source": {
+      "top": {
+       "sheet": "2",
+       "cell": "E74"
+      },
+      "left": {
+       "sheet": "2",
+       "cell": "E75"
+      },
+      "text": {
+       "sheet": "2",
+       "cell": "E76"
+      },
+      "fontSize": {
+       "sheet": "2",
+       "cell": "E79"
+      },
+      "font": {
+       "sheet": "2",
+       "cell": "E78"
+      },
+      "bold": {
+       "sheet": "2",
+       "cell": "E80"
+      },
+      "italic": {
+       "sheet": "2",
+       "cell": "E81"
+      },
+      "colour": {
+       "sheet": "2",
+       "cell": "E83"
+      }
+     }
+    },
+    {
+     "id": "footer-page-number",
+     "label": "Footer · Page number",
+     "right": 10.5,
+     "baseline": 8.1,
+     "type": "text",
+     "text": "Page 2 of 4",
+     "match": "exact",
+     "fontSize": 8,
+     "font": "Helvetica",
+     "bold": false,
+     "italic": false,
+     "colour": "#52514E",
+     "source": {
+      "right": {
+       "sheet": "2",
+       "cell": "E85"
+      },
+      "baseline": {
+       "sheet": "2",
+       "cell": "E84"
+      },
+      "text": {
+       "sheet": "2",
+       "cell": "E86"
+      },
+      "fontSize": {
+       "sheet": "2",
+       "cell": "E89"
+      },
+      "font": {
+       "sheet": "2",
+       "cell": "E88"
+      },
+      "bold": {
+       "sheet": "2",
+       "cell": "E90"
+      },
+      "italic": {
+       "sheet": "2",
+       "cell": "E91"
+      },
+      "colour": {
+       "sheet": "2",
+       "cell": "E93"
+      }
+     }
+    }
+   ],
+   "name": "Fleet highlights",
+   "kind": "required",
+   "repeats": {
+    "min": 1,
+    "max": 1
+   },
+   "identifyingText": "Fleet Highlights"
+  },
+  {
+   "page": 3,
+   "elements": [
+    {
+     "id": "page-header-title",
+     "label": "Page header · Title",
+     "top": 0.6,
+     "left": 0.75,
+     "type": "text",
+     "text": "Delivery Performance by Region",
+     "match": "exact",
+     "fontSize": 20,
+     "font": "Helvetica",
+     "bold": true,
+     "italic": false,
+     "colour": "#0B3C5D",
+     "source": {
+      "top": {
+       "sheet": "3",
+       "cell": "E2"
+      },
+      "left": {
+       "sheet": "3",
+       "cell": "E3"
+      },
+      "text": {
+       "sheet": "3",
+       "cell": "E4"
+      },
+      "fontSize": {
+       "sheet": "3",
+       "cell": "E7"
+      },
+      "font": {
+       "sheet": "3",
+       "cell": "E6"
+      },
+      "bold": {
+       "sheet": "3",
+       "cell": "E8"
+      },
+      "italic": {
+       "sheet": "3",
+       "cell": "E9"
+      },
+      "colour": {
+       "sheet": "3",
+       "cell": "E11"
+      }
+     }
+    },
+    {
+     "id": "regional-table",
+     "label": "Regional table",
+     "top": 1.4,
+     "left": 6.75,
+     "type": "table",
+     "width": 3.5,
+     "rows": 7,
+     "columns": 4,
+     "source": {
+      "top": {
+       "sheet": "3",
+       "cell": "E33"
+      },
+      "left": {
+       "sheet": "3",
+       "cell": "E34"
+      },
+      "width": {
+       "sheet": "3",
+       "cell": "E35"
+      },
+      "rows": {
+       "sheet": "3",
+       "cell": "E41"
+      },
+      "columns": {
+       "sheet": "3",
+       "cell": "E37"
+      }
+     }
+    },
+    {
+     "id": "commentary-paragraph",
+     "label": "Commentary · Paragraph",
+     "top": 5.45,
+     "left": 0.75,
+     "type": "paragraph",
+     "text": "The East region again completed the most",
+     "lineSpacing": 0.20833333333333331,
+     "source": {
+      "top": {
+       "sheet": "3",
+       "cell": "E51"
+      },
+      "left": {
+       "sheet": "3",
+       "cell": "E52"
+      },
+      "text": {
+       "sheet": "3",
+       "cell": "E54"
+      },
+      "lineSpacing": {
+       "sheet": "3",
+       "cell": "E58"
+      }
+     }
+    },
+    {
+     "id": "commentary-footnote",
+     "label": "Commentary · Footnote",
+     "top": 7.4,
+     "left": 0.75,
+     "type": "text",
+     "text": "On-time means delivered within the booked one-hour window.",
+     "match": "exact",
+     "fontSize": 8,
+     "font": "Helvetica",
+     "bold": false,
+     "italic": true,
+     "colour": "#52514E",
+     "source": {
+      "top": {
+       "sheet": "3",
+       "cell": "E62"
+      },
+      "left": {
+       "sheet": "3",
+       "cell": "E63"
+      },
+      "text": {
+       "sheet": "3",
+       "cell": "E64"
+      },
+      "fontSize": {
+       "sheet": "3",
+       "cell": "E67"
+      },
+      "font": {
+       "sheet": "3",
+       "cell": "E66"
+      },
+      "bold": {
+       "sheet": "3",
+       "cell": "E68"
+      },
+      "italic": {
+       "sheet": "3",
+       "cell": "E69"
+      },
+      "colour": {
+       "sheet": "3",
+       "cell": "E71"
+      }
+     }
+    },
+    {
+     "id": "footer-page-number-2",
+     "label": "Footer · Page number",
+     "right": 10.5,
+     "baseline": 8.1,
+     "type": "text",
+     "text": "Page 3 of 4",
+     "match": "exact",
+     "fontSize": 8,
+     "font": "Helvetica",
+     "bold": false,
+     "italic": false,
+     "colour": "#52514E",
+     "source": {
+      "right": {
+       "sheet": "3",
+       "cell": "E73"
+      },
+      "baseline": {
+       "sheet": "3",
+       "cell": "E72"
+      },
+      "text": {
+       "sheet": "3",
+       "cell": "E74"
+      },
+      "fontSize": {
+       "sheet": "3",
+       "cell": "E77"
+      },
+      "font": {
+       "sheet": "3",
+       "cell": "E76"
+      },
+      "bold": {
+       "sheet": "3",
+       "cell": "E78"
+      },
+      "italic": {
+       "sheet": "3",
+       "cell": "E79"
+      },
+      "colour": {
+       "sheet": "3",
+       "cell": "E81"
+      }
+     }
+    }
+   ],
+   "name": "Delivery performance",
+   "kind": "optional",
+   "repeats": {
+    "min": 0,
+    "max": 1
+   },
+   "identifyingText": "Delivery Performance by Region"
+  },
+  {
+   "page": 4,
+   "elements": [
+    {
+     "id": "page-header-title-2",
+     "label": "Page header · Title",
+     "top": 0.6,
+     "left": 0.75,
+     "type": "text",
+     "text": "Fuel Efficiency Trend",
+     "match": "exact",
+     "fontSize": 20,
+     "font": "Helvetica",
+     "bold": true,
+     "italic": false,
+     "colour": "#0B3C5D",
+     "source": {
+      "top": {
+       "sheet": "4",
+       "cell": "E3"
+      },
+      "left": {
+       "sheet": "4",
+       "cell": "E4"
+      },
+      "text": {
+       "sheet": "4",
+       "cell": "E5"
+      },
+      "fontSize": {
+       "sheet": "4",
+       "cell": "E8"
+      },
+      "font": {
+       "sheet": "4",
+       "cell": "E7"
+      },
+      "bold": {
+       "sheet": "4",
+       "cell": "E9"
+      },
+      "italic": {
+       "sheet": "4",
+       "cell": "E10"
+      },
+      "colour": {
+       "sheet": "4",
+       "cell": "E12"
+      }
+     }
+    },
+    {
+     "id": "fuel-chart-graph-image",
+     "label": "Fuel chart · Graph (image)",
+     "top": 1.3,
+     "left": 0.75,
+     "type": "image",
+     "width": 6.2,
+     "height": 3.8,
+     "source": {
+      "top": {
+       "sheet": "4",
+       "cell": "E13"
+      },
+      "left": {
+       "sheet": "4",
+       "cell": "E14"
+      },
+      "width": {
+       "sheet": "4",
+       "cell": "E16"
+      },
+      "height": {
+       "sheet": "4",
+       "cell": "E15"
+      }
+     }
+    },
+    {
+     "id": "monthly-table",
+     "label": "Monthly table",
+     "top": 1.3,
+     "left": 7.35,
+     "type": "table",
+     "width": 2.9,
+     "rows": 10,
+     "columns": 2,
+     "source": {
+      "top": {
+       "sheet": "4",
+       "cell": "E25"
+      },
+      "left": {
+       "sheet": "4",
+       "cell": "E26"
+      },
+      "width": {
+       "sheet": "4",
+       "cell": "E27"
+      },
+      "rows": {
+       "sheet": "4",
+       "cell": "E33"
+      },
+      "columns": {
+       "sheet": "4",
+       "cell": "E29"
+      }
+     }
+    },
+    {
+     "id": "commentary-paragraph-2",
+     "label": "Commentary · Paragraph",
+     "top": 5.5,
+     "left": 0.75,
+     "type": "paragraph",
+     "text": "Fuel use per 100 km fell from",
+     "lineSpacing": 0.20833333333333331,
+     "source": {
+      "top": {
+       "sheet": "4",
+       "cell": "E42"
+      },
+      "left": {
+       "sheet": "4",
+       "cell": "E43"
+      },
+      "text": {
+       "sheet": "4",
+       "cell": "E45"
+      },
+      "lineSpacing": {
+       "sheet": "4",
+       "cell": "E49"
+      }
+     }
+    },
+    {
+     "id": "footer-page-number-3",
+     "label": "Footer · Page number",
+     "right": 10.5,
+     "baseline": 8.1,
+     "type": "text",
+     "text": "Page 4 of 4",
+     "match": "exact",
+     "fontSize": 8,
+     "font": "Helvetica",
+     "bold": false,
+     "italic": false,
+     "colour": "#52514E",
+     "source": {
+      "right": {
+       "sheet": "4",
+       "cell": "E54"
+      },
+      "baseline": {
+       "sheet": "4",
+       "cell": "E53"
+      },
+      "text": {
+       "sheet": "4",
+       "cell": "E55"
+      },
+      "fontSize": {
+       "sheet": "4",
+       "cell": "E58"
+      },
+      "font": {
+       "sheet": "4",
+       "cell": "E57"
+      },
+      "bold": {
+       "sheet": "4",
+       "cell": "E59"
+      },
+      "italic": {
+       "sheet": "4",
+       "cell": "E60"
+      },
+      "colour": {
+       "sheet": "4",
+       "cell": "E62"
+      }
+     }
+    }
+   ],
+   "name": "Fuel efficiency trend",
+   "kind": "conditional",
+   "repeats": {
+    "min": 0,
+    "max": 1
+   },
+   "identifyingText": "Fuel Efficiency Trend"
+  }
+ ],
+ "source": {
+  "workbook": "report-spec.xlsx",
+  "sha256": "<bytes>",
+  "templateVersion": "2"
+ }
+}

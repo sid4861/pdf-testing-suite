@@ -15,7 +15,9 @@
  */
 
 import type { Extraction, SpecRow } from './specTemplate';
-import type { PdfSpec, SpecElement, SpecPage, SpecUnit, SpecTolerance } from './types';
+import type {
+  PdfSpec, SpecElement, SpecPage, SpecRepeats, SpecUnit, SpecTolerance,
+} from './types';
 import { bandOf } from './specValues';
 
 /** Where a value came from, on every assertion (decision 14). */
@@ -45,6 +47,97 @@ export interface CompiledSpec {
 
 const POSITION = new Set(['top', 'left', 'right', 'bottom', 'baseline']);
 const SIZE = new Set(['width', 'height']);
+
+/** The Pages List's Page type, as the spec writes it. */
+function kindOf(type: string): SpecPage['kind'] | null {
+  switch (type.trim().toLowerCase()) {
+    case 'required': return 'required';
+    case 'optional': return 'optional';
+    case 'conditional': return 'conditional';
+    default: return null;
+  }
+}
+
+/**
+ * The Repeats cell as a range.
+ *
+ * Blank means at least once (SR-SPEC-CHECK decision 3) — not "any number
+ * including none", which would make an absent Required page pass. `3+` and
+ * `2–` leave the top open; a single number is both ends.
+ */
+function repeatsOf(raw: string): SpecRepeats {
+  const text = raw.trim();
+  if (!text) return { min: 1, max: null };
+
+  const range = text.match(/^(\d+)\s*(?:[–—-]|to)\s*(\d*)$/);
+  if (range) {
+    const min = Number(range[1]);
+    return { min, max: range[2] ? Number(range[2]) : null };
+  }
+  if (/^\d+\s*\+$/.test(text)) return { min: Number(text), max: null };
+  if (/^\d+$/.test(text)) return { min: Number(text), max: Number(text) };
+
+  // Unreadable: the safe reading is the default, and the Pages List reader has
+  // already said so on that cell.
+  return { min: 1, max: null };
+}
+
+/** The five position parameters, in the order a reader would look for them. */
+const EDGES = ['top', 'left', 'right', 'bottom', 'baseline'] as const;
+
+type Edge = typeof EDGES[number];
+
+/** The page, in spec units, when the workbook states one. */
+interface PageSize { width: number; height: number }
+
+/**
+ * One position row as a distance from the page's **top-left**.
+ *
+ * The workbook says which edge it measured from, and a footer measured 0.4 in
+ * up from the bottom is a different number on A4 and on Letter — so the
+ * conversion happens here, once, where the page size is known, rather than in
+ * the checker, which would then need to carry the page around to understand
+ * what the spec meant.
+ *
+ * Null when the row cannot be read, or when it is measured from an edge this
+ * workbook gives no page size for: a guess at the page would place every
+ * footer wrongly and confidently.
+ */
+function fromTopLeft(
+  row: SpecRow,
+  edge: Edge,
+  units: SpecUnit,
+  page: PageSize | null,
+): number | null {
+  if (!row.usable) return null;
+  const n = numberIn(row, units);
+  if (n == null) return null;
+
+  const from = row.from.trim().toLowerCase();
+  // A container-relative position needs the container's own box, which is
+  // SR-SPEC-INTAKE decision 12 and unbuilt; it is left alone rather than
+  // measured from the page by mistake.
+  if (from.includes('container')) return null;
+
+  if (from.includes('bottom')) return page ? page.height - n : null;
+  if (from.includes('right')) return page ? page.width - n : null;
+  // "top of page" and "left of page" are already measured from where the
+  // spec measures; so is a blank From on an edge that only goes one way.
+  return n;
+}
+
+/** Whether the author asked for this row to be checked at all. */
+function asserting(row: SpecRow): boolean {
+  return !/^(no|note)$/i.test(row.check.trim());
+}
+
+/** What coverage should say about a row the author excluded, or null. */
+function byCheck(row: SpecRow): [CoverageEntry['status'], string] | null {
+  const c = row.check.trim().toLowerCase();
+  if (c === 'no') return ['excluded', 'Check? is No'];
+  if (c === 'note') return ['noted', 'Check? is Note'];
+  return null;
+}
 
 /** The unit a row is written in, as a `SpecUnit`, or null when it takes none. */
 function unitOf(row: SpecRow): SpecUnit | null {
@@ -81,17 +174,25 @@ function numberIn(row: SpecRow, specUnit: SpecUnit): number | null {
 function toleranceFrom(row: SpecRow, specUnit: SpecUnit): number | null {
   if (row.parsed.kind === 'range') {
     const half = bandOf(row.parsed.low, row.parsed.high).tolerance;
-    const toIn: Record<string, number> = { in: 1, mm: 1 / 25.4, cm: 1 / 2.54, pt: 1 / 72 };
-    const f = toIn[row.unit];
-    if (f == null) return null;
-    const inches = half * f;
-    return specUnit === 'in' ? inches : specUnit === 'mm' ? inches * 25.4 : inches * 72;
+    return inRowUnit(half, row.unit, specUnit);
   }
   if (row.tolerance) {
     const n = Number(row.tolerance);
-    return Number.isFinite(n) ? n : null;
+    // The Tolerance cell is written in the row's own unit (decision 11), which
+    // is rarely the unit the spec compiled to. Taking the number as it stands
+    // would widen a 2 mm band to 2 in.
+    return Number.isFinite(n) ? inRowUnit(n, row.unit, specUnit) : null;
   }
   return null;
+}
+
+/** A length written in `rowUnit`, in the spec's unit. Null when no unit. */
+function inRowUnit(n: number, rowUnit: string, specUnit: SpecUnit): number | null {
+  const toIn: Record<string, number> = { in: 1, mm: 1 / 25.4, cm: 1 / 2.54, pt: 1 / 72 };
+  const f = toIn[rowUnit];
+  if (f == null) return null;
+  const inches = n * f;
+  return specUnit === 'in' ? inches : specUnit === 'mm' ? inches * 25.4 : inches * 72;
 }
 
 // ── one element, gathered from its rows ───────────────────────────────
@@ -171,6 +272,16 @@ export function compileSpec(ex: Extraction): CompiledSpec {
       parameter: row.parameter, status, reason,
     });
 
+  // The page, in the spec's own unit: what a position measured from the
+  // bottom or the right has to be subtracted from.
+  const pageSize: PageSize | null =
+    ex.settings.pageWidth != null && ex.settings.pageHeight != null
+      ? {
+        width: convertPage(ex.settings.pageWidth, ex.settings.pageUnit, units),
+        height: convertPage(ex.settings.pageHeight, ex.settings.pageUnit, units),
+      }
+      : null;
+
   const pages: SpecPage[] = [];
 
   for (const page of ex.pages) {
@@ -180,39 +291,58 @@ export function compileSpec(ex: Extraction): CompiledSpec {
     const elements: SpecElement[] = [];
 
     for (const d of draftsFor(rows)) {
-      const get = (p: string) => d.rows.get(p);
-      const top = get('top');
-      const left = get('left');
+      // Check? is the author's own instruction and is read before anything
+      // else: a row marked No or Note never becomes an assertion, including
+      // the Top and Left the compiler would otherwise consume.
+      const get = (p: string) => {
+        const r = d.rows.get(p);
+        return r && asserting(r) ? r : undefined;
+      };
+      // Any of the five edges will place an element; the compiler turns each
+      // into a distance from the page's top-left, so the checker never has to
+      // know which edge the author measured from.
+      const placed = EDGES.map((name) => {
+        const row = get(name);
+        const at = row ? fromTopLeft(row, name, units, pageSize) : null;
+        return { name, row, at };
+      });
+      const stated = placed.filter((e) => e.row);
 
       // Decision 13 — an element with no position cannot be found, so it is
       // excluded and said so, never asserted at a guessed coordinate.
-      if (!top || !left) {
+      if (stated.length === 0) {
         for (const r of d.rows.values()) {
-          note(r, 'excluded', 'the element states no Top and Left, so it cannot be located on the page');
+          // A row that says Note is not missing a position; it said not to
+          // check it. Reporting the two the same way loses the difference.
+          const [status, reason] = byCheck(r)
+            ?? ['excluded' as const,
+              'the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page'];
+          note(r, status, reason);
         }
         continue;
       }
-      if (!top.usable || !left.usable) {
-        for (const r of d.rows.values()) note(r, 'unreadable', 'its position could not be read');
+      if (stated.every((e) => e.at == null)) {
+        for (const r of d.rows.values()) {
+          note(r, 'unreadable', stated.some((e) => e.row && !e.row.usable)
+            ? 'its position could not be read'
+            : 'its position is measured from an edge this workbook gives no page size for');
+        }
         continue;
       }
 
-      const topN = numberIn(top, units);
-      const leftN = numberIn(left, units);
-      if (topN == null || leftN == null) {
-        for (const r of d.rows.values()) note(r, 'unreadable', 'its position could not be converted');
-        continue;
-      }
+      const where: Record<string, number> = {};
+      for (const e of placed) if (e.at != null) where[e.name] = e.at;
+      const topN = where.top ?? null;
+      const leftN = where.left ?? null;
 
       const source: Record<string, SourceCell> = {};
       const mark = (name: string, r: SpecRow | undefined, col: string) => {
         if (r) source[name] = { sheet: r.sheet, cell: `${col}${r.row}` };
       };
-      mark('top', top, 'E');
-      mark('left', left, 'E');
+      for (const e of placed) if (e.at != null) mark(e.name, e.row, 'E');
 
       const tolerance: SpecTolerance = {};
-      const posTol = toleranceFrom(top, units) ?? toleranceFrom(left, units);
+      const posTol = stated.map((e) => e.row && toleranceFrom(e.row, units)).find((t) => t != null) ?? null;
       if (posTol != null) tolerance.position = posTol;
 
       // An image is a placed picture, which the workbook says by naming a file
@@ -240,7 +370,12 @@ export function compileSpec(ex: Extraction): CompiledSpec {
       if (sizeTol != null) tolerance.size = sizeTol;
 
       const base = {
-        id, label, top: topN, left: leftN,
+        id, label,
+        ...(topN != null ? { top: topN } : {}),
+        ...(leftN != null ? { left: leftN } : {}),
+        ...(where.right != null ? { right: where.right } : {}),
+        ...(where.bottom != null ? { bottom: where.bottom } : {}),
+        ...(where.baseline != null ? { baseline: where.baseline } : {}),
         ...(Object.keys(tolerance).length ? { tolerance } : {}),
       };
 
@@ -260,8 +395,8 @@ export function compileSpec(ex: Extraction): CompiledSpec {
           ...(colsN != null ? { columns: colsN } : {}),
         };
         mark('width', width, 'E');
-        if (rowsCount) mark('rows', rowsCount, 'E');
-        if (columns) mark('columns', columns, 'E');
+        if (rowsN != null) mark('rows', rowsCount, 'E');
+        if (colsN != null) mark('columns', columns, 'E');
       } else if (spacing && wording) {
         const spacingN = numberIn(spacing, units);
         const full = assertableText(wording, get('line break after')?.value);
@@ -285,13 +420,33 @@ export function compileSpec(ex: Extraction): CompiledSpec {
           continue;
         }
         const fs = fontSize && fontSize.parsed.kind === 'number' ? fontSize.parsed.value : undefined;
+        const fontRow = get('font');
+        const boldRow = get('bold');
+        const italicRow = get('italic');
+        const colourRow = get('colour');
+        const yesNo = (r: SpecRow | undefined) =>
+          r && /^(yes|no)$/i.test(r.value.trim()) ? /^yes$/i.test(r.value.trim()) : undefined;
+        // Only a real hex becomes an assertion: a named colour without its hex
+        // is a row the Lists sheet should have resolved, not a guess here.
+        const colour = colourRow && /^#?[0-9a-f]{3,6}$/i.test(colourRow.value.trim())
+          ? colourRow.value.trim()
+          : undefined;
+
         built = {
           ...base, type: 'text', text,
           ...(wording.exactText.toLowerCase() === 'yes' ? { match: 'exact' as const } : {}),
           ...(fs != null ? { fontSize: fs } : {}),
+          ...(fontRow?.value ? { font: fontRow.value } : {}),
+          ...(yesNo(boldRow) !== undefined ? { bold: yesNo(boldRow) } : {}),
+          ...(yesNo(italicRow) !== undefined ? { italic: yesNo(italicRow) } : {}),
+          ...(colour ? { colour } : {}),
         };
         mark('text', wording, 'E');
-        if (fontSize) mark('fontSize', fontSize, 'E');
+        if (fs != null) mark('fontSize', fontSize, 'E');
+        if (fontRow?.value) mark('font', fontRow, 'E');
+        if (yesNo(boldRow) !== undefined) mark('bold', boldRow, 'E');
+        if (yesNo(italicRow) !== undefined) mark('italic', italicRow, 'E');
+        if (colour) mark('colour', colourRow, 'E');
       } else if (isImage && widthN != null && heightN != null) {
         built = { ...base, type: 'image', width: widthN, height: heightN };
         mark('width', width, 'E');
@@ -322,21 +477,28 @@ export function compileSpec(ex: Extraction): CompiledSpec {
       // else on it is accounted for by name.
       const used = new Set(Object.keys(source).map((k) => k.toLowerCase()));
       for (const [param, r] of d.rows) {
+        const said = byCheck(r);
         if (!r.usable) {
           note(r, 'unreadable', 'the row failed validation');
+        } else if (said) {
+          note(r, said[0], said[1]);
         } else if (used.has(param) || used.has(param.replace(/\s+/g, ''))) {
           note(r, 'checked', 'asserted');
-        } else if (r.check.toLowerCase() === 'no') {
-          note(r, 'excluded', 'Check? is No');
-        } else if (r.check.toLowerCase() === 'note') {
-          note(r, 'noted', 'Check? is Note');
         } else {
           note(r, 'noted', `“${r.parameter}” has no check in the engine yet`);
         }
       }
     }
 
-    pages.push({ page: Number(page.tab) || pages.length + 1, elements });
+    pages.push({
+      page: Number(page.tab) || pages.length + 1,
+      elements,
+      ...(page.name ? { name: page.name } : {}),
+      ...(kindOf(page.type) ? { kind: kindOf(page.type)! } : {}),
+      ...(page.variantGroup ? { variantGroup: page.variantGroup } : {}),
+      ...(page.repeats || page.type ? { repeats: repeatsOf(page.repeats) } : {}),
+      ...(page.identifyingText ? { identifyingText: page.identifyingText } : {}),
+    });
   }
 
   const spec: PdfSpec = {
@@ -347,6 +509,7 @@ export function compileSpec(ex: Extraction): CompiledSpec {
                       height: convertPage(ex.settings.pageHeight, ex.settings.pageUnit, units) } }
       : {}),
     ...(specTolerance(ex, units) ? { tolerance: specTolerance(ex, units)! } : {}),
+    ...(ex.settings.colourThreshold != null ? { colourThreshold: ex.settings.colourThreshold } : {}),
     pages,
   };
 

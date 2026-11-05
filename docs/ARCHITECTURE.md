@@ -398,40 +398,47 @@ Code: `ExportMenu.tsx` · `ImportBundleButton.tsx` · [`src/services/exportZip.t
 > machine. See [`src/features/spec/README.md`](../src/features/spec/README.md) and
 > `sh scripts/check-boundary.sh`.
 
-- **No golden PDF:** a JSON spec lists each page's expected elements in inches, points or millimetres from the top-left ([`spec-standard.md`](../spec-standard.md)).
-- **A spec workbook is read in the app.** An `.xlsx`/`.csv` is parsed in the browser and each sheet converted to a one-page spec; the reader pairs **a sheet** with **a PDF page** from two lists.
-- **The conversion reports what it could not do** — a colour, a conditional rule, a wording cell that is all merge fields, an element with no measurement. Nothing is guessed.
-- **Each element is checked on its own,** with expected-vs-actual values and a box on the page.
-- **"One page" mode checks one spec page against any PDF page** — for single-sheet specs that always say `"page": 1`.
+- **No golden PDF:** a spec lists each page's expected elements in inches, points or millimetres from the top-left ([`spec-standard.md`](../spec-standard.md)).
+- **The workbook is the input; the JSON is what it becomes.** An `.xlsx` is read in the browser as **Template v2** — Pages List, Settings, Lists, one sheet per page — and compiled to a spec in which every value names its sheet and cell. The Pages List says which sheet describes which page, so there is nothing to pair by hand.
+- **The validation report comes before any PDF is opened** — three severities, each line with its cell, how many rows became checks, and every accepted assertion in plain words. An error on the file or the Pages List stops the run; an error on one element only removes that element.
+- **A legacy nested workbook is a migration input, never a spec.** It comes back as a **draft v2 workbook** with the inferred cells amber and the unreadable ones red, for a person to confirm. No guesswork reaches a result.
+- **Each element is checked on its own,** with expected-vs-actual values and a box on the page. A limit of the reading — no text layer, an unnameable font — is `unverifiable`, not a failure.
+- **"One page" mode checks one spec page against any PDF page** — for a spec that says `"page": 1` and describes a page further in.
 - **The ruled target** — intake, check, three files, the same from the tab and `pdfsuite spec` — is drawn in [Part 4](#spec-driven-comparison-end-to-end).
 
 ```mermaid
 flowchart TB
   PDF["Generated PDF"] --> LP["loadPdfFile → loadPdf"]
   SJ["Spec .json"] --> LS["loadSpecFile"]
-  XL[".xlsx / .csv"] --> RW["readSheetFile<br/>JSZip + DOMParser → cell grids"]
-  RW --> PICK["pick a sheet"]
-  PICK --> STS["sheetToSpec<br/>label vocabulary, not column position"]
-  STS --> NOTES["conversion notes<br/>skipped · unconvertible · conditional"]
-  LS --> VS["validateSpec<br/>non-empty pages · numeric page · elements array"]
-  LP & VS & STS --> SS[("specStore")]
-  MODE["Mode: All pages · or One page<br/>a sheet → a PDF page"] --> SS
+  XL[".xlsx"] --> RSW["readSpecWorkbook<br/>@sheetpane/import · SHA-256 of the bytes"]
+  RSW --> ISV2{"Pages List?"}
+  ISV2 -->|"no — legacy"| RL["readLegacy<br/>merged labels from declared ranges<br/>prose → Value / Unit / From<br/>every cell read · inferred · unreadable"]
+  RL --> DRAFT["writeDraftWorkbook<br/>draft v2 .xlsx · amber + red · Check? = Note"]
+  DRAFT -.->|"a person confirms it in Excel"| XL
+  ISV2 -->|"yes"| RT["readTemplate<br/>Lists · Settings · Pages List · page sheets<br/>one cell, one fact · no default unit or edge"]
+  RT --> CS["compileSpec<br/>assertions with source {sheet, cell}<br/>+ coverage: checked · noted · excluded · unreadable"]
+  RT & CS --> BV["buildValidationReport<br/>error · warning · info, each with its cell<br/>+ every assertion in plain words"]
+  BV --> VP["SpecValidation<br/>shown before any PDF is opened"]
+  BV -->|"error on the file or the Pages List"| STOP["the run stops"]
+  LS --> VS["validateSpec<br/>shape only: non-empty pages · numeric page"]
+  LP & VS & CS --> SS[("specStore")]
   SS -->|"run()"| RS["runSpec(pdf, spec, options)"]
   RS --> G
   subgraph PERPAGE["for each selected spec page"]
-    G["getPage(spec page or override)"] --> X1["extractItems<br/>text in points, top-left"]
-    X1 --> GL["groupLines"]
+    G["getPage(spec page or override)"] --> X1["extractItems<br/>text in points, top-left<br/>+ font via commonObjs<br/>+ fill colour matched by position"]
+    X1 --> GL["groupLines<br/>by baseline, split on a column gutter"]
     G --> X2["extractImages<br/>operator list + transform matrix"]
     G --> RPG["renderPage → PNG"]
     GL & X2 --> DIS{"element.type"}
-    DIS --> CT["checkText<br/>present · left/top · font size · exact or contains"]
+    DIS --> CT["checkText<br/>present · left/top · font size<br/>· font (a neighbouring weight warns)<br/>· colour by CIEDE2000 ΔE"]
     DIS --> CI["checkImage<br/>present · left/top · width · height"]
     DIS --> CTB["checkTable<br/>present · left/top · width · rows/cols"]
     DIS --> CP["checkParagraph<br/>present · left/top · line spacing"]
   end
+  PS["pageSizeResult<br/>pinned → error, otherwise warning"] -.-> ER
   ANC["Anchors: locate by a nearby label<br/>default within 2 in"] -.-> DIS
-  TOL["Tolerances in points via unitToPt<br/>defaults 0.06 / 0.06 / 0.03"] -.-> DIS
-  CT & CI & CTB & CP --> ER["ElementResult<br/>checks · expected box · actual box"]
+  TOL["Tolerances from the Settings sheet,<br/>SR-CONSTANTS where it is silent"] -.-> DIS
+  CT & CI & CTB & CP --> ER["ElementResult<br/>pass · fail · not-found · warning · unverifiable"]
   ER --> REP["SpecReport<br/>pass / fail per page and total"]
   REP --> VIEW["SpecTestView<br/>dashed expected box · actual box green or red"]
   REP --> SX["SpecExportMenu<br/>HTML · JSON (flag)"]
@@ -439,9 +446,9 @@ flowchart TB
 
 [Open as SVG](architecture/10-spec-driven-comparison.svg)
 
-Code, all under [`src/features/spec/`](../src/features/spec/README.md): `index.ts` · `engine.ts` · `SpecTestView.tsx` · `specStore.ts` · `specCheck.ts` · `specExport.ts` · `sheetRead.ts` · `sheetSpec.ts` · `pdfjs.ts` · `types.ts` · `spec.css`
+Code, all under [`src/features/spec/`](../src/features/spec/README.md): `index.ts` · `engine.ts` · `SpecTestView.tsx` · `SpecValidation.tsx` · `specStore.ts` · `specIntake.ts` · `specTemplate.ts` · `specValues.ts` · `specCompile.ts` · `specValidate.ts` · `specLegacy.ts` · `specDraft.ts` · `specCheck.ts` · `specFonts.ts` · `specColour.ts` · `specExport.ts` · `pdfjs.ts` · `types.ts` · `spec.css`
 
-> **Watch.** Default tolerances are inch values applied in whatever unit the spec uses. The HTML export inserts `units` unescaped. Both are **W-04** DoD 1 ([SR-SPEC-CHECK](../records/0102_SPEC-check.md)). `readSheetFile` needs `DOMParser`, which the CLI's shim lacks — the `.xlsx` path of **W-11** waits on a DOM-free reader from the spec machine.
+> **Watch.** `@sheetpane/import` declares `engines: node >=22` while `pdfsuite` publishes `node >=20` — a ruling is owed (**W-02** §Hazards). The HTML export inserts `units` unescaped (**W-04** DoD 1). Container fills, image content and rich-text per-word styles are named and unbuilt.
 
 ## Inspect
 

@@ -41,14 +41,24 @@
     "spike": "node build.mjs --entry spike/run-engine.ts --out .work/spike.js && node .work/spike.js",
     "verify:classification": "python verify/make-cases.py && node build.mjs --entry verify/classification.ts --out .work/classification.js && node .work/classification.js",
     "verify:regression": "node build.mjs --entry verify/regression.ts --out .work/regression.js && node .work/regression.js",
-    "verify": "npm run verify:classification && npm run verify:regression && npm run verify:spec && npm run verify:spec-columns && npm run verify:spec-reading && npm run verify:spec-intake && npm run verify:spec-template && npm run verify:spec-compile",
+    "verify": "npm run verify:classification && npm run verify:regression && npm run verify:spec && npm run verify:spec-columns && npm run verify:spec-reading && npm run verify:spec-intake && npm run verify:spec-template && npm run verify:spec-compile && npm run verify:spec-fonts-colour && npm run verify:spec-validation && npm run verify:spec-oracle && npm run verify:spec-legacy && npm run verify:spec-outputs && npm run verify:spec-pages && npm run verify:spec-comparing && npm run verify:spec-run-files && npm run verify:spec-fixture && npm run verify:spec-form",
     "verify:detail": "node build.mjs --entry verify/detail.ts --out .work/detail.js && node .work/detail.js",
     "verify:spec": "node build.mjs --entry verify/spec-target.ts --out .work/spec-target.js && node .work/spec-target.js",
     "verify:spec-columns": "node build.mjs --entry verify/spec-columns.ts --out .work/spec-columns.js && node .work/spec-columns.js",
     "verify:spec-reading": "node build.mjs --entry verify/spec-reading.ts --out .work/spec-reading.js && node .work/spec-reading.js",
     "verify:spec-intake": "node build.mjs --entry verify/spec-intake.ts --out .work/spec-intake.js && node .work/spec-intake.js",
     "verify:spec-template": "node build.mjs --entry verify/spec-template.ts --out .work/spec-template.js && node .work/spec-template.js",
-    "verify:spec-compile": "node build.mjs --entry verify/spec-compile.ts --out .work/spec-compile.js && node .work/spec-compile.js"
+    "verify:spec-compile": "node build.mjs --entry verify/spec-compile.ts --out .work/spec-compile.js && node .work/spec-compile.js",
+    "verify:spec-fonts-colour": "node build.mjs --entry verify/spec-fonts-colour.ts --out .work/spec-fonts-colour.js && node .work/spec-fonts-colour.js",
+    "verify:spec-validation": "node build.mjs --entry verify/spec-validation.ts --out .work/spec-validation.js && node .work/spec-validation.js",
+    "verify:spec-oracle": "node build.mjs --entry verify/spec-oracle.ts --out .work/spec-oracle.js && node .work/spec-oracle.js",
+    "verify:spec-legacy": "node build.mjs --entry verify/spec-legacy.ts --out .work/spec-legacy.js && node .work/spec-legacy.js",
+    "verify:spec-outputs": "node build.mjs --entry verify/spec-outputs.ts --out .work/spec-outputs.js && node .work/spec-outputs.js",
+    "verify:spec-pages": "node build.mjs --entry verify/spec-pages.ts --out .work/spec-pages.js && node .work/spec-pages.js",
+    "verify:spec-comparing": "node build.mjs --entry verify/spec-comparing.ts --out .work/spec-comparing.js && node .work/spec-comparing.js",
+    "verify:spec-run-files": "node build.mjs --entry verify/spec-outputs-run.ts --out .work/spec-outputs-run.js && node .work/spec-outputs-run.js",
+    "verify:spec-fixture": "node build.mjs --entry verify/spec-fixture.ts --out .work/spec-fixture.js && node .work/spec-fixture.js",
+    "verify:spec-form": "node build.mjs --entry verify/spec-form-xobject.ts --out .work/spec-form-xobject.js && node .work/spec-form-xobject.js"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.65"
@@ -60,5 +70,8 @@
     "esbuild": "^0.24.0",
     "express": "^4.21.1",
     "typescript": "^5.6.2"
+  },
+  "allowScripts": {
+    "esbuild@0.24.2": true
   }
 }

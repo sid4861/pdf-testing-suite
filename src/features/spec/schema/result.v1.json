@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pdfsuite.dev/schema/result.v1.json",
+  "title": "pdfsuite.result/1",
+  "description": "The one machine-readable result of a run (SR-REPORT-JSON). This copy covers kind=spec, which is the only kind built today; compare, compare-many and inspect join it as W-27 and W-28 land.",
+  "type": "object",
+  "required": ["schema", "kind", "tool", "env", "run", "policy", "inputs", "summary", "pages"],
+  "properties": {
+    "schema": { "const": "pdfsuite.result/1" },
+    "kind": { "enum": ["spec", "compare", "compare-many", "inspect"] },
+    "tool": { "type": "object", "additionalProperties": { "type": "string" } },
+    "env": { "type": "object", "additionalProperties": { "type": "string" } },
+    "run": {
+      "type": "object",
+      "description": "The only wall-clock in the file.",
+      "required": ["started", "durationMs", "arguments"],
+      "properties": {
+        "started": { "type": "string" },
+        "durationMs": { "type": ["number", "null"] },
+        "arguments": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "policy": { "type": "object" },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "bytes", "sha256"],
+        "properties": {
+          "name": { "type": "string" },
+          "bytes": { "type": ["number", "null"] },
+          "sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["verdict", "exitCode", "pages", "elements", "elementsPassing", "checksPassed", "checksFailed"],
+      "properties": {
+        "verdict": { "enum": ["PASS", "FAIL"] },
+        "exitCode": { "type": "number" },
+        "pages": { "type": "number" },
+        "elements": { "type": "number" },
+        "elementsPassing": { "type": "number" },
+        "checksPassed": { "type": "number" },
+        "checksFailed": { "type": "number" },
+        "pageFindings": {
+          "type": "object",
+          "properties": {
+            "error": { "type": "number" },
+            "warning": { "type": "number" },
+            "note": { "type": "number" }
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": ["object", "null"],
+      "properties": {
+        "checked": { "type": "number" },
+        "noted": { "type": "number" },
+        "excluded": { "type": "number" },
+        "unreadable": { "type": "number" },
+        "rows": { "type": "number" }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["page", "specPage", "widthIn", "heightIn", "elements"],
+        "properties": {
+          "page": { "type": "number" },
+          "name": { "type": ["string", "null"] },
+          "specPage": { "type": "number" },
+          "binding": { "type": ["string", "null"] },
+          "occurrence": { "type": ["number", "null"] },
+          "widthIn": { "type": "number" },
+          "heightIn": { "type": "number" },
+          "passCount": { "type": "number" },
+          "failCount": { "type": "number" },
+          "warnCount": { "type": "number" },
+          "unverifiableCount": { "type": "number" },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "type", "label", "status", "checks"],
+              "properties": {
+                "id": { "type": "string" },
+                "type": { "enum": ["text", "image", "table", "paragraph"] },
+                "label": { "type": "string" },
+                "status": { "enum": ["pass", "fail", "not-found", "warning", "unverifiable"] },
+                "detail": { "type": "string" },
+                "expectedBox": {
+                  "type": ["array", "null"],
+                  "description": "left, top, width, height — inches from the page's top-left.",
+                  "items": { "type": "number" },
+                  "minItems": 4,
+                  "maxItems": 4
+                },
+                "actualBox": {
+                  "type": ["array", "null"],
+                  "items": { "type": "number" },
+                  "minItems": 4,
+                  "maxItems": 4
+                },
+                "checks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["name", "expected", "actual", "pass"],
+                    "properties": {
+                      "name": { "type": "string" },
+                      "expected": { "type": "string" },
+                      "actual": { "type": "string" },
+                      "delta": { "type": ["string", "null"] },
+                      "note": { "type": ["string", "null"] },
+                      "cell": {
+                        "type": ["string", "null"],
+                        "description": "Sheet!A1, the workbook cell this expectation came from."
+                      },
+                      "pass": { "type": "boolean" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "pageFindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "message"],
+        "properties": {
+          "severity": { "enum": ["error", "warning", "note"] },
+          "pdfPage": { "type": ["number", "null"] },
+          "specPage": { "type": ["number", "null"] },
+          "message": { "type": "string" }
+        }
+      }
+    },
+    "findingsSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" }
+  }
+}

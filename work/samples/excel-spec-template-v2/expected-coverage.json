@@ -1,0 +1,2331 @@
+{
+ "counts": {
+  "checked": 112,
+  "noted": 152,
+  "excluded": 26,
+  "unreadable": 0,
+  "rows": 290
+ },
+ "coverage": [
+  {
+   "sheet": "1",
+   "row": 2,
+   "element": "Cover artwork",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 3,
+   "element": "Cover artwork",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 4,
+   "element": "Cover artwork",
+   "parameter": "Height",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 5,
+   "element": "Cover artwork",
+   "parameter": "Width",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 6,
+   "element": "Cover artwork",
+   "parameter": "File name",
+   "status": "noted",
+   "reason": "“File name” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 7,
+   "element": "Title block",
+   "parameter": "Top",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "1",
+   "row": 8,
+   "element": "Title block",
+   "parameter": "Left",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "1",
+   "row": 9,
+   "element": "Title block",
+   "parameter": "Height",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "1",
+   "row": 10,
+   "element": "Title block",
+   "parameter": "Width",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "1",
+   "row": 11,
+   "element": "Title block",
+   "parameter": "Fill",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "1",
+   "row": 12,
+   "element": "Title block",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 13,
+   "element": "Title block",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 14,
+   "element": "Title block",
+   "parameter": "Height",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 15,
+   "element": "Title block",
+   "parameter": "Width",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 16,
+   "element": "Title block",
+   "parameter": "File name",
+   "status": "noted",
+   "reason": "“File name” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 17,
+   "element": "Title block",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 18,
+   "element": "Title block",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 19,
+   "element": "Title block",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 20,
+   "element": "Title block",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 21,
+   "element": "Title block",
+   "parameter": "Alternative wording",
+   "status": "noted",
+   "reason": "“Alternative wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 22,
+   "element": "Title block",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 23,
+   "element": "Title block",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 24,
+   "element": "Title block",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 25,
+   "element": "Title block",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 26,
+   "element": "Title block",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 27,
+   "element": "Title block",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 28,
+   "element": "Title block",
+   "parameter": "Top",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 29,
+   "element": "Title block",
+   "parameter": "Left",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 30,
+   "element": "Title block",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 31,
+   "element": "Title block",
+   "parameter": "Italic words",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 32,
+   "element": "Title block",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 33,
+   "element": "Title block",
+   "parameter": "Font",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 34,
+   "element": "Title block",
+   "parameter": "Font size",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 35,
+   "element": "Title block",
+   "parameter": "Bold",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 36,
+   "element": "Title block",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 37,
+   "element": "Title block",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 38,
+   "element": "Title block",
+   "parameter": "Top",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 39,
+   "element": "Title block",
+   "parameter": "Left",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 40,
+   "element": "Title block",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 41,
+   "element": "Title block",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 42,
+   "element": "Title block",
+   "parameter": "Font",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 43,
+   "element": "Title block",
+   "parameter": "Font size",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 44,
+   "element": "Title block",
+   "parameter": "Bold",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 45,
+   "element": "Title block",
+   "parameter": "Italic",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 46,
+   "element": "Title block",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 47,
+   "element": "Title block",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "1",
+   "row": 48,
+   "element": "Footer",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 49,
+   "element": "Footer",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 50,
+   "element": "Footer",
+   "parameter": "Wrap at",
+   "status": "noted",
+   "reason": "“Wrap at” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 51,
+   "element": "Footer",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 52,
+   "element": "Footer",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 53,
+   "element": "Footer",
+   "parameter": "Font",
+   "status": "noted",
+   "reason": "“Font” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 54,
+   "element": "Footer",
+   "parameter": "Font size",
+   "status": "noted",
+   "reason": "“Font size” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 55,
+   "element": "Footer",
+   "parameter": "Line spacing",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "1",
+   "row": 56,
+   "element": "Footer",
+   "parameter": "Bold",
+   "status": "noted",
+   "reason": "“Bold” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 57,
+   "element": "Footer",
+   "parameter": "Italic",
+   "status": "noted",
+   "reason": "“Italic” has no check in the engine yet"
+  },
+  {
+   "sheet": "1",
+   "row": 58,
+   "element": "Footer",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "“Colour” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 2,
+   "element": "Page",
+   "parameter": "Note",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "2",
+   "row": 3,
+   "element": "Left sidebar",
+   "parameter": "Top",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "2",
+   "row": 4,
+   "element": "Left sidebar",
+   "parameter": "Left",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "2",
+   "row": 5,
+   "element": "Left sidebar",
+   "parameter": "Height",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "2",
+   "row": 6,
+   "element": "Left sidebar",
+   "parameter": "Width",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "2",
+   "row": 7,
+   "element": "Left sidebar",
+   "parameter": "Fill",
+   "status": "noted",
+   "reason": "a drawn box with no text or image — nothing to look for on the page yet"
+  },
+  {
+   "sheet": "2",
+   "row": 8,
+   "element": "Left sidebar",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 9,
+   "element": "Left sidebar",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 10,
+   "element": "Left sidebar",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 11,
+   "element": "Left sidebar",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 12,
+   "element": "Left sidebar",
+   "parameter": "Line break after",
+   "status": "noted",
+   "reason": "“Line break after” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 13,
+   "element": "Left sidebar",
+   "parameter": "Font",
+   "status": "noted",
+   "reason": "“Font” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 14,
+   "element": "Left sidebar",
+   "parameter": "Font size",
+   "status": "noted",
+   "reason": "“Font size” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 15,
+   "element": "Left sidebar",
+   "parameter": "Line spacing",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 16,
+   "element": "Left sidebar",
+   "parameter": "Bold",
+   "status": "noted",
+   "reason": "“Bold” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 17,
+   "element": "Left sidebar",
+   "parameter": "Italic",
+   "status": "noted",
+   "reason": "“Italic” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 18,
+   "element": "Left sidebar",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 19,
+   "element": "Left sidebar",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "“Colour” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 20,
+   "element": "Left sidebar",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 21,
+   "element": "Left sidebar",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 22,
+   "element": "Left sidebar",
+   "parameter": "Wrap at",
+   "status": "noted",
+   "reason": "“Wrap at” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 23,
+   "element": "Left sidebar",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 24,
+   "element": "Left sidebar",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 25,
+   "element": "Left sidebar",
+   "parameter": "Font",
+   "status": "noted",
+   "reason": "“Font” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 26,
+   "element": "Left sidebar",
+   "parameter": "Font size",
+   "status": "noted",
+   "reason": "“Font size” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 27,
+   "element": "Left sidebar",
+   "parameter": "Line spacing",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 28,
+   "element": "Left sidebar",
+   "parameter": "Bold",
+   "status": "noted",
+   "reason": "“Bold” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 29,
+   "element": "Left sidebar",
+   "parameter": "Italic",
+   "status": "noted",
+   "reason": "“Italic” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 30,
+   "element": "Left sidebar",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "“Colour” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 31,
+   "element": "Highlights table",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 32,
+   "element": "Highlights table",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 33,
+   "element": "Highlights table",
+   "parameter": "Width",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 34,
+   "element": "Highlights table",
+   "parameter": "Row height",
+   "status": "noted",
+   "reason": "“Row height” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 35,
+   "element": "Highlights table",
+   "parameter": "Columns",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 36,
+   "element": "Highlights table",
+   "parameter": "Column headers",
+   "status": "noted",
+   "reason": "“Column headers” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 37,
+   "element": "Highlights table",
+   "parameter": "Column widths",
+   "status": "noted",
+   "reason": "“Column widths” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 38,
+   "element": "Highlights table",
+   "parameter": "Column alignment",
+   "status": "noted",
+   "reason": "“Column alignment” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 39,
+   "element": "Highlights table",
+   "parameter": "Rows",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 47,
+   "element": "Highlights table",
+   "parameter": "Data",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "2",
+   "row": 40,
+   "element": "Highlights table",
+   "parameter": "Font",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "2",
+   "row": 41,
+   "element": "Highlights table",
+   "parameter": "Font size",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "2",
+   "row": 42,
+   "element": "Highlights table",
+   "parameter": "Bold",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "2",
+   "row": 43,
+   "element": "Highlights table",
+   "parameter": "Colour",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "2",
+   "row": 44,
+   "element": "Highlights table",
+   "parameter": "Fill",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "2",
+   "row": 45,
+   "element": "Highlights table",
+   "parameter": "Font",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "2",
+   "row": 46,
+   "element": "Highlights table",
+   "parameter": "Font size",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "2",
+   "row": 48,
+   "element": "Summary",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 49,
+   "element": "Summary",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 50,
+   "element": "Summary",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 51,
+   "element": "Summary",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 52,
+   "element": "Summary",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 53,
+   "element": "Summary",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 54,
+   "element": "Summary",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 55,
+   "element": "Summary",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 56,
+   "element": "Summary",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 57,
+   "element": "Summary",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 58,
+   "element": "Summary",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 59,
+   "element": "Summary",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 60,
+   "element": "Summary",
+   "parameter": "Wrap at",
+   "status": "noted",
+   "reason": "“Wrap at” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 61,
+   "element": "Summary",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 62,
+   "element": "Summary",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 63,
+   "element": "Summary",
+   "parameter": "Font",
+   "status": "noted",
+   "reason": "“Font” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 64,
+   "element": "Summary",
+   "parameter": "Font size",
+   "status": "noted",
+   "reason": "“Font size” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 65,
+   "element": "Summary",
+   "parameter": "Line spacing",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 66,
+   "element": "Summary",
+   "parameter": "Bold",
+   "status": "noted",
+   "reason": "“Bold” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 67,
+   "element": "Summary",
+   "parameter": "Italic",
+   "status": "noted",
+   "reason": "“Italic” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 68,
+   "element": "Summary",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "“Colour” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 69,
+   "element": "Depot map",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 70,
+   "element": "Depot map",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 71,
+   "element": "Depot map",
+   "parameter": "Height",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 72,
+   "element": "Depot map",
+   "parameter": "Width",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 73,
+   "element": "Depot map",
+   "parameter": "File name",
+   "status": "noted",
+   "reason": "“File name” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 74,
+   "element": "Depot map",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 75,
+   "element": "Depot map",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 76,
+   "element": "Depot map",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 77,
+   "element": "Depot map",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 78,
+   "element": "Depot map",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 79,
+   "element": "Depot map",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 80,
+   "element": "Depot map",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 81,
+   "element": "Depot map",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 82,
+   "element": "Depot map",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 83,
+   "element": "Depot map",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 84,
+   "element": "Footer",
+   "parameter": "Baseline",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 85,
+   "element": "Footer",
+   "parameter": "Right",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 86,
+   "element": "Footer",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 87,
+   "element": "Footer",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 88,
+   "element": "Footer",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 89,
+   "element": "Footer",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 90,
+   "element": "Footer",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 91,
+   "element": "Footer",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "2",
+   "row": 92,
+   "element": "Footer",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "2",
+   "row": 93,
+   "element": "Footer",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 2,
+   "element": "Page header",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 3,
+   "element": "Page header",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 4,
+   "element": "Page header",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 5,
+   "element": "Page header",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 6,
+   "element": "Page header",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 7,
+   "element": "Page header",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 8,
+   "element": "Page header",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 9,
+   "element": "Page header",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 10,
+   "element": "Page header",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 11,
+   "element": "Page header",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 12,
+   "element": "Page header",
+   "parameter": "Top",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "3",
+   "row": 13,
+   "element": "Page header",
+   "parameter": "Left",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "3",
+   "row": 14,
+   "element": "Page header",
+   "parameter": "Width",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "3",
+   "row": 15,
+   "element": "Page header",
+   "parameter": "Weight",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "3",
+   "row": 16,
+   "element": "Page header",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "nothing in this element is checkable yet — no wording, size or table shape"
+  },
+  {
+   "sheet": "3",
+   "row": 17,
+   "element": "Deliveries chart",
+   "parameter": "Top",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 18,
+   "element": "Deliveries chart",
+   "parameter": "Left",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 19,
+   "element": "Deliveries chart",
+   "parameter": "Height",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 20,
+   "element": "Deliveries chart",
+   "parameter": "Width",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 21,
+   "element": "Deliveries chart",
+   "parameter": "Chart type",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 26,
+   "element": "Deliveries chart",
+   "parameter": "Categories",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 27,
+   "element": "Deliveries chart",
+   "parameter": "Series 1",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 28,
+   "element": "Deliveries chart",
+   "parameter": "Series 2",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 29,
+   "element": "Deliveries chart",
+   "parameter": "Y axis",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 30,
+   "element": "Deliveries chart",
+   "parameter": "Gridlines",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 31,
+   "element": "Deliveries chart",
+   "parameter": "Legend",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 32,
+   "element": "Deliveries chart",
+   "parameter": "Data",
+   "status": "noted",
+   "reason": "a graph drawn as vectors — its position and size are stated, but there is no check for a chart yet"
+  },
+  {
+   "sheet": "3",
+   "row": 22,
+   "element": "Deliveries chart",
+   "parameter": "Font",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 23,
+   "element": "Deliveries chart",
+   "parameter": "Font size",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 24,
+   "element": "Deliveries chart",
+   "parameter": "Bold",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 25,
+   "element": "Deliveries chart",
+   "parameter": "Title",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 33,
+   "element": "Regional table",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 34,
+   "element": "Regional table",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 35,
+   "element": "Regional table",
+   "parameter": "Width",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 36,
+   "element": "Regional table",
+   "parameter": "Row height",
+   "status": "noted",
+   "reason": "“Row height” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 37,
+   "element": "Regional table",
+   "parameter": "Columns",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 38,
+   "element": "Regional table",
+   "parameter": "Column headers",
+   "status": "noted",
+   "reason": "“Column headers” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 39,
+   "element": "Regional table",
+   "parameter": "Column widths",
+   "status": "noted",
+   "reason": "“Column widths” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 40,
+   "element": "Regional table",
+   "parameter": "Column alignment",
+   "status": "noted",
+   "reason": "“Column alignment” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 41,
+   "element": "Regional table",
+   "parameter": "Rows",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 50,
+   "element": "Regional table",
+   "parameter": "Data",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "3",
+   "row": 42,
+   "element": "Regional table",
+   "parameter": "Font",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 43,
+   "element": "Regional table",
+   "parameter": "Font size",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 44,
+   "element": "Regional table",
+   "parameter": "Bold",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 45,
+   "element": "Regional table",
+   "parameter": "Colour",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 46,
+   "element": "Regional table",
+   "parameter": "Fill",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 47,
+   "element": "Regional table",
+   "parameter": "Font",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 48,
+   "element": "Regional table",
+   "parameter": "Font size",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 49,
+   "element": "Regional table",
+   "parameter": "Bold",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "3",
+   "row": 51,
+   "element": "Commentary",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 52,
+   "element": "Commentary",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 53,
+   "element": "Commentary",
+   "parameter": "Wrap at",
+   "status": "noted",
+   "reason": "“Wrap at” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 54,
+   "element": "Commentary",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 55,
+   "element": "Commentary",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 56,
+   "element": "Commentary",
+   "parameter": "Font",
+   "status": "noted",
+   "reason": "“Font” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 57,
+   "element": "Commentary",
+   "parameter": "Font size",
+   "status": "noted",
+   "reason": "“Font size” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 58,
+   "element": "Commentary",
+   "parameter": "Line spacing",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 59,
+   "element": "Commentary",
+   "parameter": "Bold",
+   "status": "noted",
+   "reason": "“Bold” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 60,
+   "element": "Commentary",
+   "parameter": "Italic",
+   "status": "noted",
+   "reason": "“Italic” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 61,
+   "element": "Commentary",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "“Colour” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 62,
+   "element": "Commentary",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 63,
+   "element": "Commentary",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 64,
+   "element": "Commentary",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 65,
+   "element": "Commentary",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 66,
+   "element": "Commentary",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 67,
+   "element": "Commentary",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 68,
+   "element": "Commentary",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 69,
+   "element": "Commentary",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 70,
+   "element": "Commentary",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 71,
+   "element": "Commentary",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 72,
+   "element": "Footer",
+   "parameter": "Baseline",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 73,
+   "element": "Footer",
+   "parameter": "Right",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 74,
+   "element": "Footer",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 75,
+   "element": "Footer",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 76,
+   "element": "Footer",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 77,
+   "element": "Footer",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 78,
+   "element": "Footer",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 79,
+   "element": "Footer",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "3",
+   "row": 80,
+   "element": "Footer",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "3",
+   "row": 81,
+   "element": "Footer",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 2,
+   "element": "Page",
+   "parameter": "Note",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 3,
+   "element": "Page header",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 4,
+   "element": "Page header",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 5,
+   "element": "Page header",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 6,
+   "element": "Page header",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 7,
+   "element": "Page header",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 8,
+   "element": "Page header",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 9,
+   "element": "Page header",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 10,
+   "element": "Page header",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 11,
+   "element": "Page header",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 12,
+   "element": "Page header",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 13,
+   "element": "Fuel chart",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 14,
+   "element": "Fuel chart",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 15,
+   "element": "Fuel chart",
+   "parameter": "Height",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 16,
+   "element": "Fuel chart",
+   "parameter": "Width",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 17,
+   "element": "Fuel chart",
+   "parameter": "File name",
+   "status": "noted",
+   "reason": "“File name” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 18,
+   "element": "Fuel chart",
+   "parameter": "Chart type",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 19,
+   "element": "Fuel chart",
+   "parameter": "Title",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 20,
+   "element": "Fuel chart",
+   "parameter": "Categories",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 21,
+   "element": "Fuel chart",
+   "parameter": "Series 1",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 22,
+   "element": "Fuel chart",
+   "parameter": "Y axis",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 23,
+   "element": "Fuel chart",
+   "parameter": "Legend",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 24,
+   "element": "Fuel chart",
+   "parameter": "Data label",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 25,
+   "element": "Monthly table",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 26,
+   "element": "Monthly table",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 27,
+   "element": "Monthly table",
+   "parameter": "Width",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 28,
+   "element": "Monthly table",
+   "parameter": "Row height",
+   "status": "noted",
+   "reason": "“Row height” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 29,
+   "element": "Monthly table",
+   "parameter": "Columns",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 30,
+   "element": "Monthly table",
+   "parameter": "Column headers",
+   "status": "noted",
+   "reason": "“Column headers” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 31,
+   "element": "Monthly table",
+   "parameter": "Column widths",
+   "status": "noted",
+   "reason": "“Column widths” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 32,
+   "element": "Monthly table",
+   "parameter": "Column alignment",
+   "status": "noted",
+   "reason": "“Column alignment” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 33,
+   "element": "Monthly table",
+   "parameter": "Rows",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 41,
+   "element": "Monthly table",
+   "parameter": "Data",
+   "status": "noted",
+   "reason": "Check? is Note"
+  },
+  {
+   "sheet": "4",
+   "row": 34,
+   "element": "Monthly table",
+   "parameter": "Font",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "4",
+   "row": 35,
+   "element": "Monthly table",
+   "parameter": "Font size",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "4",
+   "row": 36,
+   "element": "Monthly table",
+   "parameter": "Bold",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "4",
+   "row": 37,
+   "element": "Monthly table",
+   "parameter": "Colour",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "4",
+   "row": 38,
+   "element": "Monthly table",
+   "parameter": "Fill",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "4",
+   "row": 39,
+   "element": "Monthly table",
+   "parameter": "Font",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "4",
+   "row": 40,
+   "element": "Monthly table",
+   "parameter": "Font size",
+   "status": "excluded",
+   "reason": "the element states no Top, Left, Right, Bottom or Baseline, so it cannot be located on the page"
+  },
+  {
+   "sheet": "4",
+   "row": 42,
+   "element": "Commentary",
+   "parameter": "Top",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 43,
+   "element": "Commentary",
+   "parameter": "Left",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 44,
+   "element": "Commentary",
+   "parameter": "Wrap at",
+   "status": "noted",
+   "reason": "“Wrap at” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 45,
+   "element": "Commentary",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 46,
+   "element": "Commentary",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 47,
+   "element": "Commentary",
+   "parameter": "Font",
+   "status": "noted",
+   "reason": "“Font” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 48,
+   "element": "Commentary",
+   "parameter": "Font size",
+   "status": "noted",
+   "reason": "“Font size” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 49,
+   "element": "Commentary",
+   "parameter": "Line spacing",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 50,
+   "element": "Commentary",
+   "parameter": "Bold",
+   "status": "noted",
+   "reason": "“Bold” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 51,
+   "element": "Commentary",
+   "parameter": "Italic",
+   "status": "noted",
+   "reason": "“Italic” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 52,
+   "element": "Commentary",
+   "parameter": "Colour",
+   "status": "noted",
+   "reason": "“Colour” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 53,
+   "element": "Footer",
+   "parameter": "Baseline",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 54,
+   "element": "Footer",
+   "parameter": "Right",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 55,
+   "element": "Footer",
+   "parameter": "Wording",
+   "status": "noted",
+   "reason": "“Wording” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 56,
+   "element": "Footer",
+   "parameter": "Case",
+   "status": "noted",
+   "reason": "“Case” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 57,
+   "element": "Footer",
+   "parameter": "Font",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 58,
+   "element": "Footer",
+   "parameter": "Font size",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 59,
+   "element": "Footer",
+   "parameter": "Bold",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 60,
+   "element": "Footer",
+   "parameter": "Italic",
+   "status": "checked",
+   "reason": "asserted"
+  },
+  {
+   "sheet": "4",
+   "row": 61,
+   "element": "Footer",
+   "parameter": "Underline",
+   "status": "noted",
+   "reason": "“Underline” has no check in the engine yet"
+  },
+  {
+   "sheet": "4",
+   "row": 62,
+   "element": "Footer",
+   "parameter": "Colour",
+   "status": "checked",
+   "reason": "asserted"
+  }
+ ]
+}

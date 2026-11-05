@@ -4,7 +4,9 @@ Reference for the JSON spec format consumed by the **Spec driven comparison** wo
 `pdfsuite` CLI.
 
 Written to be used two ways: as the authority on what each field means, and as the
-conversion guide for turning an Excel workbook (one tab per PDF page) into a JSON spec.
+description of **Template v2**, the Excel workbook the app compiles into that JSON
+(§7). Nobody writes the JSON by hand: it is what the workbook becomes, and every value
+in it names the cell it came from.
 
 ---
 
@@ -12,7 +14,10 @@ conversion guide for turning an Excel workbook (one tab per PDF page) into a JSO
 
 A spec describes what a page **should** contain — text, images, tables, paragraphs — and
 where. The checker renders the actual PDF, extracts its real content, and reports every
-element as `pass`, `fail`, or `not-found`, with expected-vs-actual values for each check.
+element as `pass`, `fail`, `not-found`, `warning` or `unverifiable`, with expected-vs-actual
+values for each check. The last two matter: a page size that differs without being pinned is
+a **warning**, and something the reading could not establish — no text layer, a font the PDF
+does not name, a single-line paragraph — is **unverifiable**, never a failure of the document.
 
 A spec is not a template and is not compared against another PDF. It is a standalone
 statement of intent, which is what makes it usable when there is no reference document.
@@ -96,7 +101,7 @@ Every element carries these:
 | `type` | **yes** | `text` \| `image` \| `table` \| `paragraph` |
 | `id` | **yes** | Stable identifier. Reporting only — **never used to find the element**. Keep it stable across revisions so results stay comparable. |
 | `label` | no | Human name in the report. Defaults to the text (for `text`) or the `id`. |
-| `top`, `left` | **yes** | Expected position, spec units, from the page's top-left. |
+| `top`, `left`, `right`, `bottom`, `baseline` | **at least one** | Expected position, spec units, **always from the page's top-left**, whatever edge the workbook measured from: the compiler knows the page size and converts, so `Right 0.5 in from right of page` on an 11 in page arrives as `right: 10.5`. Only the edges the workbook stated are present, and only those are checked — an element placed from the bottom-right is not silently also claiming a top. An element that states none cannot be found and is excluded with that said. |
 | `tolerance` | no | Per-element override (§4). |
 | `anchor` | no | Locate relative to a nearby label instead of by position (§6). |
 
@@ -122,12 +127,20 @@ A single line of static text.
 | `text` | **yes** | — | The string to find. Whitespace is collapsed and case is ignored. |
 | `match` | no | `"contains"` | `"exact"` compares the whole line; `"contains"` matches a substring. |
 | `fontSize` | no | — | Points. Omit to skip the font-size check entirely. |
+| `font` | no | — | Family as the workbook writes it, e.g. `"Helvetica"`. A subset prefix (`BCDEEE+`) and the weight and slant words in the PDF's own font name are read and compared separately, so `Roboto-Light`, `Roboto Light` and `RobotoLight` are one font. |
+| `bold`, `italic` | no | — | From the element's own rows. An explicit `bold: true` beats the family string. |
+| `colour` | no | — | Hex, e.g. `"#0B3C5D"`. Compared as CIEDE2000 ΔE against the workbook's threshold (default 2.0), not as equal bytes — one digit apart is invisible and is not a defect. |
 
 **How it is located:** all lines whose text matches are collected, then the one nearest the
 expected `top` wins. Content is the anchor, position is the assertion — so an element that
 moved is still *found*, and correctly reported as a `Top`/`Left` failure.
 
-**Checks produced:** `Present`, `Left`, `Top`, and `Font size` when `fontSize` is given.
+**Checks produced:** `Present`, `Left`, `Top`, and `Font size`, `Font` and `Colour` when
+those are given. A neighbouring weight — Regular against Medium — is reported as a
+*warning*, not a failure: it is usually a substituted font, and calling it a defect
+teaches people to ignore the report. Where the PDF does not state a font or a fill colour
+for that text, the check is **unverifiable** — a limit of the reading, never a verdict
+about the document.
 
 > `match: "contains"` is the default and is usually what you want for values that vary
 > (dates, amounts, account numbers): specify the stable label portion only. Use `"exact"`
@@ -278,125 +291,87 @@ a neighbour is worse than saying "the label I key off is gone".
 
 ---
 
-## 7. Excel → JSON conversion
+## 7. The workbook — Template v2
 
-### Workbook conventions
+The format people actually write. The app reads it, says what it understood, and
+compiles it; the JSON above is the output, not an input anyone types.
 
-- **One tab per PDF page.** Name tabs `Page 1`, `Page 2`, … — the trailing number becomes
-  `pages[].page`.
-- **One row per element.**
-- A tab with no element rows should be **omitted** from `pages` rather than emitted with an
-  empty `elements` array.
+### The sheets
 
-### Recommended column layout
+| Sheet | What it holds |
+|---|---|
+| **Pages List** | One row per PDF page, in order: Tab · Page name · Page type (Required / Optional / Conditional) · Orientation · Variant group · Repeats · Identifying text · Comments. **A sheet not listed here is not read**, and a listed tab with no sheet is an error. |
+| **Settings** | This workbook's own tolerances, page size, colour threshold and *Pixels per inch*, read by name in the first column — never by row position. |
+| **Lists** | The closed vocabulary: the groups, units, From edges, Check? values, cases, fonts, colour names with their hex, and the parameter table every row is checked against. A parameter not on this sheet is an error on the row that used it. |
+| **Page sheets** | One per page named in the Pages List. |
 
-| Column | Maps to | Applies to | Notes |
-|---|---|---|---|
-| `Type` | `type` | all | `text` / `image` / `table` / `paragraph`, lower-case |
-| `ID` | `id` | all | Required, unique within the page, stable across revisions |
-| `Label` | `label` | all | Optional |
-| `Text` | `text` | text, paragraph | Required for those two; leave blank otherwise |
-| `Match` | `match` | text, paragraph | Blank → `contains` |
-| `Top` | `top` | all | Number, spec units |
-| `Left` | `left` | all | Number, spec units |
-| `Width` | `width` | image, table | Number |
-| `Height` | `height` | image | Number |
-| `Rows` | `rows` | table | Blank → omit the check |
-| `Columns` | `columns` | table | Blank → omit the check |
-| `Line spacing` | `lineSpacing` | paragraph | Required for paragraph |
-| `Font size (pt)` | `fontSize` | text | Blank → omit the check |
-| `Anchor text` | `anchor.text` | all | Blank → no anchor at all |
-| `Anchor position` | `anchor.position` | all | Blank → `below` |
-| `Anchor within` | `anchor.within` | all | Blank → `2` |
-| `Anchor occurrence` | `anchor.occurrence` | all | Blank → `1` |
-| `Tol position` | `tolerance.position` | all | Blank → inherit |
-| `Tol size` | `tolerance.size` | all | Blank → inherit |
-| `Tol spacing` | `tolerance.spacing` | all | Blank → inherit |
-| `Tol font size` | `tolerance.fontSize` | all | Blank → inherit |
+### A page sheet's columns
 
-### Conversion rules
+Element · Part · Group · Parameter · Value · Unit · From · Check? · Tolerance ·
+Exact text · Pattern · Notes · Description.
 
-1. **Omit blanks; never emit `null` or `""`.** The checker treats a *missing* optional
-   field as "skip this check", but an empty string as a value to match — so a blank `Text`
-   exported as `""` makes every line match.
-2. **Numbers must be JSON numbers**, not strings. `"top": "1.5"` will not work. Strip unit
-   suffixes Excel may have added (`1.5"` → `1.5`).
-3. **Only emit `anchor` when `Anchor text` is filled.** Do not emit
-   `"anchor": { "text": "" }`.
-4. **Only emit `tolerance` when at least one `Tol *` column is filled**, and include only
-   the filled keys.
-5. **Round to a sensible precision** — 3 decimal places in inches is well below any
-   tolerance you would set.
-6. **`id` must be unique within a page.** Duplicates are not rejected but make the report
-   ambiguous.
-7. **Set `units` once at the top level**, and make sure the whole workbook uses it.
+- **One cell, one fact.** A position is Parameter `Top`, Value `5.75`, Unit `in`,
+  From `top of page` — never the sentence "5.75 inches from top of page". A baseline, a
+  wrap point, a line break and a line spacing are each their own row.
+- **A row is identified by its sheet and row number.** There is no ID column; every
+  report and every `source` cell already names the row.
+- **Element, Part and Group are merged and centred** over the rows they label. A merge is
+  a declared range in the file and is read as exactly that — the reader never
+  forward-fills, so a genuinely missing label is an error rather than a copy of the one
+  above it. A merge reaching Parameter or any column to its right is an error.
+- **There is no default unit and no default edge.** A length with a blank Unit is an
+  error; so is a position with a blank From, a unit inside the Value, a unit the
+  parameter does not allow, and `px` without *Pixels per inch* on the Settings sheet.
+- **Check?** is the author's instruction: `Yes` asserts the row, `Note` records it
+  without asserting it, `No` excludes it. It is read before the element is built, so a
+  row marked Note is never asserted by a side door.
+- **A value may be approximate only by being a range.** `5.4–5.6` is a band; `~10` is an
+  error, because a check cannot be run on "about". A range *and* a Tolerance is an error
+  too — a range is already the tolerance.
 
-### Worked example
+### What the app says back
 
-| Type | ID | Text | Top | Left | Width | Height | Anchor text | Anchor position | Anchor within |
-|---|---|---|---|---|---|---|---|---|---|
-| text | title | MONTHLY STATEMENT | 0.75 | 0.75 | | | | | |
-| image | logo | | 0.55 | 6.4 | 1.6 | 0.6 | MONTHLY STATEMENT | right | 6 |
-| table | charges | | 3.0 | 0.75 | 7.0 | | Statement period | below | |
+Before any PDF is opened, the tab shows the **validation report**: three severities, each
+line naming its sheet and cell, how many of the workbook's rows became checks, the rows
+that did not and why, and every accepted assertion **in plain words** — "Report title:
+top edge 5.75 in from the top of the page, ± 0.06 in". That sentence is the point: it
+can be read back against the workbook and disagreed with.
 
-becomes:
+An error on the file or on the Pages List stops the run. An error on one element only
+removes that element; the rest of the page is still worth checking.
 
-```json
-{
-  "title": "Monthly Statement Template v3",
-  "units": "in",
-  "pages": [
-    {
-      "page": 1,
-      "elements": [
-        {
-          "type": "text",
-          "id": "title",
-          "text": "MONTHLY STATEMENT",
-          "top": 0.75,
-          "left": 0.75
-        },
-        {
-          "type": "image",
-          "id": "logo",
-          "top": 0.55,
-          "left": 6.4,
-          "width": 1.6,
-          "height": 0.6,
-          "anchor": { "text": "MONTHLY STATEMENT", "position": "right", "within": 6 }
-        },
-        {
-          "type": "table",
-          "id": "charges",
-          "top": 3.0,
-          "left": 0.75,
-          "width": 7.0,
-          "anchor": { "text": "Statement period", "position": "below" }
-        }
-      ]
-    }
-  ]
-}
-```
+### The legacy nested layout
+
+Older specs were written as prose with the labels merged down the left. They are accepted
+as a **migration input only**: the app reads what it can, marks every cell it inferred
+amber and every cell it could not read red, and hands back a **draft Template v2
+workbook** with Check? set to `Note` on every row. Nothing is checked against a PDF until
+a person confirms that draft and uploads it. No guesswork reaches a result.
 
 ---
 
 ## 8. Validation and common mistakes
 
-The checker's own validation is **deliberately shallow**. It enforces only:
+**Validation happens on the workbook**, not on the JSON (§7). A row that cannot be read
+is refused there, with its cell, before any PDF is opened — which is the only place a
+person can act on it.
+
+The JSON path is the loose one, and deliberately so: a spec JSON uploaded directly is
+checked for shape only.
 
 - the spec is a JSON object;
 - `pages` is a non-empty array;
 - every page has a numeric `page` and an `elements` array.
 
-**Element fields are not validated.** A misspelled key, a string where a number belongs, or
-a missing `width` will not be rejected — it will produce a confusing failure, or silently
-skip a check. Your conversion script is the real validation layer, so make it strict.
+**Element fields are not validated on that path.** A misspelled key, a string where a
+number belongs, or a missing `width` will not be rejected — it will produce a confusing
+failure, or silently skip a check. A JSON this app wrote is safe; one written by hand is
+not, which is why the workbook is the supported route and nobody hand-edits the JSON.
 
 | Mistake | Symptom |
 |---|---|
 | `top`/`left` as strings | Everything fails on position with nonsensical expected values |
-| Measured from the page bottom | Every `Top` fails by a consistent amount |
+| Measured from the page bottom **without saying so** | Every `Top` fails by a consistent amount. Say `From: bottom of page` and the compiler converts it. |
 | `fontSize` in spec units instead of points | Font-size check always fails |
 | `text` too long for a paragraph | `not-found` after any wording change |
 | `rows` set on a data-driven table | Fails whenever the data changes |
@@ -409,7 +384,7 @@ skip a check. Your conversion script is the real validation layer, so make it st
 
 - [ ] Parses as JSON
 - [ ] `units` set, and every measurement uses it
-- [ ] Every element has `type`, `id`, `top`, `left`
+- [ ] Every element has `type`, `id`, and at least one of `top` / `left` / `right` / `bottom` / `baseline`
 - [ ] `text` present on every `text` and `paragraph`
 - [ ] `width`/`height` present on every `image`; `width` on every `table`
 - [ ] `lineSpacing` present on every `paragraph`
@@ -429,7 +404,9 @@ a spec — it is a list of assumptions.
 {
   "title":     "string",              // optional
   "units":     "in" | "pt" | "mm",    // default "in"
-  "pageSize":  { "width": 0, "height": 0 },   // optional, documentation only
+  "pageSize":  { "width": 0, "height": 0 },   // optional
+  "pageSizePinned": true,             // optional; a different size is then an error, not a warning
+  "colourThreshold": 2.0,             // optional; CIEDE2000 ΔE, default 2.0
   "tolerance": { "position": 0.06, "size": 0.06, "spacing": 0.03, "fontSize": 2 },
   "pages": [{
     "page": 1,                        // 1-based, required
@@ -437,12 +414,18 @@ a spec — it is a list of assumptions.
       "type":  "text" | "image" | "table" | "paragraph",   // required
       "id":    "string",              // required, reporting only
       "label": "string",              // optional
-      "top":   0, "left": 0,          // required, spec units, from top-left
+      "top":   0, "left": 0,          // spec units, from the page's top-left
+      "right": 0, "bottom": 0,        // the element's right and bottom edges, also from top-left
+      "baseline": 0,                  // text only; the baseline, from the page's top
+                                      //   — at least one of these five
 
       // text / paragraph
       "text":  "string",
       "match": "exact" | "contains",  // default "contains"
       "fontSize":    0,               // text only, POINTS
+      "font":  "string",              // text only, family as the workbook writes it
+      "bold":  true, "italic": true,  // text only, from their own rows
+      "colour": "#0B3C5D",            // text only, compared by CIEDE2000 ΔE
       "lineSpacing": 0,               // paragraph only, required
 
       // image / table
@@ -458,7 +441,10 @@ a spec — it is a list of assumptions.
         "match":      "exact" | "contains",                  // default "contains"
         "occurrence": 1               // default 1
       },
-      "tolerance": { "position": 0, "size": 0, "spacing": 0, "fontSize": 0 }
+      "tolerance": { "position": 0, "size": 0, "spacing": 0, "fontSize": 0 },
+
+      // written by the compiler, one per parameter: the cell this came from
+      "source": { "top": { "sheet": "1", "cell": "E12" } }
     }]
   }]
 }

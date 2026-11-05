@@ -83,8 +83,10 @@ async function main() {
   check('it is counted as a warning', wrongPage.warnCount === 1);
 
   const pinned: PdfSpec = { ...wrong, pageSizePinned: true };
-  const pinnedSize = (await runSpec(pdf, pinned)).pages[0].pageSize;
-  check('a pinned size that differs is an error', pinnedSize?.status === 'fail');
+  const pinnedPage = (await runSpec(pdf, pinned)).pages[0];
+  check('a pinned size that differs is an error', pinnedPage.pageSize?.status === 'fail');
+  check('and it counts as a failed check', pinnedPage.failCount === 1,
+    `failCount ${pinnedPage.failCount}`);
 
   // ── decisions 5 and 10 · the spelling both sides are compared in ───
   //

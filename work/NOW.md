@@ -3,4 +3,4 @@ type: Pointer
 description: "One line: the current state and the immediate next step. Overwritten every session."
 ---
 
-uncommitted — 2026-11-04: **W-02 DoD 1, 2, 3, 5 and 7 landed** — workbook → spec JSON end to end. The fixture's matching PDF reports **0 failures** and its deviations PDF reports 8 of 9 detectable (spec-compile 26/26, spec-template 28/28, spec-intake 17/17). **W-04 is unblocked.** Next: W-04 DoD 2/4/6, or W-02 DoD 6 (validation UI) and 9/10 (docs, record). Seven rulings owed, oldest 17 days.
+uncommitted — 2026-11-05: **W-02 is 8 of 10; W-04 is 5 of 7 and DoD 7 is half done.** Form XObjects are now handled in both operator-list walkers — a form's own `/Matrix` was ignored, so anything drawn inside one was measured at the wrong place; `cli/verify/spec-form-xobject.ts` 4/4 proves it with a hand-built PDF carrying a non-identity matrix. Suite green, 16 files. **Still owed by DoD 7: SR-SPEC-CHECK's built status (it is `partly` — decision 9's opt-in image-content comparison and container fills are unbuilt, and decision 15's CLI half is W-11), the register row, and the ARCHITECTURE spec diagram + SVG.** Eight rulings owed, oldest 18 days.

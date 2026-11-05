@@ -139,6 +139,14 @@ export interface SpecWorkbook {
   sheets: ImportedSheet[];
   /** Everything skipped or worth saying, each with its sheet and cell. */
   notes: IntakeNote[];
+  /**
+   * The file as uploaded.
+   *
+   * Kept because the annotated workbook (decision 14) is *this* file with red
+   * cells added — a rebuilt one would lose the author's formatting, their
+   * notes column and their screenshots, which is most of what makes it theirs.
+   */
+  bytes: Uint8Array;
 }
 
 /** Column letters for a 0-based index: 0 → A, 26 → AA. */
@@ -263,6 +271,8 @@ export async function readSpecWorkbook(file: File): Promise<SpecWorkbook> {
     );
   }
 
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
   let wb: ImportedWorkbook;
   try {
     wb = await read(file, { maxTotalSize: MAX_UNZIPPED_BYTES });
@@ -297,6 +307,7 @@ export async function readSpecWorkbook(file: File): Promise<SpecWorkbook> {
   return {
     name: file.name,
     sha256: wb.sha256 ?? null,
+    bytes,
     workbook: wb,
     sheets: wb.sheets.filter((s) => s.state === 'visible'),
     notes,

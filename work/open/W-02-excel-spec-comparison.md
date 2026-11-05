@@ -5,8 +5,8 @@ description: "Arpit, 2026-10-14, rescoped 2026-10-16: build spec intake — uplo
 item: W-02
 filed: 2026-10-14
 filed_by: Arpit
-updated: 2026-11-04
-updated_by: agent
+updated: 2026-11-05
+updated_by: Siddharth
 ball: agent
 ---
 
@@ -19,7 +19,7 @@ ball: agent
 | **What** | Upload an Excel spec (or a spec JSON), validate it, and compile it to a spec JSON in which every value names its sheet and cell |
 | **Why** | Specs are kept in Excel and Excel is the truth; today the app takes JSON only |
 | **Done when** | A workbook drops in, every problem is listed with its cell — a missing, in-value or unknown unit is an error, never a guess — and the spec JSON downloads and re-uploads unchanged |
-| **Status** | 🟢 5 of 10 DoD done (1, 2, 3, 5 values, 7 outputs — JSON only) |
+| **Status** | 🟢 8 of 10 DoD done (1, 2, 4, 6, 7, 8, 9, 10) · 3 and 5 part-done: no blank template artefact, and decisions 10 (rich text) and 12 (relative values) unbuilt |
 | **Waits on** | nothing — both blockers cleared: W-05 landed 2026-11-03, `@sheetpane/import` published 0.5.1 |
 | **Who** | `agent` · Opus |
 | **Record** | SR-SPEC-INTAKE |
@@ -73,16 +73,16 @@ and uploaded again.
 
 | DoD | what | state |
 |---|---|---|
-| 1 · upload | ✅ `uploadKind` accepts `.xlsx`/`.json` and refuses `.xls`, `.xlsm`, `.csv` and anything else, each with its own way out; password-protected mapped from the reader. **Label not yet changed in the tab** — that is DoD 6's UI pass | 🟡 |
+| 1 · upload | ✅ `uploadKind` accepts `.xlsx`/`.json` and refuses `.xls`, `.xlsm`, `.csv` and anything else, each with its own way out; password-protected mapped from the reader. The tab's own label and `accept` now say `.xlsx` or `.json` too | ✅ |
 | 2 · reader | ✅ `specIntake.ts` over `read()` (pinned `0.5.1`), never the zip; refusals mapped; raw size checked before unzip and `maxTotalSize` passed from SR-CONSTANTS; hidden sheets, rows, columns and filtered rows listed with their cells; formulas per decision 5; **units per 7a** in `specTemplate.ts` | ✅ |
 | 3 · template v2 | ✅ `specTemplate.ts` reads Pages List, Settings, Lists and the page sheets; merged labels read from the declared range, never forward-filled; the clean fixture reads with **0 errors, 0 warnings, 290 rows**, and the with-errors fixture yields **exactly its ten**. **Blank template not produced** — a separate artefact, left for the UI pass | 🟡 |
-| 4 · legacy | the nested layout read per decision 8 — merges forward-filled, prose parsed, every value marked inferred | ⏳ |
+| 4 · legacy | ✅ `specLegacy.ts` reads the nested layout — merged labels from the file's own declared ranges, prose pulled apart into Value / Unit / From with a built-in vocabulary, every cell marked **read**, **inferred** or **unreadable**. `specDraft.ts` writes the draft Template v2 workbook: amber where it inferred, red where it could not read, **Check? = Note on every row**, so the draft itself asserts nothing. The tab offers it as a download and checks nothing until the confirmed workbook comes back. `sheetRead.ts` and `sheetSpec.ts`, which turned a legacy sheet straight into assertions, are gone | ✅ |
 | 5 · values | ✅ decision 9 (fractions, comma decimals, leading dots, ranges as bands, `~` and range+Tolerance refused) and decision 11 strikethrough. **Decision 10 rich text and decision 12 relative values not done** — no fixture row exercises either | 🟡 |
-| 6 · validation | the three severities and their examples per decision 13; the validation report shown in the app with each line's cell | ⏳ |
-| 7 · outputs | ✅ `compileSpec` produces the spec JSON — every element with `source: {sheet, cell}`, the workbook SHA-256, the template version and its own tolerances; coverage accounts for **all 290 rows**. **Not done: downloading from the tab and the re-upload round trip** — UI work | 🟡 |
-| 8 · fixtures | expected extraction and spec JSON frozen for `work/samples/excel-spec-template-v2/report-spec.xlsx`; `report-spec-with-errors.xlsx` yields exactly its `expected-validation.json` (ten errors, no assertion for those rows); a legacy-layout sheet built in the test from the v2 data yields a **draft v2 workbook**, no assertions (decision 8); a parser change that alters any of them fails (decision 16) | ⏳ |
-| 9 · docs | `spec-standard.md` rewritten for the spec JSON and template v2 (its old §7 removed); `docs/ARCHITECTURE.md` spec diagram re-drawn and its SVG re-rendered; glossary terms marked built | ⏳ |
-| 10 · record | SR-SPEC-INTAKE `built` set to yes in the register; its Consequences updated | ⏳ |
+| 6 · validation | ✅ the three severities separate as decision 13 draws them — an error on the file or the Pages List stops the run, an error on an element only removes it; the report is the first thing the tab shows, every line naming its sheet and cell, with the rows that have no check and **every accepted assertion in plain words** (decision 14) behind a disclosure | ✅ |
+| 7 · outputs | ✅ all four of decision 14, from the Export menu the moment the workbook is read — the **validation report** (HTML, prints, every line with its cell and every assertion in words), the **annotated workbook** (*the uploaded file*, its error cells filled red — blank ones too — and a `Validation` sheet appended; the author's formatting, notes and screenshots untouched), the **extraction JSON** (every row: cell, raw text, parsed value, status) and the **spec JSON**, which uploads again and checks a PDF | ✅ |
+| 8 · fixtures | ✅ **except the legacy clause** — the whole extraction, the whole compiled spec and coverage of `report-spec.xlsx` are frozen (`expected-extraction.json`, `expected-spec.json`, `expected-coverage.json`); any drift fails with the first differing line, and `--update` re-freezes it deliberately (decision 16). `report-spec-with-errors.xlsx` yields exactly the ten cells its `expected-validation.json` plants, no others, and **none of them reaches an assertion**. The legacy clause is covered too: `spec-legacy.ts` builds a legacy sheet from the v2 data and proves it yields a draft and **no assertion by any route** | ✅ |
+| 9 · docs | ✅ `spec-standard.md` §7 replaced — the old “recommended column layout” for a conversion nobody had written is now Template v2 as the reader enforces it, plus the legacy draft path; §5.1 gained font, bold, italic and colour and §8 says validation happens on the workbook. `docs/ARCHITECTURE.md`'s spec diagram re-drawn (34 nodes, 39 edges) and `architecture/10-spec-driven-comparison.svg` re-rendered with `htmlLabels: false`, matching the other SVGs — one with `foreignObject` labels renders blank in standalone viewers. Glossary terms marked **built**, two of them corrected | ✅ |
+| 10 · record | ✅ but **partly**, not yes — decisions 10 and 12 and three of decision 14's four downloads are unbuilt, so the register gained a third value with its meaning stated above the table, and the record's Consequences name exactly what is in and what is out. Decision 16 is now enforced | ✅ |
 
 ## Landed
 

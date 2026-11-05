@@ -72,7 +72,11 @@ tells what all files are present" — with input hashes included (the refined op
 
 ### Consequences
 
-- Built by W-27 and W-09; the spec and inspect runs reuse it (W-11, W-28).
+- **Built for the spec run (2026-11-05, W-04 DoD 5):** `buildManifest` in
+  `src/features/spec/`, written last over the final bytes of `result.json` and `report.html`,
+  with no timestamp in it. An input keeps the hash `result.json` already recorded rather than
+  being hashed twice, so the two files cannot disagree about one file.
+- Still to build: compare (W-27, W-09), inspect (W-28).
 
 ### Alternatives considered
 

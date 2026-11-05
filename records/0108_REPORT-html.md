@@ -83,8 +83,13 @@ files, one of them `report.html`.
 
 ### Consequences
 
-- Built by W-27 (compare), W-09 (`--each`), W-11 (spec), W-28 (inspect). Until then, two
-  writers exist and differ.
+- **The spec report is built (2026-11-05, W-04 DoD 5):** `buildReportHtml(result)` in
+  `src/features/spec/`, reading `result.json` and nothing else. Script-free, self-contained,
+  `<details>` for expanding, images for failing pages only, every inserted value escaped —
+  each checked in `cli/verify/spec-outputs-run.ts`, including a file name made of markup. The
+  spec tab's own earlier HTML export (`specExport.ts`) is **deleted**: two report formats from
+  one tab is what decision 1 exists to prevent.
+- Still to build: compare (W-27), `--each` (W-09), inspect (W-28).
 
 ### Alternatives considered
 

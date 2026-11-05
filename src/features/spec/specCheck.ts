@@ -13,13 +13,22 @@ import type {
   ParagraphSpec,
   PdfSpec,
   SpecAnchor,
+  SpecCoverage,
+  SpecElementBase,
+  SpecElement,
+  SpecPage,
+  SpecPageResult,
   SpecReport,
   SpecTolerance,
+  TestedPair,
   SpecUnit,
   TableSpec,
   TextSpec,
 } from './types';
-import { ANCHOR_WITHIN, BASE_SCALE, SPEC_TOLERANCE } from '../../services/specConstants';
+import { ANCHOR_WITHIN, BASE_SCALE, COLOUR_DELTA_E, SPEC_TOLERANCE } from '../../services/specConstants';
+import { compareFont, parseFontName } from './specFonts';
+import { cmykToRgb, compareColour, grayToRgb, toHex, type Rgb } from './specColour';
+import { bindPages, hasPagesList } from './specPages';
 
 export { loadPdf };
 
@@ -66,7 +75,7 @@ const LIGATURES: [RegExp, string][] = [
  * says are always compared exactly, and letter case, which callers fold
  * separately so a case check can still see it.
  */
-function canonical(s: string): string {
+export function canonical(s: string): string {
   let out = s.normalize('NFC');
   for (const [re, to] of LIGATURES) out = out.replace(re, to);
   return out
@@ -104,6 +113,10 @@ interface PointItem {
   width: number;
   height: number; // font height
   baseline: number; // from top
+  /** The real font name, subset prefix and all; '' when pdf.js cannot say. */
+  font: string;
+  /** The fill colour in force when this run was painted; null when unknown. */
+  colour: Rgb | null;
 }
 interface Line {
   items: PointItem[];
@@ -116,16 +129,144 @@ interface Line {
   baseline: number;
   fontHeight: number;
   count: number;
+  /** The font most of this line is set in, for the font check. */
+  font: string;
+  /** The colour most of this line is painted in, for the colour check. */
+  colour: Rgb | null;
+}
+
+/** A colour, and the point on the page where it was painted. */
+interface PaintedColour {
+  x: number;
+  y: number;
+  colour: Rgb;
+}
+
+/**
+ * Where each colour was painted, in page coordinates.
+ *
+ * The colour of a piece of text is not in the text layer — it is whatever fill
+ * was in force in the content stream when the run was painted. Matching the two
+ * by *order* does not work: pdf.js's text layer splits and merges runs
+ * differently from the stream (the fixture's page 2 has 60 text items against
+ * 35 paint operations), so counting lines them up wrongly and silently.
+ *
+ * Position is what both views agree on, so the graphics and text matrices are
+ * tracked here and every painted run gets a point. A line then takes the colour
+ * painted nearest its own baseline.
+ */
+async function paintedColours(page: PDFPageProxy, vpTransform: number[]): Promise<PaintedColour[]> {
+  const ops = await page.getOperatorList();
+  const OPS = pdfjsLib.OPS as unknown as Record<string, number>;
+  const out: PaintedColour[] = [];
+
+  let colour: Rgb | null = null;
+  let ctm: number[] = [1, 0, 0, 1, 0, 0];
+  let textMatrix: number[] = [1, 0, 0, 1, 0, 0];
+  const stack: { ctm: number[]; colour: Rgb | null }[] = [];
+
+  for (let i = 0; i < ops.fnArray.length; i++) {
+    const fn = ops.fnArray[i];
+    const args = ops.argsArray[i] as unknown as number[];
+
+    if (fn === OPS.save) {
+      stack.push({ ctm: [...ctm], colour });
+    } else if (fn === OPS.restore) {
+      const prev = stack.pop();
+      if (prev) {
+        ctm = prev.ctm;
+        colour = prev.colour;
+      }
+    } else if (fn === OPS.paintFormXObjectBegin) {
+      // Text inside a form is positioned through the form's matrix too, and a
+      // colour matched to the wrong point is a finding about the wrong text.
+      stack.push({ ctm: [...ctm], colour });
+      ctm = pdfjsLib.Util.transform(ctm, args[0] as unknown as number[]);
+    } else if (fn === OPS.paintFormXObjectEnd) {
+      const prev = stack.pop();
+      if (prev) {
+        ctm = prev.ctm;
+        colour = prev.colour;
+      }
+    } else if (fn === OPS.transform) {
+      ctm = pdfjsLib.Util.transform(ctm, args as unknown as number[]);
+    } else if (fn === OPS.setFillRGBColor) {
+      colour = { r: args[0], g: args[1], b: args[2] };
+    } else if (fn === OPS.setFillGray) {
+      colour = grayToRgb(args[0]);
+    } else if (fn === OPS.setFillCMYKColor) {
+      colour = cmykToRgb(args[0], args[1], args[2], args[3]);
+    } else if (fn === OPS.beginText) {
+      textMatrix = [1, 0, 0, 1, 0, 0];
+    } else if (fn === OPS.setTextMatrix) {
+      textMatrix = args as unknown as number[];
+    } else if (fn === OPS.showText || fn === OPS.showSpacedText) {
+      if (colour) {
+        // Text matrix through the CTM through the viewport gives the page point.
+        const m = pdfjsLib.Util.transform(
+          vpTransform,
+          pdfjsLib.Util.transform(ctm, textMatrix),
+        );
+        out.push({ x: m[4], y: m[5], colour });
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * The colour painted nearest a point, or null when nothing was painted close
+ * enough to be about the same text.
+ *
+ * `within` is deliberately tight: a colour from the other side of the page is
+ * not evidence about this line, and reporting "no colour" is the honest answer
+ * where reporting a neighbour's colour would be a finding about the wrong
+ * thing.
+ */
+function colourNear(points: PaintedColour[], x: number, y: number, within = 6): Rgb | null {
+  let best: PaintedColour | null = null;
+  let bestD = Infinity;
+  for (const p of points) {
+    const d = Math.hypot(p.x - x, p.y - y);
+    if (d < bestD) {
+      bestD = d;
+      best = p;
+    }
+  }
+  return best && bestD <= within ? best.colour : null;
 }
 
 async function extractItems(page: PDFPageProxy): Promise<{ items: PointItem[]; widthPt: number; heightPt: number }> {
   const vp = page.getViewport({ scale: 1 });
+
+  // The operator list must be walked before `commonObjs` holds the fonts, so
+  // this also populates the lookup the font name below depends on.
+  const painted = await paintedColours(page, vp.transform as unknown as number[]);
   const content = await page.getTextContent();
+
+  const fontNames = new Map<string, string>();
+  const realFont = (key: string | undefined): string => {
+    if (!key) return '';
+    const hit = fontNames.get(key);
+    if (hit !== undefined) return hit;
+    let name = '';
+    try {
+      name = String((page.commonObjs.get(key) as { name?: string } | undefined)?.name ?? '');
+    } catch {
+      // pdf.js has not resolved this font; the check reports it as unreadable
+      // rather than guessing a family from the key.
+      name = '';
+    }
+    fontNames.set(key, name);
+    return name;
+  };
+
   const items: PointItem[] = [];
   for (const raw of content.items) {
-    const it = raw as { str?: string; width?: number; transform?: number[] };
+    const it = raw as { str?: string; width?: number; transform?: number[]; fontName?: string };
     if (typeof it.str !== 'string' || !it.str.trim()) continue;
     const m = pdfjsLib.Util.transform(vp.transform, it.transform!);
+    const colour = colourNear(painted, m[4], m[5]);
     const fontHeight = Math.hypot(m[2], m[3]);
     items.push({
       str: it.str,
@@ -134,6 +275,8 @@ async function extractItems(page: PDFPageProxy): Promise<{ items: PointItem[]; w
       width: (it.width ?? 0),
       height: fontHeight,
       baseline: m[5],
+      font: realFont(it.fontName),
+      colour,
     });
   }
   return { items, widthPt: vp.width, heightPt: vp.height };
@@ -150,6 +293,14 @@ async function extractItems(page: PDFPageProxy): Promise<{ items: PointItem[]; w
  */
 const COLUMN_GAP = 1.2;
 
+/** The value that appears most often, or undefined for an empty list. */
+function commonest<T>(xs: T[]): T | undefined {
+  if (xs.length === 0) return undefined;
+  const tally = new Map<T, number>();
+  for (const x of xs) tally.set(x, (tally.get(x) ?? 0) + 1);
+  return [...tally.entries()].sort((a, b) => b[1] - a[1])[0][0];
+}
+
 /** Build a Line from fragments already known to belong together, left to right. */
 function makeLine(items: PointItem[]): Line {
   const ordered = [...items].sort((a, b) => a.left - b.left);
@@ -165,6 +316,8 @@ function makeLine(items: PointItem[]): Line {
     baseline: ordered.reduce((sum, i) => sum + i.baseline, 0) / ordered.length,
     fontHeight: median(ordered.map((i) => i.height)),
     count: ordered.length,
+    font: commonest(ordered.map((i) => i.font).filter(Boolean)) ?? '',
+    colour: ordered.find((i) => i.colour)?.colour ?? null,
   };
 }
 
@@ -258,7 +411,14 @@ async function extractImages(page: PDFPageProxy, pageHeightPt: number): Promise<
     if (fn === OPS.save) stack.push(ctm.slice());
     else if (fn === OPS.restore) ctm = stack.pop() ?? [1, 0, 0, 1, 0, 0];
     else if (fn === OPS.transform) ctm = pdfjsLib.Util.transform(ctm, args);
-    else if (imgOps.has(fn)) {
+    else if (fn === OPS.paintFormXObjectBegin) {
+      // The form's own matrix applies to everything inside it, and pdf.js
+      // puts those operations straight into this list.
+      stack.push(ctm.slice());
+      ctm = pdfjsLib.Util.transform(ctm, args[0] as unknown as number[]);
+    } else if (fn === OPS.paintFormXObjectEnd) {
+      ctm = stack.pop() ?? [1, 0, 0, 1, 0, 0];
+    } else if (imgOps.has(fn)) {
       const corners = [[0, 0], [1, 0], [1, 1], [0, 1]].map((p) => pdfjsLib.Util.applyTransform(p, ctm));
       const xs = corners.map((c) => c[0]);
       const ys = corners.map((c) => c[1]);
@@ -380,6 +540,89 @@ function tol(el: { tolerance?: SpecTolerance }, spec: PdfSpec, key: keyof SpecTo
   return el.tolerance?.[key] ?? spec.tolerance?.[key] ?? DEFAULT_TOL[key];
 }
 
+/**
+ * The wording itself, against the line that was found (decision 10).
+ *
+ * Finding the line is a looser business than judging it: a line is located
+ * with everything normalised, because otherwise a non-breaking space in the
+ * PDF would report the text as missing, which is a worse answer than a
+ * qualified one. What is reported here is stricter.
+ *
+ * - **Exact text = Yes** is character for character. Anything else fails, and
+ *   both strings are shown so the difference can be seen.
+ * - Otherwise a plain substring match passes silently, and a match that only
+ *   appears after normalising passes **with a note** — the document and the
+ *   workbook do not literally agree, and somebody should know which it is.
+ *
+ * ®, ™ and superscripts pass through `canonical` untouched, so they are
+ * compared exactly either way.
+ */
+function wordingCheck(expected: string, actualLine: string, exact: boolean): CheckResult {
+  const show = (t: string) => `“${t.length > 80 ? t.slice(0, 77) + '…' : t}”`;
+
+  if (exact) {
+    const same = actualLine.trim() === expected.trim();
+    return {
+      name: 'Text',
+      expected: show(expected),
+      actual: same ? show(expected) : show(actualLine),
+      pass: same,
+      ...(same ? {} : { delta: 'Exact text is Yes, so this is compared character for character' }),
+    };
+  }
+
+  const literal = actualLine.includes(expected.trim());
+  return {
+    name: 'Text',
+    expected: show(expected),
+    actual: literal ? 'found as written' : show(actualLine),
+    pass: true,
+    ...(literal ? {} : { note: 'matched only after normalising spacing, quotes and dashes' }),
+  };
+}
+
+/**
+ * Name every check with the cell it came from (decision 12).
+ *
+ * Done once, here, rather than at each of the twenty places a check is
+ * pushed: which row produced which check is a single fact about the template,
+ * and spreading it would guarantee that a new check quietly arrives with no
+ * cell on it.
+ */
+const CHECK_SOURCE: Record<string, string> = {
+  Present: 'text',
+  Text: 'text',
+  Left: 'left',
+  Top: 'top',
+  Right: 'right',
+  Bottom: 'bottom',
+  Baseline: 'baseline',
+  Width: 'width',
+  Height: 'height',
+  'Font size': 'fontSize',
+  Font: 'font',
+  Colour: 'colour',
+  'Line spacing': 'lineSpacing',
+  Rows: 'rows',
+  Columns: 'columns',
+  Anchor: 'anchor',
+};
+
+function withSource(el: SpecElement, result: ElementResult): ElementResult {
+  const source = (el as SpecElement & { source?: Record<string, { sheet: string; cell: string }> }).source;
+  if (!source) return result;
+  for (const check of result.checks) {
+    const key = CHECK_SOURCE[check.name];
+    // Presence and wording fall back to the element's position cell, so a
+    // finding about an element whose wording row is implied still says where
+    // in the workbook to look.
+    const place = (key ? source[key] : undefined)
+      ?? (check.name === 'Present' || check.name === 'Text' ? source.top : undefined);
+    if (place) check.cell = `${place.sheet}!${place.cell}`;
+  }
+  return result;
+}
+
 // ── anchors ───────────────────────────────────────────────────────────
 /** How far from the anchor text to search, in spec units, when not stated. */
 const DEFAULT_ANCHOR_WITHIN = ANCHOR_WITHIN;
@@ -472,12 +715,82 @@ function posCheck(name: string, actualPt: number, expectedPt: number, tolPt: num
   };
 }
 
+/**
+ * Where an element says it is, in points, for ranking candidates.
+ *
+ * An element placed from the bottom-right states no Top, so "nearest the
+ * declared top" has to fall back to whichever edge it *did* state — a
+ * baseline and a bottom are both a y, and comparing against either beats
+ * comparing against zero, which is what `el.top ?? 0` would have done.
+ */
+function expectedY(el: SpecElementBase, u2p: number): number | null {
+  const v = el.top ?? el.baseline ?? el.bottom;
+  return v == null ? null : v * u2p;
+}
+
+function expectedX(el: SpecElementBase, u2p: number): number | null {
+  const v = el.left ?? el.right;
+  return v == null ? null : v * u2p;
+}
+
+/** The actual edges of a found thing, in points. */
+interface Edges {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+  baseline?: number;
+}
+
+/**
+ * One check per edge the workbook stated, and none for the edges it did not.
+ *
+ * Checking an edge nobody wrote down would be inventing an assertion; leaving
+ * a stated one unchecked would be losing one. Both have happened in this
+ * file's history, which is why the list is built from the spec rather than
+ * written out at each call site.
+ */
+function positionChecks(
+  el: SpecElementBase, actual: Edges, u2p: number, posTol: number, fmt: (n: number) => string,
+): CheckResult[] {
+  const out: CheckResult[] = [];
+  const pairs: [string, number | undefined, number | undefined][] = [
+    ['Left', el.left, actual.left],
+    ['Top', el.top, actual.top],
+    ['Right', el.right, actual.right],
+    ['Bottom', el.bottom, actual.bottom],
+    ['Baseline', el.baseline, actual.baseline],
+  ];
+  for (const [name, expected, found] of pairs) {
+    if (expected == null) continue;
+    if (found == null) {
+      out.push({
+        name, expected: fmt(expected * u2p),
+        actual: 'this kind of element has no baseline to measure', pass: false,
+      });
+      continue;
+    }
+    out.push(posCheck(name, found, expected * u2p, posTol, fmt));
+  }
+  return out;
+}
+
+/** The edges of a line, for `positionChecks`. */
+const lineEdges = (l: Line): Edges => ({
+  left: l.left, top: l.top, right: l.right, bottom: l.bottom, baseline: l.baseline,
+});
+
+/** The edges of a box, for `positionChecks`. */
+const boxEdges = (b: Box): Edges => ({
+  left: b.left, top: b.top, right: b.left + b.width, bottom: b.top + b.height,
+});
+
 // ── per-element checks ────────────────────────────────────────────────
 function checkText(
   el: TextSpec, spec: PdfSpec, lines: Line[], u2p: number, fmt: (n: number) => string,
 ): ElementResult {
-  const expLeft = el.left * u2p;
-  const expTop = el.top * u2p;
+  const expLeft = expectedX(el, u2p);
+  const expTop = expectedY(el, u2p);
   const posTol = tolPt(el, spec, 'position', u2p);
   const want = normalize(el.text);
   const mode = el.match ?? 'contains';
@@ -485,7 +798,11 @@ function checkText(
   let candidates = lines.filter((l) => (mode === 'exact' ? l.norm === want : l.norm.includes(want)));
   const base: ElementResult = {
     id: el.id, type: 'text', label: el.label ?? el.text, status: 'not-found',
-    detail: `“${el.text}”`, checks: [], expectedBox: { left: expLeft, top: expTop, width: 6, height: el.fontSize ?? 12 }, actualBox: null,
+    detail: `“${el.text}”`, checks: [],
+    expectedBox: expLeft != null && expTop != null
+      ? { left: expLeft, top: expTop, width: 6, height: el.fontSize ?? 12 }
+      : null,
+    actualBox: null,
   };
   if (candidates.length === 0) {
     base.checks.push({ name: 'Present', expected: 'found', actual: 'not found', pass: false });
@@ -517,10 +834,14 @@ function checkText(
 
   const line = anchored
     ? candidates.reduce((b, l) => (anchored!(lineBox(l)) < anchored!(lineBox(b)) ? l : b))
-    : candidates.reduce((b, l) => (Math.abs(l.top - expTop) < Math.abs(b.top - expTop) ? l : b));
+    : expTop != null
+      ? candidates.reduce((b, l) => (Math.abs(l.top - expTop) < Math.abs(b.top - expTop) ? l : b))
+      : candidates[0];
+  let unreadableFont = false;
+  let unreadableColour = false;
   checks.push({ name: 'Present', expected: 'found', actual: 'found', pass: true });
-  checks.push(posCheck('Left', line.left, expLeft, posTol, fmt));
-  checks.push(posCheck('Top', line.top, expTop, posTol, fmt));
+  checks.push(wordingCheck(el.text, line.text, mode === 'exact'));
+  checks.push(...positionChecks(el, lineEdges(line), u2p, posTol, fmt));
   if (el.fontSize != null) {
     const d = line.fontHeight - el.fontSize;
     checks.push({
@@ -528,9 +849,78 @@ function checkText(
       delta: `${d >= 0 ? '+' : ''}${d.toFixed(1)}pt`, pass: Math.abs(d) <= tol(el, spec, 'fontSize'),
     });
   }
+
+  // ── decision 7 · the font ──
+  //
+  // A neighbouring weight is a warning, not a failure: Regular against Medium
+  // is usually a substituted font, and calling that a defect in the template
+  // teaches people to ignore the report.
+  let nearWeight = false;
+  if (el.font) {
+    if (!line.font) {
+      // pdf.js could not resolve the font. That is a limit of the reading, so
+      // it is unverifiable rather than a failure (decision 6).
+      unreadableFont = true;
+      checks.push({
+        name: 'Font', expected: el.font,
+        actual: 'the PDF does not name the font for this text', pass: false,
+      });
+    } else {
+      const r = compareFont(el.font, line.font, { bold: el.bold, italic: el.italic });
+      const actual = parseFontName(line.font).raw.replace(/^[A-Z]{6}\+/, '');
+      nearWeight = r.verdict === 'near-weight';
+      checks.push({
+        name: 'Font',
+        expected: el.font + (el.bold ? ' bold' : '') + (el.italic ? ' italic' : ''),
+        actual,
+        ...(r.verdict === 'near-weight'
+          ? { delta: `one weight step apart (${r.wanted.weight ?? 400} vs ${r.actual.weight ?? 400})` }
+          : r.verdict === 'wrong-family'
+            ? { delta: 'a different typeface' }
+            : r.verdict === 'wrong-style'
+              ? { delta: 'a different slant' }
+              : {}),
+        pass: r.verdict === 'match',
+      });
+    }
+  }
+
+  // ── decision 8 · the colour ──
+  if (el.colour) {
+    if (!line.colour) {
+      unreadableColour = true;
+      checks.push({
+        name: 'Colour', expected: el.colour,
+        actual: 'the PDF does not state a fill colour for this text', pass: false,
+      });
+    } else {
+      const threshold = spec.colourThreshold ?? COLOUR_DELTA_E;
+      const r = compareColour(el.colour, line.colour, threshold);
+      if (!r) {
+        checks.push({
+          name: 'Colour', expected: el.colour,
+          actual: 'the spec\u2019s colour is not a hex value', pass: false,
+        });
+      } else {
+        checks.push({
+          name: 'Colour', expected: el.colour.toUpperCase(), actual: r.actualHex,
+          delta: `ΔE ${r.deltaE.toFixed(1)} (threshold ${threshold})`,
+          pass: r.same,
+        });
+      }
+    }
+  }
+
+  const othersPass = checks
+    .filter((c) => !((unreadableFont && c.name === 'Font') || (unreadableColour && c.name === 'Colour')))
+    .every((c) => c.pass);
   return {
     ...base,
-    status: checks.every((c) => c.pass) ? 'pass' : 'fail',
+    status: checks.every((c) => c.pass)
+      ? 'pass'
+      : (unreadableFont || unreadableColour) && othersPass
+        ? 'unverifiable'
+        : 'fail',
     checks,
     actualBox: { left: line.left, top: line.top, width: line.right - line.left, height: line.bottom - line.top },
   };
@@ -539,7 +929,16 @@ function checkText(
 function checkImage(
   el: ImageSpec, spec: PdfSpec, images: Box[], lines: Line[], u2p: number, fmt: (n: number) => string,
 ): ElementResult {
-  const exp: Box = { left: el.left * u2p, top: el.top * u2p, width: el.width * u2p, height: el.height * u2p };
+  // An image states a width and a height, so a right or bottom edge pins its
+  // left or top just as well: the box is reconstructed from whichever pair
+  // the workbook gave.
+  const expLeft = el.left != null ? el.left * u2p
+    : el.right != null ? el.right * u2p - el.width * u2p : null;
+  const expTop = el.top != null ? el.top * u2p
+    : el.bottom != null ? el.bottom * u2p - el.height * u2p : null;
+  const exp: Box | null = expLeft != null && expTop != null
+    ? { left: expLeft, top: expTop, width: el.width * u2p, height: el.height * u2p }
+    : null;
   const posTol = tolPt(el, spec, 'position', u2p);
   const sizeTol = tolPt(el, spec, 'size', u2p);
   const base: ElementResult = {
@@ -578,7 +977,7 @@ function checkImage(
     pool = near.sort((a, b) => region.distance(a) - region.distance(b));
   }
 
-  const img = el.anchor
+  const img = el.anchor || !exp
     ? pool[0]
     : pool.reduce((b, im) => {
         const d = Math.hypot(im.left - exp.left, im.top - exp.top);
@@ -586,10 +985,9 @@ function checkImage(
         return d < bd ? im : b;
       });
   checks.push({ name: 'Present', expected: 'found', actual: 'found', pass: true });
-  checks.push(posCheck('Left', img.left, exp.left, posTol, fmt));
-  checks.push(posCheck('Top', img.top, exp.top, posTol, fmt));
-  checks.push(posCheck('Width', img.width, exp.width, sizeTol, fmt));
-  checks.push(posCheck('Height', img.height, exp.height, sizeTol, fmt));
+  checks.push(...positionChecks(el, boxEdges(img), u2p, posTol, fmt));
+  checks.push(posCheck('Width', img.width, el.width * u2p, sizeTol, fmt));
+  checks.push(posCheck('Height', img.height, el.height * u2p, sizeTol, fmt));
   return {
     ...base, status: checks.every((c) => c.pass) ? 'pass' : 'fail', checks, actualBox: img,
   };
@@ -598,23 +996,28 @@ function checkImage(
 function checkTable(
   el: TableSpec, spec: PdfSpec, lines: Line[], u2p: number, fmt: (n: number) => string,
 ): ElementResult {
-  const expLeft = el.left * u2p;
-  const expTop = el.top * u2p;
+  const expLeft = expectedX(el, u2p);
+  const expTop = expectedY(el, u2p);
   const expWidth = el.width * u2p;
   const posTol = tolPt(el, spec, 'position', u2p);
   const sizeTol = tolPt(el, spec, 'size', u2p);
-  const exp: Box = { left: expLeft, top: expTop, width: expWidth, height: 0 };
   const base: ElementResult = {
     id: el.id, type: 'table', label: el.label ?? el.id, status: 'not-found',
-    detail: `table ${el.width} wide`, checks: [], expectedBox: exp, actualBox: null,
+    detail: `table ${el.width} wide`, checks: [],
+    expectedBox: expLeft != null && expTop != null
+      ? { left: expLeft, top: expTop, width: expWidth, height: 0 }
+      : null,
+    actualBox: null,
   };
 
   // Table rows = multi-column lines within the horizontal span. Without an anchor
   // the first row must start near expTop; with one, it must start below the label.
   const spanTol = posTol * 3;
   const anchorChecks: CheckResult[] = [];
-  let startTop = expTop;
-  let startTol = spanTol * 2;
+  // With no Top and no anchor there is nothing to start from, so the first
+  // multi-column row in the span is the table's first row.
+  let startTop = expTop ?? -Infinity;
+  let startTol = expTop == null ? Infinity : spanTol * 2;
 
   if (el.anchor) {
     const region = anchorRegion(el.anchor, lines, u2p);
@@ -626,7 +1029,11 @@ function checkTable(
     startTol = (el.anchor.within ?? DEFAULT_ANCHOR_WITHIN) * u2p;
   }
 
-  const inSpan = rowsWithin(lines, expLeft, expLeft + expWidth, spanTol)
+  // Without a Left the span is the whole page: the width check still means
+  // something, the horizontal filter does not.
+  const spanLeft = expLeft ?? -Infinity;
+  const spanRight = expLeft != null ? expLeft + expWidth : Infinity;
+  const inSpan = rowsWithin(lines, spanLeft, spanRight, spanTol)
     .filter((l) => l.count >= 2 && l.top >= startTop - spanTol)
     .sort((a, b) => a.top - b.top);
 
@@ -653,8 +1060,7 @@ function checkTable(
   const cols = Math.max(...rows.map((r) => r.count));
 
   const checks: CheckResult[] = [...anchorChecks, { name: 'Present', expected: 'found', actual: `${rows.length} rows`, pass: true }];
-  checks.push(posCheck('Left', left, expLeft, posTol, fmt));
-  checks.push(posCheck('Top', top, expTop, posTol, fmt));
+  checks.push(...positionChecks(el, boxEdges(actual), u2p, posTol, fmt));
   checks.push(posCheck('Width', actual.width, expWidth, sizeTol, fmt));
   if (el.rows != null) checks.push({ name: 'Rows', expected: `${el.rows}`, actual: `${rows.length}`, pass: rows.length === el.rows });
   if (el.columns != null) checks.push({ name: 'Columns', expected: `${el.columns}`, actual: `${cols}`, pass: cols === el.columns });
@@ -664,15 +1070,19 @@ function checkTable(
 function checkParagraph(
   el: ParagraphSpec, spec: PdfSpec, lines: Line[], u2p: number, fmt: (n: number) => string,
 ): ElementResult {
-  const expLeft = el.left * u2p;
-  const expTop = el.top * u2p;
+  const expLeft = expectedX(el, u2p);
+  const expTop = expectedY(el, u2p);
   const expSpacing = el.lineSpacing * u2p;
   const posTol = tolPt(el, spec, 'position', u2p);
   const spacingTol = tolPt(el, spec, 'spacing', u2p);
   const want = normalize(el.text);
   const base: ElementResult = {
     id: el.id, type: 'paragraph', label: el.label ?? el.id, status: 'not-found',
-    detail: `“${el.text}…”`, checks: [], expectedBox: { left: expLeft, top: expTop, width: 120, height: expSpacing }, actualBox: null,
+    detail: `“${el.text}…”`, checks: [],
+    expectedBox: expLeft != null && expTop != null
+      ? { left: expLeft, top: expTop, width: 120, height: expSpacing }
+      : null,
+    actualBox: null,
   };
 
   const startIdx = lines.findIndex((l) => l.norm.includes(want));
@@ -695,8 +1105,7 @@ function checkParagraph(
 
   let unmeasurable = true;
   const checks: CheckResult[] = [{ name: 'Present', expected: 'found', actual: `${para.length} lines`, pass: true }];
-  checks.push(posCheck('Left', start.left, expLeft, posTol, fmt));
-  checks.push(posCheck('Top', start.top, expTop, posTol, fmt));
+  checks.push(...positionChecks(el, lineEdges(start), u2p, posTol, fmt));
   if (para.length >= 2) {
     const gaps: number[] = [];
     for (let i = 1; i < para.length; i++) gaps.push(para[i].baseline - para[i - 1].baseline);
@@ -736,6 +1145,15 @@ function checkParagraph(
 
 export interface RunSpecOptions {
   onProgress?: (current: number, total: number) => void;
+  /**
+   * How much of the workbook became a check (decision 13). The checker cannot
+   * work this out — it sees assertions, not rows — so the caller that
+   * compiled the workbook passes it through.
+   */
+  coverage?: SpecCoverage;
+  /** The PDF's own name and hash, for the record of the pair (decision 14). */
+  pdfName?: string;
+  pdfSha256?: string | null;
   /**
    * Check only one spec page, given as its 1-based position in `spec.pages`.
    * Omit to check every page the spec declares.
@@ -779,12 +1197,38 @@ export async function runSpec(
   let passElements = 0;
   let elementCount = 0;
 
-  for (let idx = 0; idx < selected.length; idx++) {
-    const sp = selected[idx];
-    // An override only applies when a single page was selected; otherwise every
-    // page would be checked against the same one.
-    const pdfPage =
-      opts.specPageIndex != null && opts.pdfPageOverride != null ? opts.pdfPageOverride : sp.page;
+  // Which PDF page is which spec page (decisions 1–3). A spec with no Pages
+  // List — an uploaded JSON — keeps the old behaviour: its own page numbers.
+  // So does a page pointed at a PDF page by hand, which is a deliberate
+  // override of the binding, not a question for it.
+  const override = opts.specPageIndex != null && opts.pdfPageOverride != null;
+  const bound = !override && hasPagesList(selected)
+    ? bindPages(await pageTexts(pdf), selected)
+    : null;
+
+  const steps: { sp: SpecPage; pdfPage: number | null; binding: SpecPageResult['binding']; occurrence: number }[] =
+    bound
+      ? bound.bindings.map((b) => ({
+        sp: b.specPage,
+        pdfPage: b.pdfPage,
+        binding: b.how === 'missing' ? undefined : b.how,
+        occurrence: b.occurrence,
+      }))
+      : selected.map((sp) => ({
+        sp,
+        pdfPage: override ? opts.pdfPageOverride! : sp.page,
+        binding: 'declared' as const,
+        occurrence: 1,
+      }));
+
+  // A page the document does not have is reported once, as a page finding, and
+  // not again as every element missing — and an Optional page that is absent is
+  // not reported as a failure at all (decision 1).
+  const toCheck = steps.filter((st) => st.pdfPage != null);
+
+  for (let idx = 0; idx < toCheck.length; idx++) {
+    const { sp, occurrence } = toCheck[idx];
+    const pdfPage = toCheck[idx].pdfPage!;
     const results: ElementResult[] = [];
     let pageSize: ElementResult | null = null;
     let dataUrl: string | null = null;
@@ -830,7 +1274,7 @@ export async function runSpec(
         else if (el.type === 'image') r = checkImage(el, spec, images, lines, u2p, fmt);
         else if (el.type === 'table') r = checkTable(el, spec, lines, u2p, fmt);
         else r = checkParagraph(el, spec, lines, u2p, fmt);
-        results.push(r);
+        results.push(withSource(el, r));
       }
     } else {
       for (const el of sp.elements) {
@@ -844,8 +1288,9 @@ export async function runSpec(
 
     const decided = results.filter((r) => r.status === 'pass' || r.status === 'fail' || r.status === 'not-found');
     const passCount = decided.reduce((s, r) => s + r.checks.filter((c) => c.pass).length, 0);
-    const failCount = decided.reduce((s, r) => s + r.checks.filter((c) => !c.pass).length, 0);
-      + (pageSize && pageSize.status === 'fail' ? 1 : 0);
+    const failCount =
+      decided.reduce((s, r) => s + r.checks.filter((c) => !c.pass).length, 0) +
+      (pageSize && pageSize.status === 'fail' ? 1 : 0);
     const warnCount = results.filter((r) => r.status === 'warning').length +
       (pageSize && pageSize.status === 'warning' ? 1 : 0);
     const unverifiableCount = results.filter((r) => r.status === 'unverifiable').length;
@@ -854,19 +1299,68 @@ export async function runSpec(
     elementCount += results.length;
     passElements += results.filter((r) => r.status === 'pass').length;
 
-    pages.push({ page: pdfPage, specPage: sp.page, pageWidthPt: widthPt, pageHeightPt: heightPt, dataUrl, elements: results, pageSize, passCount, failCount, warnCount, unverifiableCount });
-    onProgress?.(idx + 1, spec.pages.length);
+    pages.push({
+      page: pdfPage, specPage: sp.page,
+      ...(sp.name ? { name: sp.name } : {}),
+      ...(toCheck[idx].binding ? { binding: toCheck[idx].binding } : {}),
+      ...(occurrence > 1 ? { occurrence } : {}),
+      pageWidthPt: widthPt, pageHeightPt: heightPt, dataUrl,
+      elements: results, pageSize, passCount, failCount, warnCount, unverifiableCount,
+    });
+    onProgress?.(idx + 1, toCheck.length);
   }
+
+  const pageFindings = bound ? bound.findings : [];
+
+  // The spec carries where it came from; the caller carries the PDF's side.
+  const from = (spec as PdfSpec & {
+    source?: { workbook?: string; sha256?: string | null; templateVersion?: string | null };
+  }).source;
+  const pair: TestedPair | undefined =
+    from || opts.pdfName
+      ? {
+        ...(from?.workbook ? { workbook: from.workbook } : {}),
+        ...(from?.sha256 !== undefined ? { workbookSha256: from.sha256 } : {}),
+        ...(from?.templateVersion !== undefined ? { templateVersion: from.templateVersion } : {}),
+        ...(opts.pdfName ? { pdfName: opts.pdfName } : {}),
+        ...(opts.pdfSha256 !== undefined ? { pdfSha256: opts.pdfSha256 } : {}),
+      }
+      : undefined;
 
   return {
     title: spec.title ?? 'Spec check',
     units: unit,
     pages,
     totalPass,
-    totalFail,
+    // A Required page missing, or a variant group that matched none or several,
+    // is a failure of the document even though no element was checked — the
+    // verdict and the CLI's exit code have to see it.
+    totalFail: totalFail + pageFindings.filter((f) => f.severity === 'error').length,
     elementCount,
     passElements,
+    pageFindings,
+    ...(opts.coverage ? { coverage: opts.coverage } : {}),
+    ...(pair ? { pair } : {}),
   };
+}
+
+/**
+ * The text of every page, for the binder.
+ *
+ * `getTextContent` is cheap next to rendering, and the binder needs all the
+ * pages before it can place the first one — a page may be out of order, which
+ * is only visible from the whole document.
+ */
+async function pageTexts(pdf: PDFDocumentProxy): Promise<string[]> {
+  const out: string[] = [];
+  for (let n = 1; n <= pdf.numPages; n++) {
+    const page = await pdf.getPage(n);
+    const content = await page.getTextContent();
+    out.push(content.items
+      .map((it) => (it as { str?: string }).str ?? '')
+      .join(' '));
+  }
+  return out;
 }
 
 // Basic shape validation for a parsed spec object.

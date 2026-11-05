@@ -10,9 +10,11 @@
  * without warning to the rest of the repository.
  */
 
-export { runSpec, validateSpec, loadPdf } from './specCheck';
-export { sheetToSpec, parseLength, usableText } from './sheetSpec';
-export { readSheetFile, readWorkbook, readCsv } from './sheetRead';
+export { runSpec, validateSpec, loadPdf, canonical } from './specCheck';
+
+// Binding the Pages List to the PDF's pages (W-04 DoD 2).
+export { bindPages, hasPagesList, normalizePageText } from './specPages';
+export type { PageBinding, BindResult } from './specPages';
 
 // Spec intake (W-02): the one workbook reader, over @sheetpane/import.
 export {
@@ -30,13 +32,34 @@ export type { Extraction, Vocabulary, Settings, PageListEntry, SpecRow, Paramete
 export { compileSpec } from './specCompile';
 export type { CompiledSpec, CoverageEntry, SourceCell } from './specCompile';
 export { parseNumber, parseNumericValue, bandOf } from './specValues';
+export { buildValidationReport, explainSpec, coverageLine } from './specValidate';
+// The legacy nested layout (W-02 DoD 4) — a draft workbook, never a spec.
+export { looksLegacy, readLegacy, parseProse, draftCounts } from './specLegacy';
+export type { LegacyDraft, DraftRow, DraftCell, Origin } from './specLegacy';
+export { writeDraftWorkbook, draftFileName } from './specDraft';
+// The four downloadable outputs (W-02 DoD 7, decision 14).
+export {
+  validationReportHtml, extractionJson, specJsonText, annotateWorkbook, outputNames,
+} from './specOutputs';
+export type { ValidationReport, ExplainedAssertion } from './specValidate';
+export { parseFontName, compareFont, weightDistance } from './specFonts';
+export type { FontName, FontVerdict } from './specFonts';
+export { parseHex, toHex, deltaE2000, compareColour, cmykToRgb, grayToRgb } from './specColour';
+export type { Rgb } from './specColour';
 export type { ParsedValue } from './specValues';
-export { exportSpecJson, exportSpecHtml } from './specExport';
+// The three files of a run (W-04 DoD 5) — one builder each, called by the
+// tab today and by `pdfsuite spec` when W-11 lands (L3).
+export { buildResultJson, resultJsonText, RESULT_SCHEMA } from './specResult';
+export type { ResultJson, ResultMeta, ResultPage, ResultElement, ResultCheck } from './specResult';
+export { buildReportHtml } from './specReportHtml';
+export type { ReportHtmlOptions } from './specReportHtml';
+export { buildManifest, manifestText, MANIFEST_SCHEMA } from './specManifest';
+export type { Manifest, ManifestEntry, ManifestFile } from './specManifest';
+export { buildFixList } from './specFixList';
 
 export type {
-  PdfSpec, SpecPage, SpecElement, SpecUnit, SpecTolerance, SpecAnchor,
+  PdfSpec, SpecPage, SpecRepeats, SpecElement, SpecUnit, SpecTolerance, SpecAnchor,
+  PageFinding,
   TextSpec, ImageSpec, TableSpec, ParagraphSpec,
   SpecReport, SpecPageResult, ElementResult, CheckResult, Box,
 } from './types';
-export type { SheetConversion, ConversionNote } from './sheetSpec';
-export type { Workbook, SheetGrid } from './sheetRead';

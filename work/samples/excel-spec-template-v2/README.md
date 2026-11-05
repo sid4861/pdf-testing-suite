@@ -150,17 +150,11 @@ Measured with pdf.js as the app reads PDFs (`top` = baseline minus font size).
 
 ### `report.pdf` — the matching PDF
 
-All 25 measured elements are **0.000 in** off when text is grouped into lines within each
-column. **The app's checker will still report three false failures today.** It groups text
-into lines across the whole page width, so text side by side on the same baseline becomes
-one line:
-
-| page | what merges | effect today |
-|---|---|---|
-| 2 | sidebar title "Fleet" / "Highlights" with the highlights table's header and first row | title lines and the table header are mis-measured |
-| 3 | graph title "Deliveries by region" with the regional table's header | table header row is lost; Top and Rows go wrong |
-
-This is a checker defect W-04 DoD 1 fixes, left in the sample on purpose.
+All measured elements are **0.000 in** off, and the checker reports **no failure on this
+PDF** — asserted by `cli/verify/spec-fixture.ts`, which also drives the deviations table
+below. The column-aware line grouping that this once depended on landed with W-04 DoD 1,
+and the footers, which are placed from the bottom-right, are checked since DoD 6 taught the
+compiler to convert every edge to a distance from the top-left.
 
 ### `report-with-deviations.pdf`
 
@@ -183,7 +177,14 @@ Rows 3, 4 and 8 must show up as **unchecked** in spec coverage, never as a pass.
 
 ### In this layout
 
-The three "not detectable today" deviations are explicit rows: *Italic words* `Quarter`
-(sheet 1, row 31) and *Fill* `#EEF1F4` (sheet 1, row 11) are **Check? = Yes** and become
-findings once W-04 lands fonts and colour; the graph series colours are **Check? = Note** rows
-and sit in coverage, never as a pass.
+The three "not detectable today" deviations are explicit rows, and each is still
+undetectable for its own reason now that W-04 has landed fonts and colour:
+
+- *Italic words* `Quarter` (sheet 1, row 31) needs **rich text** — per-word styles inside
+  one cell, SR-SPEC-INTAKE decision 10, unbuilt.
+- *Fill* `#EEF1F4` (sheet 1, row 11) is a **container fill**; the colour check reads the
+  colour of painted *text*, so a filled box behind it is not yet compared.
+- The graph series colours are **Check? = Note** rows and sit in coverage, never as a pass.
+
+`cli/verify/spec-fixture.ts` asserts all three: none of them may appear as a finding, and
+none of them may appear as a pass.

@@ -44,8 +44,8 @@ here. Read that record before changing anything below it.
 ### build
 
 
-- 🟢 **W-02** · `agent` · filed by Arpit — spec intake. **DoD 1, 2, 3, 5 and 7 landed 2026-11-04** — workbook → spec JSON end to end; the fixture's matching PDF now reports **0 failures** and its deviations PDF reports 8 of 9 detectable. Next: DoD 4, 6, 8, 9, 10. **Opus.** [detail](open/W-02-excel-spec-comparison.md)
-- 🟢 **W-04** · `agent` · filed by Arpit — spec checker per SR-SPEC-CHECK. DoD 1 ✅, DoD 3 part-done (2026-11-03). **Unblocked 2026-11-04** — W-02's compiler produces spec JSON, so DoD 2, 4 and 6 can start. **Opus.** [detail](open/W-04-spec-check-v2.md)
+- 🟢 **W-02** · `agent` · filed by Arpit — spec intake. **8 of 10 DoD done** (2026-11-05): workbook → validation report → spec JSON → a checked PDF, all from the tab, with all four of decision 14's downloads; a legacy workbook comes back as a draft and asserts nothing; the fixture is frozen as an oracle. **Open:** no blank template artefact (DoD 3), decisions 10 and 12 (DoD 5). **Opus.** [detail](open/W-02-excel-spec-comparison.md)
+- 🟢 **W-04** · `agent` · filed by Arpit — spec checker per SR-SPEC-CHECK. **DoD 1, 2, 4, 5 and 6 ✅**, DoD 3 ✅ except image content (2026-11-05). The fixture is now the acceptance test and passes it. Next: DoD 7 (the record). **Opus.** [detail](open/W-04-spec-check-v2.md)
 - 🟡 **W-48** · `agent` · filed by Arpit — the workbook validation as a contract: every doubtful unit an error, each accepted row in plain words, the `.xlsx` handed back with red cells; same from the tab and `pdfsuite spec --validate-only`. Waiting on W-02. **Sonnet.** [detail](open/W-48-validation-report-contract.md)
 - 🔴 **W-06** · `agent` · filed by Arpit — workspace tabs: Compare · Specification · Inspect, with Bulk compare folded into Compare as *Many*; names owed Arpit's confirmation. **Sonnet.** [detail](open/W-06-rename-workspace-tabs.md)
 - 🟢 **W-08** · `agent` · filed by Arpit — `pdfsuite compare` console output: header, one line per pair, one summary line with report path and exit code; everything else to stderr. **Sonnet.** [detail](open/W-08-cli-console-output.md)

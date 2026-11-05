@@ -40,11 +40,28 @@ export interface SpecAnchor {
   occurrence?: number;
 }
 
-interface SpecElementBase {
+export interface SpecElementBase {
   id: string;
   label?: string;
-  top: number;  // spec units from the top of the page
-  left: number; // spec units from the left of the page
+  /**
+   * Where the element is, in spec units **from the page's top-left**, however
+   * the workbook wrote it: a row measured from the bottom or the right is
+   * converted by the compiler, which knows the page size, so the checker
+   * never has to.
+   *
+   * At least one of these is present — an element with none cannot be found
+   * and is excluded with that said (SR-SPEC-INTAKE decision 13). The ones the
+   * workbook did not state are absent, and absent means *not asserted*: an
+   * element placed from the bottom-right is not silently also claiming a top.
+   */
+  top?: number;
+  left?: number;
+  /** The element's right edge, from the page's left. */
+  right?: number;
+  /** The element's bottom edge, from the page's top. */
+  bottom?: number;
+  /** The text baseline, from the page's top. */
+  baseline?: number;
   tolerance?: SpecTolerance;
   /**
    * Optional. When present, the element is located relative to this text rather
@@ -58,6 +75,14 @@ export interface TextSpec extends SpecElementBase {
   text: string;
   match?: 'exact' | 'contains'; // default 'contains'
   fontSize?: number;            // points, optional
+  /** Family as the workbook writes it, e.g. "Helvetica". */
+  font?: string;
+  /** From the element's own Bold row; absent when the workbook is silent. */
+  bold?: boolean;
+  /** From the element's own Italic row. */
+  italic?: boolean;
+  /** Text colour as a hex string, e.g. "#0B3C5D". */
+  colour?: string;
 }
 
 export interface ImageSpec extends SpecElementBase {
@@ -82,9 +107,37 @@ export interface ParagraphSpec extends SpecElementBase {
 
 export type SpecElement = TextSpec | ImageSpec | TableSpec | ParagraphSpec;
 
+/**
+ * How many times a page may repeat (SR-SPEC-CHECK decision 3).
+ * `max: null` is "no upper limit"; a blank Repeats cell means at least once.
+ */
+export interface SpecRepeats {
+  min: number;
+  max: number | null;
+}
+
 export interface SpecPage {
-  page: number; // 1-based
+  /**
+   * 1-based. For a workbook this is the Pages List position, which is where
+   * the page is *expected*; the page it is actually found at is in the report.
+   */
+  page: number;
   elements: SpecElement[];
+
+  // ── from the Pages List (SR-SPEC-CHECK decisions 1–3) ──
+  /** The page's name, for the report. */
+  name?: string;
+  /**
+   * `required` — absent is an error. `optional` — absent passes, noted.
+   * `conditional` — checked when present, noted when absent, never failed.
+   * Absent on a spec JSON with no Pages List, which is then checked by number.
+   */
+  kind?: 'required' | 'optional' | 'conditional';
+  /** Exactly one page of a variant group must match; none or several is an error. */
+  variantGroup?: string;
+  repeats?: SpecRepeats;
+  /** The text that identifies this page in the PDF (decision 2). */
+  identifyingText?: string;
 }
 
 export interface PdfSpec {
@@ -96,6 +149,11 @@ export interface PdfSpec {
    * than a warning (SR-SPEC-CHECK decision 4).
    */
   pageSizePinned?: boolean;
+  /**
+   * The workbook's own colour threshold as CIEDE2000 ΔE; falls back to
+   * SR-CONSTANTS when the Settings sheet leaves it blank.
+   */
+  colourThreshold?: number;
   tolerance?: SpecTolerance;
   pages: SpecPage[];
 }
@@ -107,6 +165,19 @@ export interface CheckResult {
   actual: string;
   delta?: string;
   pass: boolean;
+  /**
+   * The workbook cell this expectation came from, `Sheet!A1`
+   * (SR-SPEC-CHECK decision 12). Absent for a spec JSON, which has no cells,
+   * and for a check that is not about one row — `Anchor`, `Readable`.
+   */
+  cell?: string;
+  /**
+   * A qualification on a check that passed: it matched, but only after the
+   * two sides were normalised (decision 10). A pass with a note is still a
+   * pass; it is said out loud because the document and the workbook do not
+   * agree character for character.
+   */
+  note?: string;
 }
 
 export interface Box {
@@ -138,6 +209,18 @@ export interface ElementResult {
 export interface SpecPageResult {
   /** The PDF page actually checked, 1-based. */
   page: number;
+  /** The Pages List name, when the spec came from a workbook. */
+  name?: string;
+  /**
+   * How this PDF page was chosen:
+   * - `declared` — the spec's own page number (a spec JSON, or no Pages List);
+   * - `identified` — found by its identifying text, where it was expected;
+   * - `out-of-order` — found by its text, somewhere else (decision 2);
+   * - `repeat` — a further occurrence of a repeating page (decision 3).
+   */
+  binding?: 'declared' | 'identified' | 'out-of-order' | 'repeat';
+  /** Which occurrence of a repeating page this is, 1-based. */
+  occurrence?: number;
   /**
    * The page number the spec declared. Differs from `page` when a single spec
    * page was deliberately pointed at a different PDF page — the report shows the
@@ -162,6 +245,48 @@ export interface SpecPageResult {
   unverifiableCount: number;
 }
 
+/**
+ * Something true about the *document*, not about one element: a page missing,
+ * a page out of order, a PDF page nothing in the spec covers.
+ *
+ * Kept apart from `ElementResult` because these are not spec rows and coverage
+ * must not count them — and because a page that is simply absent has no
+ * element results to hang a finding on.
+ */
+export interface PageFinding {
+  severity: 'error' | 'warning' | 'note';
+  /** The PDF page it is about, when it is about one. */
+  pdfPage?: number;
+  /** The Pages List position it is about, when it is about one. */
+  specPage?: number;
+  /** That page's name, as the Pages List writes it. */
+  specName?: string;
+  message: string;
+}
+
+/**
+ * Which pair of files this result is about (SR-SPEC-CHECK decision 14).
+ *
+ * A result that cannot name the workbook and the PDF it came from is not
+ * evidence a week later, when both have been edited.
+ */
+export interface TestedPair {
+  workbook?: string;
+  workbookSha256?: string | null;
+  templateVersion?: string | null;
+  pdfName?: string;
+  pdfSha256?: string | null;
+}
+
+/** How much of the workbook became a check (decision 13). */
+export interface SpecCoverage {
+  checked: number;
+  noted: number;
+  excluded: number;
+  unreadable: number;
+  rows: number;
+}
+
 export interface SpecReport {
   title: string;
   units: SpecUnit;
@@ -170,4 +295,13 @@ export interface SpecReport {
   totalFail: number;
   elementCount: number;
   passElements: number;
+  /** Page-level findings (SR-SPEC-CHECK decisions 1–3). */
+  pageFindings: PageFinding[];
+  /**
+   * “N of M rows checked” — part of the result, not a separate screen
+   * (decision 13). Absent for a spec JSON, which has no workbook rows.
+   */
+  coverage?: SpecCoverage;
+  /** The workbook and PDF this result is about (decision 14). */
+  pair?: TestedPair;
 }
