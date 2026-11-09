@@ -45,24 +45,24 @@ flowchart LR
 ## How it can be built — research, 2026-10-18
 
 - **pdf.js ships the data:** `pdfjs-dist` 4.10.38 has `cmaps/` (1.7 MB) and `standard_fonts/` (804 KB); today nothing points at them.
-- **One opener**, `openPdf(bytes)` in `src/services/`, used by Compare, Inspect and the CLI: `getDocument({ data, cMapUrl, cMapPacked: true, standardFontDataUrl, useSystemFonts: false })`.
+- **One opener**, `openPdf(bytes)` in `packages/ui/src/services/`, used by Compare, Inspect and the CLI: `getDocument({ data, cMapUrl, cMapPacked: true, standardFontDataUrl, useSystemFonts: false })`.
 - **`useSystemFonts: false` in the browser too** — the default is `true` on the web and `false` in Node, which is why app and CLI disagree. One rule everywhere makes the output deterministic.
-- **Shipping the data:** copy both folders to `public/pdfjs/` for Vite and beside `cli/dist/index.js` for the CLI (as the worker already is); URLs with a trailing slash.
+- **Shipping the data:** copy both folders to `public/pdfjs/` for Vite and beside `packages/cli/dist/index.js` for the CLI (as the worker already is); URLs with a trailing slash.
 
 ## Definition of done
 
 | DoD | what | state |
 |---|---|---|
-| 1 · opener | `openPdf` with the four options; every `getDocument` call outside `src/features/spec/` goes through it | ⏳ |
+| 1 · opener | `openPdf` with the four options; every `getDocument` call outside `packages/spec/src/` goes through it | ⏳ |
 | 2 · assets | `cmaps/` and `standard_fonts/` copied into the app build and the CLI package; `npm pack` includes them | ⏳ |
 | 3 · parity | the not-embedded and CJK fixtures render the same pixels in the app and the CLI | ⏳ |
-| 4 · baseline | `cli/verify` baselines re-run; every moved number explained in the commit | ⏳ |
+| 4 · baseline | `packages/cli/verify` baselines re-run; every moved number explained in the commit | ⏳ |
 | 5 · fixture | fictional fixture(s) for this kind added to W-12's corpus; the harness shows the new behaviour | ⏳ |
 | 6 · record | SR-PDF-SUPPORT row(s) for this kind rewritten to today's truth; `docs/ARCHITECTURE.md` updated where a flow changed | ⏳ |
 
 ## Spec machine — asked, not tracked here
 
-Ask the spec machine to set the same four options in `src/features/spec/pdfjs.ts` (it may not import the shared opener) and to depend on the same `pdfjs-dist` assets. The spec machine cannot push, so its side never closes anything in this queue.
+**Overtaken, 2026-11-06 (W-32):** there is no second loader and no spec machine to ask. `@pdfsuite/spec` dropped its ten-line copy of `loadPdf` and imports `@pdfsuite/core`'s, so setting the four options once in `packages/core/src/pdfCompare.ts` covers every surface.
 
 ## Blockers
 
@@ -76,9 +76,9 @@ Ask the spec machine to set the same four options in `src/features/spec/pdfjs.ts
 
 - **Baselines move:** pages with non-embedded fonts will render differently — say so, do not hide it.
 - **Package size** grows by about 2.5 MB.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` `loadPdf` · `cli/build.mjs` · `vite.config.ts`
+- `packages/core/src/pdfCompare.ts` `loadPdf` · `packages/cli/build.mjs` · `vite.config.ts`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

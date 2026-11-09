@@ -5,8 +5,8 @@ description: "Arpit, 2026-10-18: the Specification tab shows the uploaded workbo
 item: W-46
 filed: 2026-10-18
 filed_by: Arpit
-updated: 2026-10-19
-updated_by: Arpit
+updated: 2026-11-09
+updated_by: Siddharth
 ball: agent
 ---
 
@@ -19,8 +19,8 @@ ball: agent
 | **What** | Add **sheetpane** (`@sheetpane/grid`) as a dependency; the Specification tab shows the uploaded workbook in `<sheetpane-excel>` (View mode) and `<sheetpane-errors>`, with validation and then pass/fail as marks on the cells |
 | **Why** | Arpit: after upload, not a list of what is wrong — a view that looks and feels like the sheet, with wrong and right highlighted; sheetpane is the separate component he is building for it |
 | **Done when** | The fixture workbook opens in sheetpane inside Specification with W-02's errors on their cells, then W-04's pass/fail after a check; selecting a cell highlights its element on the PDF page and back |
-| **Status** | 🟡 waiting · 0 of 6 DoD done |
-| **Waits on** | sheetpane on npm — not published yet, checked 2026-10-19 (arpitarya/sheetpane, MIT) · W-02 · W-04 |
+| **Status** | 🟢 ready · 0 of 6 DoD done — unblocked 2026-11-09 |
+| **Waits on** | nothing — `@sheetpane/grid` 0.5.1 is on npm (checked 2026-11-09); W-02 and W-04 give it cells |
 | **Who** | `agent` · Opus |
 | **Record** | SR-SPEC-INTAKE · SR-SPEC-CHECK (where results are shown) · SR-SURFACE-PARITY (UI-only row) · SR-NPM-PACKAGES (a third-party dependency) |
 
@@ -77,7 +77,7 @@ Written here so the two repos agree; sheetpane decides how in its own records.
 
 | DoD | what | state |
 |---|---|---|
-| 1 · dependency | `@sheetpane/grid` pinned exactly in the app's `package.json`, at the same version as W-02's `@sheetpane/import`; MIT checked against L2; SR-NPM-PACKAGES lists both as third-party runtime dependencies | ⏳ |
+| 1 · dependency | `@sheetpane/grid` pinned exactly — **0.5.1**, the version `@sheetpane/import` is already pinned to — in `@pdfsuite/spec`'s `package.json` (the tab moved there with W-32); MIT checked against L2; SR-NPM-PACKAGES lists both as third-party runtime dependencies | ⏳ |
 | 2 · marks | one function maps W-02's validation report and W-04's results to sheetpane marks (`source.sheet`, `source.cell`); a test proves every mark lands on a cell sheetpane parsed | ⏳ |
 | 3 · validation view | after upload, sheetpane's sheet (View) and error component replace the list; sheet tabs carry counts | ⏳ |
 | 4 · results view | after a check, a *Validation · PDF check* switch shows pass/fail marks, with what the PDF measured | ⏳ |
@@ -86,7 +86,16 @@ Written here so the two repos agree; sheetpane decides how in its own records.
 
 ## Blockers
 
-- 🟡 sheetpane's first npm release (Arpit, arpitarya/sheetpane — not on npm, checked 2026-10-19) · W-02 (validation report with cells) · W-04 (results with cells).
+- **None, as of 2026-11-09.** All three cleared:
+  - **sheetpane is published** — `@sheetpane/grid` **0.5.1**, MIT, the same version as the
+    `@sheetpane/import` the spec intake already uses. Its README documents
+    `<sheetpane-excel>`, `<sheetpane-errors>` and `mode="edit"`, so W-47's half is
+    published too. (Checked against the registry, not against memory.)
+  - **W-02 gives it the validation cells** — confirmed by driving the tab on
+    `report-spec-with-errors.xlsx`: ten refused rows, each in plain words with its cell
+    (`1!F15`, `2!G31`, …).
+  - **W-04 gives it the result cells** — same run on `report-with-deviations.pdf`: every
+    element reports expected, actual, delta and the cell it came from.
 
 ## Record affected
 
@@ -97,8 +106,8 @@ on-screen form. [SR-SPEC-CHECK](../../records/0102_SPEC-check.md) — results sh
 
 ## Hazards
 
-- **The sealed folder:** the Specification tab lives in `src/features/spec/`; wiring sheetpane in
-  happens on the spec machine, whose dependency allow-list (`src/features/spec/README.md`) must
+- **The sealed folder:** the Specification tab lives in `packages/spec/src/`; wiring sheetpane in
+  happens on the spec machine, whose dependency allow-list (`packages/spec/README.md`) must
   admit `@sheetpane/grid` and `@sheetpane/import` first.
 - **Version drift:** `@sheetpane/grid` and W-02's `@sheetpane/import` at different versions are
   two readers again — pin both to one version and bump them together. The DoD 2 test is the guard.

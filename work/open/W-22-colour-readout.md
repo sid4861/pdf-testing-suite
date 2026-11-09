@@ -74,9 +74,9 @@ SR-SPEC-CHECK decision 8 (colour by ΔE) is W-04's, on the spec machine; the ΔE
 ## Hazards
 
 - **Approximate:** pdf.js converts CMYK without the ICC profile — show "converted from CMYK" so a human can judge.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` · `src/services/pdfElements.ts` · `src/services/changes.ts`
+- `packages/core/src/pdfCompare.ts` · `packages/core/src/pdfElements.ts` · `packages/compare/src/changes.ts`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

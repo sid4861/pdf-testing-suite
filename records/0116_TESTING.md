@@ -105,7 +105,7 @@ a person, marks it against the key.
 
 ### Context
 
-On 2026-10-18 the product had no test runner; `cli/verify/` held four scripts run by hand,
+On 2026-10-18 the product had no test runner; `packages/cli/verify/` held four scripts run by hand,
 one of them needing Python. The design records (SR-COMPARE … SR-CLI) and laws L3 and L4 had
 no executable proof.
 
@@ -165,7 +165,15 @@ no executable proof.
 - **Open:** W-36 (runner, decision coverage, reference outputs, first tests), W-37 (sample
   set), W-41 (blind batches), W-38 (sample-set runs and scorecard), W-39 (contracts and security), W-40 (browser);
   W-12 (kinds corpus), and the test DoDs already inside W-27, W-28, W-30, W-31, W-34, W-35.
-- **Enforced today:** nothing; W-36 makes `npm test` the gate.
+- **What runs today (2026-11-05):** `npm run verify` in `packages/cli/` — eighteen files, of which
+  eleven are the spec path: intake, template, values, compile, validation, legacy, outputs,
+  pages, comparing, the run files, hyphenation, form XObjects, the fixture, the oracle and
+  `spec-cli.ts`, which runs the **built binary as a process** rather than importing the
+  functions it is meant to have wired up. Two of them are gates in the sense this record
+  means: `spec-fixture.ts` holds the fixture to its own README, and `spec-oracle.ts` fails
+  on any drift in the frozen extraction, spec or coverage.
+- **Enforced today:** `npm run verify`, by hand and by the habit of running it; W-36 makes
+  `npm test` the gate and gives these a runner.
 
 ### Alternatives considered
 
@@ -177,7 +185,7 @@ no executable proof.
 
 ### Reference (required)
 
-- [`cli/verify/`](../cli/verify/) — today's hand-run checks: classification, regression, spec target, detail
+- [`packages/cli/verify/`](../packages/cli/verify/) — today's hand-run checks: classification, regression, spec target, detail
 - [`work/samples/excel-spec-template-v2/README.md`](../work/samples/excel-spec-template-v2/README.md) — the first sample: planted PDF deviations (12), planted intake errors (10), expected results
 
 ### Veto condition
@@ -193,6 +201,6 @@ sample-set run passes while missing a planted deviation.
 
 **Records** — [SR-COMPARE](0111_COMPARE.md) · [SR-BULK-COMPARE](0113_BULK-compare.md) · [SR-SPEC](0112_SPEC.md) · [SR-INSPECT](0114_INSPECT.md) · [SR-CLI](0115_CLI.md) · [SR-REPORT-HTML](0108_REPORT-html.md) · [SR-REPORT-JSON](0109_REPORT-json.md) · [SR-MANIFEST](0110_MANIFEST.md) · [SR-PDF-SUPPORT](0105_PDF-support.md) · [SR-SURFACE-PARITY](0106_SURFACE-parity.md) · [SR-NPM-PACKAGES](0107_NPM-packages.md) · [SR-LAW-3](0005_LAW-3-one-function-ui-and-cli.md) · [SR-LAW-4](0006_LAW-4-how-packages-work.md) · [SR-STACK-TYPESCRIPT](0104_STACK-typescript.md)
 
-**Code** — [`cli/verify/`](../cli/verify/) · [`cli/package.json`](../cli/package.json)
+**Code** — [`packages/cli/verify/`](../packages/cli/verify/) · [`packages/cli/package.json`](../packages/cli/package.json)
 
 **Project docs** — [`work/samples/excel-spec-template-v2/README.md`](../work/samples/excel-spec-template-v2/README.md)

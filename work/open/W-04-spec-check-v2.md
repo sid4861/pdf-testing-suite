@@ -19,7 +19,7 @@ ball: agent
 | **What** | Make the spec checker match its record: fix today's false failures, then pages, fonts, colour, images, wording and coverage (the CLI is W-11) |
 | **Why** | Today a correct PDF fails three checks, and nothing shows how much of the spec was actually checked |
 | **Done when** | The fixture's correct PDF reports no failure, its deviations PDF reports exactly what its README lists, and every finding names its cell |
-| **Status** | 🟢 5 of 7 DoD done (1, 2, 4, 5, 6) · DoD 3 part-done (✅ except image content) · 7 open |
+| **Status** | 🟢 6 of 7 DoD done (1, 2, 4, 5, 6, 7) · DoD 3 part-done — ✅ except image content (decision 9), which the record now names as unbuilt |
 | **Waits on** | W-02's spec JSON for DoD 2, 4 and 6. W-05 landed 2026-11-03 |
 | **Who** | `agent` · Opus |
 | **Record** | SR-SPEC-CHECK |
@@ -66,8 +66,8 @@ PDF reports no failure.
 | 3 · reading | ✅ page size (4); normalisation (5, 10); no-text-layer → `unverifiable` (6); **fonts (7)** — subset prefix stripped, family and style normalised, weight words to numbers, a neighbouring weight a warning; **colour (8)** — RGB/gray/CMYK to RGB, CIEDE2000 ΔE against the Settings threshold, actual reported beside expected. **Text colour only — container fills not done.** Image content (9) not done | 🟡 |
 | 4 · comparing | ✅ wording is now its own `Text` check — a line is *located* with everything normalised but *judged* strictly: Exact text = Yes is character for character, and a match that only appears after normalising passes **with a note** (10). Tolerances convert from the row's own unit (11) — a 2 mm Tolerance cell was compiling to a 2 **inch** band. Every check carries `Sheet!Cell`, mapped in one place so a new check cannot quietly arrive without one (12). The report carries coverage — “N of M rows checked” beside the verdict (13) — and the pair it tested: workbook, its SHA-256 and template version, the PDF and its SHA-256 (14) | ✅ |
 | 5 · outputs | ✅ one builder each, in the feature folder behind `engine.ts` so **W-11**'s CLI calls the same functions: `buildResultJson` (schema `pdfsuite.result/1`, shipped beside it at `schema/result.v1.json`, byte-stable outside `run`), `buildReportHtml` (reads `result.json` and nothing else — script-free, self-contained, `<details>`, images for failing pages only, everything escaped) and `buildManifest` (written last, no timestamp). The tab exports the three as one zip, plus the Markdown fix-list, which stays a UI-only view. The old `specExport.ts` is deleted | ✅ |
-| 6 · fixtures | ✅ `cli/verify/spec-fixture.ts` drives the README's own table: `report.pdf` reports **no failure and no page finding**, and `report-with-deviations.pdf` produces all **9 detectable deviations on the named check and nothing else**, while the three undetectable ones appear as neither a finding nor a pass. The *known false failures* section is gone — the defect it described was fixed by DoD 1, and its deviation 12 by this DoD | ✅ |
-| 7 · record | SR-SPEC-CHECK `built` set to yes; `docs/ARCHITECTURE.md` spec diagram and SVG updated | ⏳ |
+| 6 · fixtures | ✅ `packages/cli/verify/spec-fixture.ts` drives the README's own table: `report.pdf` reports **no failure and no page finding**, and `report-with-deviations.pdf` produces all **9 detectable deviations on the named check and nothing else**, while the three undetectable ones appear as neither a finding nor a pass. The *known false failures* section is gone — the defect it described was fixed by DoD 1, and its deviation 12 by this DoD | ✅ |
+| 7 · record | ✅ but **partly**, not yes — SR-SPEC-CHECK's Consequences name what is in (decisions 1–8, 10–14, and 15 from the tab) and what is out (decision 9's opt-in image-content comparison, container fills under decision 8, and `pdfsuite spec`, which is W-11), with the fixture and the oracle named as the gate. SR-PDF-SUPPORT's five Spec cells are updated in the same change (its decision 2), the ARCHITECTURE spec diagram is redrawn and its SVG re-rendered, and the fourteen new files are claimed in the Ownership table instead of sitting under W-01 | ✅ |
 
 ## Landed
 
@@ -90,7 +90,7 @@ better evidence than a gutter.
 
 Measured on the fixture's matching PDF, against `report-spec.xlsx`'s own values: regional
 table Left 6.75″, Top 1.40″, Width 3.50″, Rows 7, Columns 4 — every one exact; graph title
-and sidebar heading each their own line. `cli/verify/spec-columns.ts`, 7/7, wired into
+and sidebar heading each their own line. `packages/cli/verify/spec-columns.ts`, 7/7, wired into
 `npm run verify`.
 
 ## Blockers
@@ -116,5 +116,5 @@ and sidebar heading each their own line. `cli/verify/spec-columns.ts`, 7/7, wire
 ## Reference
 
 - [SR-SPEC-CHECK](../../records/0102_SPEC-check.md) · [SR-CONSTANTS](../../records/0103_CONSTANTS.md)
-- [`src/features/spec/specCheck.ts`](../../src/features/spec/specCheck.ts) · [`src/features/spec/specExport.ts`](../../src/features/spec/specExport.ts)
+- [`packages/spec/src/specCheck.ts`](../../packages/spec/src/specCheck.ts) · [`packages/spec/src/specOutputs.ts`](../../packages/spec/src/specOutputs.ts)
 - [`work/samples/excel-spec-template-v2/README.md`](../../work/samples/excel-spec-template-v2/README.md) — expected results

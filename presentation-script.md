@@ -17,7 +17,7 @@ short sentences, contractions — so read it once or twice and then say it in yo
 - [ ] A **second tab** already on the app with the example loaded and **Compare all pages**
       already run — so the live demo doesn't stall on a spinner
 - [ ] Deck open at `/presentation.html`, pressed `F` for full screen
-- [ ] Terminal open in `cli/` in case someone asks to see the CLI run
+- [ ] Terminal open in `packages/cli/` in case someone asks to see the CLI run
 - [ ] Know your escape hatch: if the live demo misbehaves, slide 7 has the same numbers in a
       table. Keep going, don't debug in front of the room.
 

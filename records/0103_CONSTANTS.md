@@ -7,7 +7,7 @@ description: "Every default, tolerance and hard limit the tool uses lives in one
 status: accepted
 date: 2026-10-16
 feature: project constants
-owns: [src/services/specConstants.ts]
+owns: [packages/core/src/constants.ts]
 laws: [L0]
 timestamp: 2026-10-16T11:30:00+05:30
 content_sha: ""
@@ -18,13 +18,13 @@ ratifies: W-02
 
 ## §1 — For humans
 
-**Every number the tool tunes by lives in one file**, `src/services/specConstants.ts`.
+**Every number the tool tunes by lives in one file**, `packages/core/src/constants.ts`.
 Tolerances, size limits and thresholds are changed there and nowhere else. A spec
 workbook's **Settings** sheet can override the defaults for that workbook only.
 
 ```mermaid
 flowchart LR
-  K["src/services/specConstants.ts<br/>defaults + hard limits"] --> A["App"]
+  K["packages/core/src/constants.ts<br/>defaults + hard limits"] --> A["App"]
   K --> C["CLI"]
   ST["Workbook Settings sheet"] -->|"overrides per workbook"| SJ["Spec JSON<br/>resolved values"]
   K -->|"fallback"| SJ
@@ -55,7 +55,7 @@ different places.
 
 ### Decision
 
-1. **One file, `src/services/specConstants.ts`, holds every default and hard limit the tool
+1. **One file, `packages/core/src/constants.ts`, holds every default and hard limit the tool
    uses.** It is plain TypeScript with no dependency, imported by the app and by the CLI.
    Any new tunable anywhere in the project is added here.
 2. **The defaults:**
@@ -81,18 +81,18 @@ different places.
 
 ### Consequences
 
-- **Built, 2026-11-03 (W-05):** `src/services/specConstants.ts` holds every key in
+- **Built, 2026-11-03 (W-05):** `packages/core/src/constants.ts` holds every key in
   decision 2, and **every literal named in *Context* now reads from it**, values
   unchanged — `BASE_SCALE` ×3 (`pdfCompare.ts`, `pdfElements.ts`,
-  `src/features/spec/specCheck.ts`), `MAX_PAGE_WIDTH`, the page-verdict limits
+  `packages/spec/src/specCheck.ts`), `MAX_PAGE_WIDTH`, the page-verdict limits
   (`changes.ts`), `MOVED_OFFSET_IN` (`exportReport.ts`), `AUTO_SCAN_MAX_PAGES`
   (`App.tsx`), `DEFAULT_TOL` and `DEFAULT_ANCHOR_WITHIN` (`specCheck.ts`). The CLI reads
-  the same file through `cli/src/platform/engine.ts`. Decision 4 holds.
+  the same file through `packages/cli/src/platform/engine.ts`. Decision 4 holds.
 - **The spec checker reached it only after the 2026-11-03 ruling** (W-32, option B) lifted
-  the seal on `src/features/spec/`; before that, the boundary check forbade it importing
-  from `src/services/`.
+  the seal on `packages/spec/src/`; before that, the boundary check forbade it importing
+  from `packages/ui/src/services/`.
 - **`DEFAULT_THRESHOLDS` no longer exists.** *Context* and *Reference* still name it in
-  `cli/src/core/pairs.ts`; thresholds were removed from the CLI on 2026-10-16, so there
+  `cli/src/core/pairs.ts` (deleted, W-09); thresholds were removed from the CLI on 2026-10-16, so there
   was nothing to move.
 - **Debt:** nothing checks decision 4 — backlog **B-011**.
 - Moving the literals does not unify the app's and the CLI's page verdict; it makes the
@@ -108,14 +108,14 @@ different places.
 
 ### Reference (required)
 
-- [`src/features/spec/specCheck.ts`](../src/features/spec/specCheck.ts) `DEFAULT_TOL`, `DEFAULT_ANCHOR_WITHIN` · [`src/services/pdfCompare.ts`](../src/services/pdfCompare.ts) `BASE_SCALE`, `MAX_PAGE_WIDTH` · [`src/services/changes.ts`](../src/services/changes.ts) `summaryPageDiffers` · [`cli/src/core/pairs.ts`](../cli/src/core/pairs.ts) `DEFAULT_THRESHOLDS`
+- [`packages/spec/src/specCheck.ts`](../packages/spec/src/specCheck.ts) `DEFAULT_TOL`, `DEFAULT_ANCHOR_WITHIN` · [`packages/core/src/pdfCompare.ts`](../packages/core/src/pdfCompare.ts) `BASE_SCALE`, `MAX_PAGE_WIDTH` · [`packages/compare/src/changes.ts`](../packages/compare/src/changes.ts) `summaryPageDiffers` · `cli/src/core/pairs.ts` (deleted, W-09) `DEFAULT_THRESHOLDS`
 
 ### Veto condition
 
 **Reopen this decision if:** a second constants or config file for tunables appears in the
 product.
 
-**How to check it:** `git ls-files src cli/src | grep -iE 'constants|tunables|defaults'` lists only `src/services/specConstants.ts`
+**How to check it:** `git ls-files src packages | grep -iE 'constants|tunables|defaults'` lists only `packages/core/src/constants.ts`
 
 ---
 
@@ -125,4 +125,4 @@ product.
 
 **Code**
 
-- [`src/features/spec/specCheck.ts`](../src/features/spec/specCheck.ts) · [`src/services/pdfCompare.ts`](../src/services/pdfCompare.ts) · [`src/services/changes.ts`](../src/services/changes.ts) · [`src/services/exportReport.ts`](../src/services/exportReport.ts) · [`src/App.tsx`](../src/App.tsx) · [`cli/src/core/pairs.ts`](../cli/src/core/pairs.ts)
+- [`packages/spec/src/specCheck.ts`](../packages/spec/src/specCheck.ts) · [`packages/core/src/pdfCompare.ts`](../packages/core/src/pdfCompare.ts) · [`packages/compare/src/changes.ts`](../packages/compare/src/changes.ts) · [`packages/ui/src/services/exportReport.ts`](../packages/ui/src/services/exportReport.ts) · [`packages/ui/src/PdfSuiteApp.tsx`](../packages/ui/src/PdfSuiteApp.tsx) · `cli/src/core/pairs.ts` (deleted, W-09)

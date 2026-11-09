@@ -1,0 +1,96 @@
+{
+  "name": "@pdfsuite/cli",
+  "version": "2.0.0",
+  "description": "Headless PDF comparison for CI \u2014 compares candidate PDFs against golden references and writes an annotated HTML report.",
+  "keywords": [
+    "pdf",
+    "diff",
+    "compare",
+    "visual-regression",
+    "ci",
+    "pdfjs"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sid4861/pdf-testing-suite.git",
+    "directory": "cli"
+  },
+  "homepage": "https://github.com/sid4861/pdf-testing-suite/tree/main/cli#readme",
+  "bugs": {
+    "url": "https://github.com/sid4861/pdf-testing-suite/issues"
+  },
+  "type": "module",
+  "bin": {
+    "pdfsuite": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist/index.js",
+    "dist/pdf.worker.mjs",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && node build.mjs",
+    "prepublishOnly": "npm run build",
+    "portable": "sh scripts/make-portable.sh",
+    "mock-api": "node mock-api/server.js",
+    "spike": "node build.mjs --entry spike/run-engine.ts --out .work/spike.js && node .work/spike.js",
+    "verify:compare-cli": "npm run build && node build.mjs --entry verify/compare-cli.ts --out .work/compare-cli.js && node .work/compare-cli.js",
+    "verify:parity": "npm run build && node build.mjs --entry verify/compare-parity.ts --out .work/compare-parity.js && node .work/compare-parity.js",
+    "verify:discovery": "npm run build && node build.mjs --entry verify/cli-discovery.ts --out .work/cli-discovery.js && node .work/cli-discovery.js",
+    "verify:inspect": "npm run build && node build.mjs --entry verify/inspect-parity.ts --out .work/inspect-parity.js && node .work/inspect-parity.js",
+    "verify:verdict": "node build.mjs --entry verify/compare-verdict.ts --out .work/compare-verdict.js && node .work/compare-verdict.js",
+    "verify:classification": "python verify/make-cases.py && node build.mjs --entry verify/classification.ts --out .work/classification.js && node .work/classification.js",
+    "verify:regression": "node build.mjs --entry verify/regression.ts --out .work/regression.js && node .work/regression.js",
+    "verify": "npm run verify:verdict && npm run verify:compare-cli && npm run verify:parity && npm run verify:classification && npm run verify:regression && npm run verify:spec && npm run verify:spec-columns && npm run verify:spec-reading && npm run verify:spec-intake && npm run verify:spec-template && npm run verify:spec-compile && npm run verify:spec-fonts-colour && npm run verify:spec-validation && npm run verify:spec-oracle && npm run verify:spec-legacy && npm run verify:spec-outputs && npm run verify:spec-pages && npm run verify:spec-comparing && npm run verify:spec-run-files && npm run verify:spec-fixture && npm run verify:spec-form && npm run verify:spec-hyphenation && npm run verify:spec-cli && npm run verify:spec-blank",
+    "verify:detail": "node build.mjs --entry verify/detail.ts --out .work/detail.js && node .work/detail.js",
+    "verify:spec": "node build.mjs --entry verify/spec-target.ts --out .work/spec-target.js && node .work/spec-target.js",
+    "verify:spec-columns": "node build.mjs --entry verify/spec-columns.ts --out .work/spec-columns.js && node .work/spec-columns.js",
+    "verify:spec-reading": "node build.mjs --entry verify/spec-reading.ts --out .work/spec-reading.js && node .work/spec-reading.js",
+    "verify:spec-intake": "node build.mjs --entry verify/spec-intake.ts --out .work/spec-intake.js && node .work/spec-intake.js",
+    "verify:spec-template": "node build.mjs --entry verify/spec-template.ts --out .work/spec-template.js && node .work/spec-template.js",
+    "verify:spec-compile": "node build.mjs --entry verify/spec-compile.ts --out .work/spec-compile.js && node .work/spec-compile.js",
+    "verify:spec-fonts-colour": "node build.mjs --entry verify/spec-fonts-colour.ts --out .work/spec-fonts-colour.js && node .work/spec-fonts-colour.js",
+    "verify:spec-validation": "node build.mjs --entry verify/spec-validation.ts --out .work/spec-validation.js && node .work/spec-validation.js",
+    "verify:spec-oracle": "node build.mjs --entry verify/spec-oracle.ts --out .work/spec-oracle.js && node .work/spec-oracle.js",
+    "verify:spec-legacy": "node build.mjs --entry verify/spec-legacy.ts --out .work/spec-legacy.js && node .work/spec-legacy.js",
+    "verify:spec-outputs": "node build.mjs --entry verify/spec-outputs.ts --out .work/spec-outputs.js && node .work/spec-outputs.js",
+    "verify:spec-pages": "node build.mjs --entry verify/spec-pages.ts --out .work/spec-pages.js && node .work/spec-pages.js",
+    "verify:spec-comparing": "node build.mjs --entry verify/spec-comparing.ts --out .work/spec-comparing.js && node .work/spec-comparing.js",
+    "verify:spec-run-files": "node build.mjs --entry verify/spec-outputs-run.ts --out .work/spec-outputs-run.js && node .work/spec-outputs-run.js",
+    "verify:spec-fixture": "node build.mjs --entry verify/spec-fixture.ts --out .work/spec-fixture.js && node .work/spec-fixture.js",
+    "verify:spec-form": "node build.mjs --entry verify/spec-form-xobject.ts --out .work/spec-form-xobject.js && node .work/spec-form-xobject.js",
+    "verify:spec-hyphenation": "node build.mjs --entry verify/spec-hyphenation.ts --out .work/spec-hyphenation.js && node .work/spec-hyphenation.js",
+    "verify:spec-cli": "npm run build && node build.mjs --entry verify/spec-cli.ts --out .work/spec-cli.js && node .work/spec-cli.js",
+    "verify:spec-blank": "node build.mjs --entry verify/spec-blank-template.ts --out .work/spec-blank-template.js && node .work/spec-blank-template.js",
+    "verify:spec-marks": "node build.mjs --entry verify/spec-sheet-marks.ts --out .work/spec-sheet-marks.js && node .work/spec-sheet-marks.js",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.65",
+    "@pdfsuite/agents": "2.0.0",
+    "@pdfsuite/core": "2.0.0"
+  },
+  "devDependencies": {
+    "@pdfsuite/compare": "2.0.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.16.11",
+    "commander": "^12.1.0",
+    "esbuild": "^0.24.0",
+    "express": "^4.21.1",
+    "typescript": "^5.6.2"
+  },
+  "allowScripts": {
+    "esbuild@0.24.2": true
+  },
+  "exports": {
+    ".": "./src/host.ts",
+    "./host": "./src/host.ts",
+    "./bin": "./dist/index.js"
+  }
+}

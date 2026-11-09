@@ -89,11 +89,11 @@ JSON (SR-SURFACE-PARITY). Arpit ruled three files with `result.json` as the sour
 ### Consequences
 
 - **`kind: spec` is built (2026-11-05, W-04 DoD 5):** `buildResultJson` in
-  `src/features/spec/`, with the schema beside it at `schema/result.v1.json`; every file it
-  writes is validated against that schema in `cli/verify/spec-outputs-run.ts`, and two runs
+  `packages/spec/src/`, with the schema beside it at `schema/result.v1.json`; every file it
+  writes is validated against that schema in `packages/cli/verify/spec-outputs-run.ts`, and two runs
   over the same files are byte-identical outside `run`. It moves to `@pdfsuite/core` with the
   rest of the feature (W-32); the CLI calls the same function when **W-11** lands.
-- Still to build: `compare` and `compare-many` (W-27), `inspect` (W-28).
+- **Built** for `compare` and `compare-many` (W-27, W-09), `spec` (W-11) and `inspect` (W-28, 2026-11-06). An inspect carries no verdict — `exitCode` is 0 whenever the document opened — and its `policy` names the units and the origin, so a reader never has to ask what `fromLeftIn` is measured from.
 - Pipelines that read today's CLI JSON need the migration note (W-09).
 
 ### Alternatives considered
@@ -105,7 +105,7 @@ JSON (SR-SURFACE-PARITY). Arpit ruled three files with `result.json` as the sour
 
 ### Reference (required)
 
-- [`src/services/exportReport.ts`](../src/services/exportReport.ts) `buildJsonReport` · [`cli/src/report/machine.ts`](../cli/src/report/machine.ts) `writeJsonReport`
+- [`packages/ui/src/services/exportReport.ts`](../packages/ui/src/services/exportReport.ts) `buildJsonReport` · [`packages/compare/src/result.ts`](../packages/compare/src/result.ts) `writeJsonReport`
 
 ### Veto condition
 
@@ -120,4 +120,4 @@ written file fails the schema.
 
 **Records** — [SR-REPORT-HTML](0108_REPORT-html.md) · [SR-MANIFEST](0110_MANIFEST.md) · [SR-COMPARE](0111_COMPARE.md) · [SR-BULK-COMPARE](0113_BULK-compare.md) · [SR-SPEC](0112_SPEC.md) · [SR-INSPECT](0114_INSPECT.md) · [SR-CLI](0115_CLI.md)
 
-**Code** — [`src/services/exportReport.ts`](../src/services/exportReport.ts) · [`cli/src/report/machine.ts`](../cli/src/report/machine.ts)
+**Code** — [`packages/ui/src/services/exportReport.ts`](../packages/ui/src/services/exportReport.ts) · [`packages/compare/src/result.ts`](../packages/compare/src/result.ts)

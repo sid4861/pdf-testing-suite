@@ -1,0 +1,34 @@
+{
+  "name": "@pdfsuite/compare",
+  "version": "2.0.0",
+  "description": "Golden against candidate: what changed on each page, how the pages pair up, and whether that is a failure.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cli": "./dist/cli.js"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin"
+  ],
+  "dependencies": {
+    "@pdfsuite/cli": "2.0.0",
+    "@pdfsuite/core": "2.0.0",
+    "pdfjs-dist": "4.10.38"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && node build.mjs",
+    "prepack": "node build.mjs"
+  },
+  "bin": {
+    "pdfsuite-compare": "./bin/pdfsuite-compare.mjs"
+  }
+}

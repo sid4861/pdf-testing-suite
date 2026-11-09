@@ -53,12 +53,12 @@ drift.
 
 ### Decision
 
-1. **The product is TypeScript:** `src/` (app and engine), `cli/` (the Node CLI) and the spec
+1. **The product is TypeScript:** `src/` (app and engine), `packages/cli/` (the Node CLI) and the spec
    pipeline (SR-SPEC-INTAKE). No Python in the product.
 2. **`cli-py/` is removed**, with every live reference to it. The Node CLI is the only CLI.
 3. **New product code is TypeScript.**
 4. **Development-only scripts are TypeScript too** (Arpit, 2026-10-18 — the ruling SR-TESTING
-   decision 3 already implied for fixtures). `cli/verify/make-cases.py` is replaced by a
+   decision 3 already implied for fixtures). `packages/cli/verify/make-cases.py` is replaced by a
    TypeScript generator that reproduces its output byte for byte (W-36) and deleted in that
    change; until then it runs as it is and is never shipped. The spec sample's Python
    generator was deleted with the legacy sample on 2026-10-18; its PDFs are frozen in
@@ -81,14 +81,14 @@ drift.
 
 ### Reference (required)
 
-- [`cli/src/commands/generate.ts`](../cli/src/commands/generate.ts) — the one `generate`; the removed Python port is in git history before W-03's commit
+- [`packages/cli/src/commands/generate.ts`](../packages/cli/src/commands/generate.ts) — the one `generate`; the removed Python port is in git history before W-03's commit
 - [`archive/open/W-03-remove-cli-py.md`](../archive/open/W-03-remove-cli-py.md) — the removal
 
 ### Veto condition
 
-**Reopen this decision if:** a Python file appears under a product path or `work/samples/`, or — once W-36 has landed — under `cli/`.
+**Reopen this decision if:** a Python file appears under a product path or `work/samples/`, or — once W-36 has landed — under `packages/cli/`.
 
-**How to check it:** `git ls-files 'src/*.py' 'src/**/*.py' 'cli/src/**/*.py' 'cli-py/**'` returns nothing; `git ls-files 'work/samples/**/*.py'` returns nothing; after W-36, `git ls-files 'cli/**/*.py'` returns nothing
+**How to check it:** `git ls-files 'src/*.py' 'src/**/*.py' 'packages/cli/src/**/*.py' 'cli-py/**'` returns nothing; `git ls-files 'work/samples/**/*.py'` returns nothing; after W-36, `git ls-files 'cli/**/*.py'` returns nothing
 
 ---
 
@@ -98,7 +98,7 @@ drift.
 
 **Code**
 
-- [`cli/src/index.ts`](../cli/src/index.ts) · [`cli/src/platform/engine.ts`](../cli/src/platform/engine.ts)
+- [`packages/cli/src/index.ts`](../packages/cli/src/index.ts) · [`packages/cli/src/platform/engine.ts`](../packages/cli/src/platform/engine.ts)
 
 **Project docs**
 

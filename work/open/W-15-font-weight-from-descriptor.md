@@ -65,7 +65,7 @@ Ask the spec machine to map weights the same way (SR-SPEC-CHECK decision 7). The
 
 ## Blockers
 
-- 🟡 **Waiting on W-14** — the `src/services/pdfFacts.ts` reader this builds on.
+- 🟡 **Waiting on W-14** — the `packages/ui/src/services/pdfFacts.ts` reader this builds on.
 
 ## Record affected
 
@@ -74,9 +74,9 @@ Ask the spec machine to map weights the same way (SR-SPEC-CHECK decision 7). The
 ## Hazards
 
 - Do not infer weight from glyph shapes — probabilistic; "unknown" is the honest answer.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfElements.ts` · `src/services/pdfCompare.ts` `resolveStyle`
+- `packages/core/src/pdfElements.ts` · `packages/core/src/pdfCompare.ts` `resolveStyle`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

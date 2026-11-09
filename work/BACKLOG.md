@@ -22,14 +22,22 @@ it, and do not read it top-down as a priority order.
 
 ## `unbuilt` — a ratified decision the code does not implement
 
+<!-- Ids are never reused. B-016 was issued twice (the PDF designer, and the
+     Compare tab's report); the second became B-018 on 2026-11-06. Next free: B-023. -->
+
 | id | what is outstanding | named in | what closes it |
 |---|---|---|---|
 | B-008 | Stale-pair detection — warn when the workbook and the PDF look out of step (deferred by Arpit, 2026-10-16) | [SR-SPEC-INTAKE](../records/0101_SPEC-intake.md) Consequences | a ruling to build it, then a `W-nn` |
 | B-009 | A Draft / Ready status per page sheet, so unfinished sheets are skipped (deferred by Arpit, 2026-10-16) | [SR-SPEC-INTAKE](../records/0101_SPEC-intake.md) Consequences | a ruling to build it, then a `W-nn` |
 | B-010 | A version diff between two spec JSONs — what changed in the workbook (deferred by Arpit, 2026-10-16) | [SR-SPEC-INTAKE](../records/0101_SPEC-intake.md) Consequences | a ruling to build it, then a `W-nn` |
+| B-018 | The Compare tab's HTML report shows what `result.json` does not carry — the pixel heatmap, annotations and ignored regions — so the tab keeps its own builder while the CLI uses the shared one. Either the result grows those fields or the difference is ratified | W-09 · W-27 DoD 4 · [SR-SURFACE-PARITY](../records/0106_SURFACE-parity.md) `report.html` row | a ruling on which, then a `W-nn` |
 | B-015 | A standalone PDF viewer app — `apps/viewer` (Arpit, 2026-10-18: "in future"); the `@pdfsuite/viewer` package itself is W-42 | W-44 · SR-MONOREPO | a ruling to start it, then a `W-nn` |
 | B-016 | A PDF designer — `apps/designer`, `@pdfsuite/template`, `@pdfsuite/designer` (Arpit, 2026-10-18: "in future") | W-44 · SR-MONOREPO | a ruling to start it, then a `W-nn` |
 | B-017 | A PDF creator — `@pdfsuite/render`: template + data → PDF locally (Arpit, 2026-10-18: "in future") | W-44 · SR-MONOREPO | a ruling to start it, then a `W-nn` |
+| B-019 | `@pdfsuite/spec` styles itself with classes that now ship in `@pdfsuite/ui`. Narrowed by **W-33**: anyone rendering `<PdfSuiteApp/>` gets a styled Spec tab. What is left is installing `@pdfsuite/spec` **alone** and rendering `SpecTestView` yourself — `spec` cannot depend on `ui`, the dependency runs the other way | W-32 · W-33 · [`packages/spec/README.md`](../packages/spec/README.md) | a ruling: ship the shared classes from `core`, duplicate the handful `spec` uses, or state that the tab needs `ui` |
+| B-022 | Every `@pdfsuite` package publishes **TypeScript source** as its entry point, so a consumer running `tsc` type-checks *our* source with *their* settings — and gets eleven errors that are ours: no `@types` for `pixelmatch` and `diff`, the `?url` import only Vite resolves, `import.meta.env`, an implicit `any` in `pdfCompare.ts`. Found by W-31's smoke test: a created app could not run `tsc --noEmit`, so its `build` is `vite build` alone | W-31 · [`scripts/check-create.sh`](../scripts/check-create.sh) | publishing built JavaScript with `.d.ts` from each package — a packaging change across five of them, and it should land **before** anything is published |
+| B-021 | `@pdfsuite/ui`'s stylesheet defines `.card`, `.btn`, `.tabs`, `.chip` and friends as **global** class names. Dropped into a host application with its own CSS, they collide both ways | W-33 · [`packages/ui/src/styles.css`](../packages/ui/src/styles.css) | prefixing every class (a large mechanical rename), CSS modules, or a documented `@scope` — a ruling, then a `W-nn` |
+| B-020 | `specStore.loadExample()` fetches `samples/spec-sample.{pdf,json}` from the consumer's `public/` folder through `import.meta.env.BASE_URL` — an undocumented requirement on anyone installing the package, and the package's only assumption about the app around it | W-32 · `packages/spec/src/types/import-meta-env.d.ts` | bundling the sample into the package, or dropping *Load example* from the packaged tab — a ruling, then a `W-nn` |
 
 ---
 
@@ -42,7 +50,7 @@ it, and do not read it top-down as a priority order.
 | B-003 | The registry's decisions 5–8 are enforced by nothing | [SR-WORK-REGISTRY](../records/0060_WORK-registry.md) Consequences | a test over §3, as a `W-nn` |
 | B-004 | A `W-nn` that resolves to neither `work/open/` nor `archive/open/` is caught by nobody | [SR-WORK-OPEN-QUEUE](../records/0051_WORK-open-queue.md) rules 7, 17 and 53 | a test, as a `W-nn` |
 | B-005 | A second `archive/` directory anywhere is caught by nobody | [SR-WORK-ARCHIVE](../records/0057_WORK-archive.md) decision 1 | a test, as a `W-nn` |
-| B-011 | "No tunable literal lives in engine code outside this file" is checked by nothing | [SR-CONSTANTS](../records/0103_CONSTANTS.md) decision 4 | a lint or test over `src/` and `cli/src/`, as a `W-nn` |
+| B-011 | "No tunable literal lives in engine code outside this file" is checked by nothing | [SR-CONSTANTS](../records/0103_CONSTANTS.md) decision 4 | a lint or test over `src/` and `packages/cli/src/`, as a `W-nn` |
 | B-012 | "No Python in the product" is checked by nothing | [SR-STACK-TYPESCRIPT](../records/0104_STACK-typescript.md) decision 1 | a test over `git ls-files`, as a `W-nn` |
 | B-013 | "One function for the UI and the CLI" is checked by nothing beyond W-27's Compare parity test | [SR-LAW-3](../records/0005_LAW-3-one-function-ui-and-cli.md) Consequences | a test that runs each core step from both surfaces on a fixture and diffs the output, as a `W-nn` |
 | B-014 | "Only open-source dependencies" is checked by nothing | [SR-LAW-2](../records/0004_LAW-2-open-source-only.md) Consequences | a zero-dependency licence check over every installed package, in `npm test`, as a `W-nn` |

@@ -64,7 +64,7 @@ None asked. The spec machine cannot push, so its side never closes anything in t
 
 ## Blockers
 
-- 🟡 **Waiting on W-14** — the `src/services/pdfFacts.ts` reader this builds on.
+- 🟡 **Waiting on W-14** — the `packages/ui/src/services/pdfFacts.ts` reader this builds on.
 
 ## Record affected
 
@@ -73,9 +73,9 @@ None asked. The spec machine cannot push, so its side never closes anything in t
 ## Hazards
 
 - Showing a signer name is not verifying it — "not verified" must be on screen.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` · `src/services/pdfFacts.ts` (W-14)
+- `packages/core/src/pdfCompare.ts` · `packages/ui/src/services/pdfFacts.ts` (W-14)
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

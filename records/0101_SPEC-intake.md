@@ -7,7 +7,7 @@ description: "A hand-maintained Excel workbook (or a spec JSON) is uploaded, val
 status: accepted
 date: 2026-10-16
 feature: spec intake — Excel or JSON in, validated spec JSON out
-owns: [spec-standard.md, src/features/spec/types.ts, work/samples/excel-spec-template-v2/]
+owns: [spec-standard.md, packages/spec/src/types.ts, work/samples/excel-spec-template-v2/]
 laws: [L0]
 timestamp: 2026-10-16T11:30:00+05:30
 content_sha: ""
@@ -217,10 +217,15 @@ is the same kind of report written in Template v2 (the legacy-layout sample was 
 - **Not built, and named:** decision 10 (rich-text per-word styles), decision 12 (relative
   values — "centered", "same as above"), and the blank template artefact decision 7 implies.
   The register therefore says **partly**, not yes.
+- **Compilation, since 2026-11-05:** a Tolerance cell is read in the row's own unit (it was
+  read in the spec's, so a 2 mm band became 2 in), `Check?` is honoured before an element is
+  built rather than after, and a position written from the bottom or the right is converted
+  to a distance from the page's top-left here, where the page size is known — the checker
+  never learns about edges. `pdfsuite spec` (**W-11**) compiles through the same functions.
 - **Deferred by Arpit (2026-10-16), in the backlog:** stale-pair detection (B-008),
   Draft/Ready status per page sheet (B-009), version diff between two spec JSONs (B-010).
 - **Owned:** `spec-standard.md` (the JSON format and template v2, rewritten by W-02),
-  `src/features/spec/types.ts` (the spec JSON type), and the one fictional fixture,
+  `packages/spec/src/types.ts` (the spec JSON type), and the one fictional fixture,
   `work/samples/excel-spec-template-v2/` — Template v2 with every unit explicit, labels merged,
   the decision-7a guard rails built into the file, ten planted intake errors, and the two
   PDFs. **No legacy-layout fixture is committed** (deleted 2026-10-18 on Arpit's instruction);
@@ -228,7 +233,7 @@ is the same kind of report written in Template v2 (the legacy-layout sample was 
   data, never a real workbook.
 - **The Validate tab** — the validation report, the plain-words preview and the annotated
   workbook inside the Spec tab — is **W-46**.
-- **Enforced today:** decision 16 is a gate — `cli/verify/spec-oracle.ts` fails on any drift in
+- **Enforced today:** decision 16 is a gate — `packages/cli/verify/spec-oracle.ts` fails on any drift in
   the frozen extraction, spec or coverage, and `npm run verify` runs it.
 
 ### Alternatives considered
@@ -249,7 +254,7 @@ is the same kind of report written in Template v2 (the legacy-layout sample was 
 
 ### Reference (required)
 
-- [`src/features/spec/types.ts`](../src/features/spec/types.ts) — today's spec JSON type
+- [`packages/spec/src/types.ts`](../packages/spec/src/types.ts) — today's spec JSON type
 - [`spec-standard.md`](../spec-standard.md) — today's JSON format; §7 is the old fixed-column plan this replaces
 - [`work/samples/excel-spec-template-v2/README.md`](../work/samples/excel-spec-template-v2/README.md) — the same report as a Template v2 workbook: explicit units, dropdowns, red cells
 - [`work/proposals/excel-spec-comparison.md`](../work/proposals/excel-spec-comparison.md) — the research and the observed sheet conventions
@@ -271,7 +276,7 @@ own cell.
 
 **Code**
 
-- [`src/features/spec/types.ts`](../src/features/spec/types.ts) · [`src/features/spec/specStore.ts`](../src/features/spec/specStore.ts) · [`src/features/spec/specCheck.ts`](../src/features/spec/specCheck.ts) `validateSpec`
+- [`packages/spec/src/types.ts`](../packages/spec/src/types.ts) · [`packages/spec/src/specStore.ts`](../packages/spec/src/specStore.ts) · [`packages/spec/src/specCheck.ts`](../packages/spec/src/specCheck.ts) `validateSpec`
 
 **Project docs**
 

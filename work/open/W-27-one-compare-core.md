@@ -5,8 +5,8 @@ description: "Arpit, 2026-10-18: one compare core used by both the app and the C
 item: W-27
 filed: 2026-10-18
 filed_by: Arpit
-updated: 2026-10-18
-updated_by: Arpit
+updated: 2026-11-06
+updated_by: Siddharth
 ball: agent
 ---
 
@@ -19,8 +19,8 @@ ball: agent
 | **What** | Move the page loop, the page-changed rule, page pairing and the report builders into one core — `@pdfsuite/compare` and `@pdfsuite/core`; Compare, Bulk compare and the CLI all call it |
 | **Why** | Arpit: the functions the CLI uses must be the ones the UI uses. Today the engine is shared but the loop is written three times, "changed" has two definitions, and each side builds its own reports |
 | **Done when** | The same pair through the app path and the CLI gives a byte-identical `result.json` (outside its `run` block) and the same `report.html` |
-| **Status** | 🟡 waiting · 0 of 7 DoD done |
-| **Waits on** | W-29 — the core is built inside `packages/compare` |
+| **Status** | 🟢 6 of 7 DoD done · DoD 4 part-done: the CLI is on the shared builders; the tab's richer report is **B-018** |
+| **Waits on** | nothing — W-29 landed 2026-11-06 |
 | **Who** | `agent` · Opus |
 | **Record** | SR-COMPARE · SR-BULK-COMPARE · SR-REPORT-JSON · SR-REPORT-HTML · SR-MANIFEST; SR-SURFACE-PARITY rows |
 
@@ -75,17 +75,17 @@ used in the UI. Is that not the case? If it isn't, then it should be."*
 
 | DoD | what | state |
 |---|---|---|
-| 1 · core | `comparePair` and `compareMany` in `@pdfsuite/compare` — pure, typed, one result shape; orphans reported by `compareMany` | ⏳ |
-| 2 · one rule | `pageVerdict` replaces `pageHasChange` and `summaryPageDiffers`; strip, Next change and verdict agree on every page | ⏳ |
-| 3 · pairing | `pages: PagePair[]` input; the app's pairing passes it; unpaired pages reported as missing | ⏳ |
-| 4 · builders | `buildResultJson`, `buildReportHtml`, `buildManifest` as pure string builders; the app's JSON/CSV builders and the CLI's own writers removed or reduced to I/O | ⏳ |
-| 5 · app | `compareStore` and `batchStore` call `comparePair`; their own loops gone; the Export menu offers `result.json`, `report.html` and `manifest.json` — the CLI's three files, from the same builders | ⏳ |
-| 6 · cli · parity | the CLI calls `comparePair` and the shared builders; a `cli/verify` test runs one pair both ways and diffs the outputs byte for byte (outside `run`) | ⏳ |
-| 7 · record | SR-COMPARE and SR-BULK-COMPARE's `owns:` claim `packages/compare`; SR-REPORT-JSON, SR-REPORT-HTML and SR-MANIFEST claim their builders in `packages/core`; the register's table releases W-01's claim; every SR-SURFACE-PARITY row naming W-27 rewritten; `docs/ARCHITECTURE.md` redrawn | ⏳ |
+| 1 · core | ✅ `comparePair` and `compareMany` in `@pdfsuite/compare` — pure (no React, no `fs`, no download), one result shape, the two verdict-moving knobs recorded on it, a page that throws reported as a finding rather than a pass, and `reuse` for pages a surface has already compared. `compareMany` reports orphans and fails on them | ✅ |
+| 2 · one rule | ✅ `pageVerdict` replaces `summaryPageDiffers` and `pageHasChange`, which are **deleted**; the strip, Next change, the chip, both reports and the CLI all call it. The band they disagreed about — 2 px to 2.9 px — now counts as changed everywhere, which is the one intended change; the sample corpus is otherwise unchanged | ✅ |
+| 3 · pairing | ✅ `pages: PagePair[]` is `comparePair`'s input and the Compare tab passes its own pairing through it; a page with nothing on one side comes back `missing`. The CLI passes it with **W-09**'s `--pages` | ✅ |
+| 4 · builders | ✅ for the CLI: `buildCompareResultJson`, `buildCompareReportHtml` (from `result.json` alone) and `buildManifest` are the shared builders, and the CLI's own writers are **deleted**. The envelope and the manifest live in `@pdfsuite/core`, with the spec run on the same envelope. **The Compare tab keeps its richer HTML** — heatmap, annotations, ignored regions — which `result.json` does not carry: filed as **B-018** rather than dropped | 🟡 |
+| 5 · app | ✅ `compareStore.computeAll` and `batchStore.run` call `comparePair`; both loops are gone, and each tab keeps only what is its own — the Compare tab its page cache, the Bulk tab its buffer release. The Export menu offers `result.json` + `manifest.json` from the shared builders; the old JSON shape is kept, labelled, until pipelines move | ✅ |
+| 6 · cli · parity | ✅ the CLI calls `comparePair`, and `packages/cli/verify/compare-parity.ts` runs one pair **through the built binary as a process** and through the builders the way the tab calls them, then diffs the two documents: identical, 118 lines, apart from `run`, `tool` and `env`, each excluded for a stated reason | ✅ |
+| 7 · record | ✅ SR-COMPARE owns `packages/compare/` and states the one rule; SR-BULK-COMPARE owns the loop and `--each`; the register releases W-01's claim; four SR-SURFACE-PARITY rows closed, two re-pointed at W-09 and B-018; ARCHITECTURE's compare section redrawn with its SVG | ✅ |
 
 ## Blockers
 
-- 🟡 **Waiting on W-29** — `comparePair` and the builders are written in `packages/compare` and `packages/core`, not in `src/services/` (SR-NPM-PACKAGES).
+- 🟡 **Waiting on W-29** — `comparePair` and the builders are written in `packages/compare` and `packages/core`, not in `packages/ui/src/services/` (SR-NPM-PACKAGES).
 - **W-09 waits on this** — the single-pair CLI is built on `comparePair` and the
 shared builders, not on today's CLI loop.
 
@@ -95,7 +95,7 @@ shared builders, not on today's CLI loop.
 
 ## Hazards
 
-- **No verdict may change by accident.** Run `cli/verify` before and after; the one
+- **No verdict may change by accident.** Run `packages/cli/verify` before and after; the one
   intended change is DoD 2 — pages where the strip and the verdict disagreed. List them.
 - **W-05 moves the same limits** into `specConstants.ts`; whichever lands second rebases.
 - **The sealed spec feature is not part of this.** It reaches the CLI through `engine.ts`
@@ -105,6 +105,6 @@ shared builders, not on today's CLI loop.
 
 ## Reference
 
-- `src/store/compareStore.ts` `computeAll`, `jump` · `src/store/batchStore.ts` · `cli/src/commands/compare.ts`
-- `src/services/changes.ts` `pageHasChange`, `summaryPageDiffers` · `src/services/exportReport.ts` · `cli/src/report/`
+- `packages/ui/src/store/compareStore.ts` `computeAll`, `jump` · `packages/ui/src/store/batchStore.ts` · `packages/compare/src/cli/pair.ts`
+- `packages/compare/src/changes.ts` `pageHasChange`, `summaryPageDiffers` · `packages/ui/src/services/exportReport.ts` · `packages/core/src/report/`
 - [W-09](W-09-pdfsuite-compare-one-pair.md) · [W-11](W-11-pdfsuite-spec-cli.md) · [W-05](W-05-constants-file.md)

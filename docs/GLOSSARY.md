@@ -14,8 +14,12 @@ description: "Recurring terms, defined once."
 | At a glance | the section every `W-nn` file opens with: a seven-row table (what · why · done when · status · waits on · who · record) and, for a plan of three or more steps, its flowchart — the screen shown in a meeting; SR-WORK-LIFECYCLE decisions 4a–4d |
 | ball | the one marker every queue row opens with: 🔴 🟣 🟡 🟢 |
 | decider | Siddharth or Arpit — either one rules alone; see SR-WORK-BLOCKERS decision 11 |
-| core | the shared functions in `src/services/` (and the spec feature's `engine.ts`) that both the app and the CLI call; SR-LAW-3 |
+| core | the shared functions both the app and the CLI call — since W-29 the packages `@pdfsuite/core`, `compare` and `spec`, not a folder in the app; SR-LAW-3 |
 | surface | the app or the CLI — what a person or a pipeline uses; it owns only presentation and delivery; SR-SURFACE-PARITY |
+| host | `@pdfsuite/cli`: the package that owns the `pdfsuite` binary, the config file and the exit codes, and owns no PDF work. It loads its commands from other packages — SR-NPM-PACKAGES decision 3 · **built** (W-30) |
+| command module | what a package exports at `./cli` so the host can add its command: `{ name, version, register(program, host) }`. It registers its own flags and help, because the host does not know what its command takes. It is a **separate bundle**, so what crosses from the host is copied, not shared · **built** (W-30, W-32) |
+| barrel | the one file a package publishes a surface through, so nothing outside imports past it. `@pdfsuite/spec` has three — the tab, the engine, the command — and `scripts/check-boundary.sh` is the check |
+| discovered | of a command: it exists because its package is installed, not because the host was built with it. A missing package is exit 2 with the `npm i` to run, and is still listed by `--help` · **built** |
 | blocker | `work/BLOCKED.json` with a decision other than `PROCEED` |
 | veto condition | the checkable condition under which a decision reopens |
 | golden PDF | the reference PDF (side A); its page sets the target box every comparison draws into |

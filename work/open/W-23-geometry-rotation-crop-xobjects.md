@@ -73,9 +73,9 @@ W-04 DoD 1 already lists Form XObject images; ask the spec machine to apply the 
 ## Hazards
 
 - Compare baselines with images may shift — explain each moved number.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` image loop · `src/services/pdfElements.ts` image loop
+- `packages/core/src/pdfCompare.ts` image loop · `packages/core/src/pdfElements.ts` image loop
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

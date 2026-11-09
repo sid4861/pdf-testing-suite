@@ -74,9 +74,9 @@ None asked — tag assertions in a spec are a future idea, not a gap. The spec m
 ## Hazards
 
 - Reading order from the tree may differ from visual order — do not let it change today's text diff.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfElements.ts` · `src/services/pdfCompare.ts`
+- `packages/core/src/pdfElements.ts` · `packages/core/src/pdfCompare.ts`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

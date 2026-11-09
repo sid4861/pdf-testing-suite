@@ -65,7 +65,7 @@ None asked. The spec machine cannot push, so its side never closes anything in t
 
 ## Blockers
 
-- 🟡 **Waiting on W-14** — the `src/services/pdfFacts.ts` reader this builds on.
+- 🟡 **Waiting on W-14** — the `packages/ui/src/services/pdfFacts.ts` reader this builds on.
 
 ## Record affected
 
@@ -74,9 +74,9 @@ None asked. The spec machine cannot push, so its side never closes anything in t
 ## Hazards
 
 - Layers: text in a hidden layer may still be extracted — check on the fixture and note it in the SR.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/components/measure/MeasureView.tsx` · `src/services/pdfElements.ts`
+- `packages/ui/src/components/measure/MeasureView.tsx` · `packages/core/src/pdfElements.ts`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

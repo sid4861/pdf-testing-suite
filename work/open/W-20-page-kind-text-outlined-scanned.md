@@ -75,9 +75,9 @@ Ask the spec machine to report such elements as "unverifiable" (SR-SPEC-CHECK de
 ## Hazards
 
 - **No OCR in the product** (SR-SPEC-CHECK, alternatives) — detect and say, never recognise.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` · `src/services/pdfElements.ts` · [SR-CONSTANTS](../../records/0103_CONSTANTS.md)
+- `packages/core/src/pdfCompare.ts` · `packages/core/src/pdfElements.ts` · [SR-CONSTANTS](../../records/0103_CONSTANTS.md)
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

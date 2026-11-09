@@ -74,7 +74,7 @@ and "page changed" had two definitions.
 4. **A new capability lands on both surfaces in the same change**, or lands with its
    SR-SURFACE-PARITY row filed for ratification in that change.
 5. **The sealed spec feature obeys through its contract:** the Spec tab and `pdfsuite
-   spec` call the same functions exported from `src/features/spec/engine.ts`.
+   spec` call the same functions exported from `packages/spec/src/engine.ts`.
 
 ### Consequences
 
@@ -95,14 +95,14 @@ and "page changed" had two definitions.
 
 - [SR-SURFACE-PARITY](0106_SURFACE-parity.md) — the table of every step and every exception
 - The feature records this law governs — SR-COMPARE, SR-BULK-COMPARE, SR-SPEC, SR-INSPECT, SR-CLI, SR-REPORT-HTML, SR-REPORT-JSON, SR-MANIFEST (listed under References)
-- [`cli/src/platform/engine.ts`](../cli/src/platform/engine.ts) — the CLI's one door into the core
+- [`packages/cli/src/platform/engine.ts`](../packages/cli/src/platform/engine.ts) — the CLI's one door into the core
 
 ### Veto condition
 
 **Reopen this decision if:** a result-producing step is implemented separately for the UI
 and the CLI without a ratified SR-SURFACE-PARITY row.
 
-**How to check it:** `grep -rn "comparePage(\|runSpec(\|renderElements(" src/store src/components cli/src` — after W-27, only the core may call these.
+**How to check it:** `grep -rn "comparePage(\|runSpec(\|renderElements(" src/store src/components packages/cli/src` — after W-27, only the core may call these.
 
 ---
 
@@ -114,7 +114,7 @@ and the CLI without a ratified SR-SURFACE-PARITY row.
 
 **Code**
 
-- [`cli/src/platform/engine.ts`](../cli/src/platform/engine.ts) · [`src/features/spec/engine.ts`](../src/features/spec/engine.ts)
+- [`packages/cli/src/platform/engine.ts`](../packages/cli/src/platform/engine.ts) · [`packages/spec/src/engine.ts`](../packages/spec/src/engine.ts)
 
 **Project docs**
 

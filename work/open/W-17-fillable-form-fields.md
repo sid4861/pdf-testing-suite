@@ -75,9 +75,9 @@ Ask the spec machine to match spec text against field values too (today: "field 
 ## Hazards
 
 - Radio groups and checkboxes have export values, not visible text — show both.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` · `src/services/pdfElements.ts` · `src/services/changes.ts`
+- `packages/core/src/pdfCompare.ts` · `packages/core/src/pdfElements.ts` · `packages/compare/src/changes.ts`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

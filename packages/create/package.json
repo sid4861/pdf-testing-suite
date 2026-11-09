@@ -1,0 +1,29 @@
+{
+  "name": "@pdfsuite/create",
+  "version": "2.0.0",
+  "description": "npm create @pdfsuite \u2014 a new app, or pdfsuite added to one you have, and kept in step on upgrade.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "create-pdfsuite": "./bin/create-pdfsuite.mjs"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && node build.mjs",
+    "prepack": "node build.mjs"
+  }
+}

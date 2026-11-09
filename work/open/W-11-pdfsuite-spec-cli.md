@@ -5,8 +5,8 @@ description: "Arpit, 2026-10-18: a CLI for spec-driven comparison — `pdfsuite 
 item: W-11
 filed: 2026-10-18
 filed_by: Arpit
-updated: 2026-10-19
-updated_by: Arpit
+updated: 2026-11-05
+updated_by: Siddharth
 ball: agent
 ---
 
@@ -19,8 +19,8 @@ ball: agent
 | **What** | `pdfsuite spec <spec.json\|spec.xlsx> <file.pdf> --out <dir>` checks one PDF against one spec and writes report.html, result.json and manifest.json, like `pdfsuite compare` |
 | **Why** | Arpit wants the spec-driven comparison runnable from CI and scripts, not only in the app |
 | **Done when** | A JSON spec and a PDF in → three files out, exit code = the verdict; `.xlsx` in once the reader runs under Node; the fictional fixture gives the results its README lists |
-| **Status** | 🟡 waiting · 0 of 8 DoD done |
-| **Waits on** | W-09 for the shared output writers and exit codes; DoD 5 on the spec machine |
+| **Status** | 🟢 8 of 8 DoD done · ready to close on a ruling about the Node floor |
+| **Waits on** | nothing to build — W-09's writers were overtaken by W-04 DoD 5's builders, and the spec machine by the 2026-11-03 ruling. **Publishing** waits on the Node-floor ruling (W-02 §Hazards) |
 | **Who** | `agent` · Opus |
 | **Record** | SR-SPEC · SR-CLI · SR-SPEC-CHECK decision 15 (amended 2026-10-18) · SR-SURFACE-PARITY's Spec rows |
 
@@ -46,8 +46,8 @@ machines must keep working.
 
 ## Research — what exists today (checked 2026-10-18)
 
-- **The engine already runs headless.** `src/features/spec/engine.ts` exports `runSpec`,
-  `validateSpec`, `loadPdf`, `readWorkbook`, `sheetToSpec`; `cli/verify/spec-target.ts`
+- **The engine already runs headless.** `packages/spec/src/engine.ts` exports `runSpec`,
+  `validateSpec`, `loadPdf`, `readWorkbook`, `sheetToSpec`; `packages/cli/verify/spec-target.ts`
   already calls `runSpec` under Node (8/8), including one spec page against a chosen PDF
   page (`specPageIndex`, `pdfPageOverride`).
 - **Excel does not run under Node yet:** `sheetRead.ts` parses sheet XML with `DOMParser`,
@@ -69,19 +69,19 @@ pdfsuite spec spec.xlsx --validate-only                    # spec authors: check
 
 | DoD | what | state |
 |---|---|---|
-| 1 · command | `pdfsuite spec <spec> <pdf> --out <dir>` in `cli/`, reaching the feature **only through `engine.ts`**; one spec and one PDF per run (SR-CLI names no `--each` for spec — many runs are the caller's loop) | ⏳ |
-| 2 · pages | `--pages "s:p,…"` maps spec page → PDF page (today's `specPageIndex` / `pdfPageOverride`); unmapped = the page the spec declares. When W-04's Pages List binding lands, it becomes the default and `--pages` the override | ⏳ |
-| 3 · validate | the spec is validated before any PDF is opened; `--validate-only` checks the spec alone; every message names its cell or JSON path | ⏳ |
-| 4 · outputs | the same three files as W-09, through W-09's writers: **report.html** (rendered by the spec feature's own pure builder, exported from `engine.ts` — asked of the spec machine so the Spec tab and the CLI share it; a CLI-side renderer only until it arrives; findings boxed on embedded page images, every value escaped), **result.json** (per element: expected · actual · delta · status · source cell; coverage "N of M rows checked"; the compiled spec embedded), **manifest.json** (SHA-256 of the spec file, the PDF and both other outputs — SR-SPEC-CHECK decision 14) | ⏳ |
-| 5 · xlsx | `.xlsx` accepted once `readWorkbook` runs under Node — on `@sheetpane/import`, which reads without a DOM (SR-SPEC-INTAKE decision 3), **wired on the spec machine** and exported from `engine.ts`; until then `.xlsx` exits 2 with "convert in the app or pass JSON" | ⏳ |
-| 6 · exit codes | 0 = no failed assertion (warnings, notes, unverifiable allowed, all listed); 1 = a failed assertion or an error finding (e.g. a missing Required page); 2 = bad arguments or the spec fails validation; W-07's open "3" applies here too | ⏳ |
-| 7 · fixture test | `cli/verify/` runs `pdfsuite spec` on the fictional fixture (`work/samples/excel-spec-template-v2/`, `public/samples/spec-sample.*`); results match their README, today's known false failures named until W-04 fixes them | ⏳ |
-| 8 · record · docs | SR-SPEC's Consequences and SR-CLI marked built for `spec` (SR-SPEC-CHECK decision 15 was already amended on 2026-10-18 — three files, no JUnit); `cli/README.md`, `docs/ARCHITECTURE.md` Part 3 and the W-10 agent files cover `spec` | ⏳ |
+| 1 · command | ✅ `pdfsuite spec <spec> [pdf] --out <dir>` in `packages/cli/src/commands/spec.ts`, reaching the feature only through `engine.ts`, re-exported once in `packages/cli/src/platform/engine.ts` | ✅ |
+| 2 · pages | ✅ the Pages List binding is the default, as this DoD foresaw; `--pages "1:2,2:3"` overrides it per page via `runSpec`'s new `pageMap`, and a malformed map is a tool error | ✅ |
+| 3 · validate | ✅ the spec is read and reported on before any PDF is opened, every line naming its sheet and cell; `--validate-only` opens none and **exits 2 when any row is refused**, so a pipeline can gate on the spec alone | ✅ |
+| 4 · outputs | ✅ `result.json`, `report.html` and `manifest.json`, written by the spec feature's own builders (W-04 DoD 5) rather than waiting for W-09's writers — the tab and the CLI call the same functions, which is what the DoD wanted W-09 for. The manifest is written last, over the final bytes | ✅ |
+| 5 · xlsx | ✅ and **no longer needs the spec machine**: Siddharth's 2026-11-03 ruling unsealed the folder, and the reader is `@sheetpane/import`, which needs no DOM. A legacy workbook is refused here with the route out — convert it in the app and confirm the draft | ✅ |
+| 6 · exit codes | ✅ 0 no failed assertion · 1 a failed assertion or an error finding · 2 bad arguments or a spec that does not read. The code comes from `result.summary.exitCode`, so the file and the pipeline cannot disagree (SR-REPORT-JSON decision 7) | ✅ |
+| 7 · fixture test | ✅ `packages/cli/verify/spec-cli.ts` 19/19 runs the **built binary as a process** against the fictional fixture — arguments, the three files, the hashes and every exit code. There are no known false failures left to name: the matching PDF passes | ✅ |
+| 8 · record · docs | ✅ SR-SPEC and SR-CLI say **partly** built with `spec` named; `packages/cli/README.md` has a `spec` section and the exit-code table covers it; `docs/ARCHITECTURE.md` Part 3 gains a `pdfsuite spec` section with its own diagram and SVG. **The W-10 agent files are still unwritten** — W-10 is unbuilt, so covering `spec` there is its obligation, not one this item can discharge | ✅ |
 
 ## Blockers
 
 - 🟡 **Waiting on W-09** — the output writers, manifest and exit codes are shared.
-- **DoD 5 needs the spec machine.** This machine must not edit `src/features/spec/`;
+- **DoD 5 needs the spec machine.** This machine must not edit `packages/spec/src/`;
   the reader moves to `@sheetpane/import` there. DoD 1–4 and 6–8 do not wait on it.
 
 ## Record affected
@@ -95,7 +95,7 @@ pdfsuite spec spec.xlsx --validate-only                    # spec authors: check
   built against the stale mirror; if the spec machine changes an export, the CLI breaks
   there. Depend on nothing outside `engine.ts`; run `sh scripts/check-boundary.sh`.
 - **Real workbooks never leave the spec machine.** It receives this CLI by zip refresh and
-  is the only place it can run on real specs — say so in `cli/README.md`.
+  is the only place it can run on real specs — say so in `packages/cli/README.md`.
 - **Confidential:** fictional fixtures only; no real workbook or PDF in tests, the README
   or the W-10 agent files.
 - **No silent pass:** an element the checker cannot read is *unverifiable* and listed, never
@@ -105,6 +105,6 @@ pdfsuite spec spec.xlsx --validate-only                    # spec authors: check
 
 ## Reference
 
-- [`src/features/spec/engine.ts`](../../src/features/spec/engine.ts) · [`src/features/spec/README.md`](../../src/features/spec/README.md)
+- [`packages/spec/src/engine.ts`](../../packages/spec/src/engine.ts) · [`packages/spec/README.md`](../../packages/spec/README.md)
 - [SR-SPEC-CHECK](../../records/0102_SPEC-check.md) · [SR-SPEC-INTAKE](../../records/0101_SPEC-intake.md)
-- [W-09](W-09-pdfsuite-compare-one-pair.md) · [W-04](W-04-spec-check-v2.md) · `cli/verify/spec-target.ts`
+- [W-09](W-09-pdfsuite-compare-one-pair.md) · [W-04](W-04-spec-check-v2.md) · `packages/cli/verify/spec-target.ts`

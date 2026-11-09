@@ -87,7 +87,7 @@ flowchart LR
 
 ### Context
 
-On 2026-10-18 the product was one app (`src/`) and one unpublished CLI package (`cli/`).
+On 2026-10-18 the product was one app (`src/`) and one unpublished CLI package (`packages/cli/`).
 **Measured that day:** a local install links a dependency's `bin` into `node_modules/.bin`;
 a global install links only the installed package's own `bin`. All `@pdfsuite/*` names and
 the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
@@ -129,21 +129,131 @@ the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
     the API its user configures.
 13. **Publishing is a human step** — from CI with npm provenance, by Siddharth or Arpit,
     after the `pdfsuite` organisation is claimed; fictional fixtures only.
-14. **`@pdfsuite/spec` is built from `src/features/spec/` in this repository.** Siddharth
-    ruled on 2026-11-03 (W-32, option B) that it may be developed on any machine, so this
-    repository holds the live version. Real spec workbooks still never leave the spec
-    machine — a rule about data, not code.
+14. **`@pdfsuite/spec` is `packages/spec/` in this repository.** Siddharth ruled on
+    2026-11-03 (W-32, option B) that it may be developed on any machine, so this repository
+    holds the live version; on 2026-11-06 the folder moved out of `src/features/spec/` and
+    became the package. Real spec workbooks still never leave the spec machine — a rule
+    about data, not code.
 15. **Licence: MIT,** for the repository (`LICENSE` at the root) and for every package (its
     own `LICENSE`, listed in `files`); a package bundling Apache-2.0 code (pdf.js) also ships
     that code's `NOTICE`. Every dependency obeys [L2](0004_LAW-2-open-source-only.md).
 
 ### Consequences
 
-- **Open:** W-29 (workspaces), W-30 (CLI host), W-31 (`create`, both modes), W-32 (`spec`,
-  🟡 ruled, waits on W-29), W-33 (`ui`), W-34 (`--sync`), W-35 (hosting at any URL), W-10 (agents, publishing),
-  W-09 (`compare`, `--each`), W-27 (`comparePair`, `compareMany`).
-- **Enforced today:** nothing; W-29's import check, W-30's version check and W-34's sync
-  test become the gates.
+- **Open:** **W-10** (the agent files and publishing) and **W-35** (hosting at any URL).
+  Everything else this record named has landed — W-09, W-27, W-29, W-30, W-31, W-32,
+  W-33 and W-34 — and what now stands between the suite and a first publish is
+  **B-022** (the packages ship TypeScript source) and the Node-floor ruling.
+- **The workspace is real (2026-11-06, W-29):** `packages/core`, `compare`, `cli`, `agents`,
+  `ui` and `create` are npm workspaces at one version, linked by npm and nothing else. The
+  app, the spec feature and the CLI import `@pdfsuite/core` and `@pdfsuite/compare` **by
+  name**; `scripts/check-packages.sh` fails a build that reaches into a package by path,
+  that lets a package import the app, that leaves a package at a different version, or that
+  un-pins `pdfjs-dist`. `agents`, `ui` and `create` are named shells for W-10, W-33 and W-31.
+- **Decisions 3 and 4 are built (2026-11-06, W-30).** `@pdfsuite/cli` owns `pdfsuite` and
+  depends on `core` and `agents` only. `compare` is **not** in the binary: the host
+  resolves `@pdfsuite/compare/cli` with `createRequire`, from the working directory first
+  and from its own location second, and registers the command module it finds. A missing
+  package is exit 2 with the `npm i` to run — and is still *listed* by `--help`, with what
+  to install, because "unknown command" would be a lie. A version that is not the host's is
+  exit 2 with both numbers. `compare` owns `pdfsuite-compare`, a forwarder, so a global
+  install reaches the PATH. Proved twice: `packages/cli/verify/cli-discovery.ts` runs the
+  built binary against stand-in installs, and `scripts/check-install.sh` packs the tarballs
+  and installs them into a fresh project and a fresh global prefix.
+- **Two things that design settled, both worth keeping in view.** A command module is a
+  *separate bundle* from the host, so a class exported by the host and `instanceof`-checked
+  there would be two different classes: `EXIT`, `ToolError` and `fileFromPath` moved into
+  `@pdfsuite/core/node`, which both bundles share, and the host recognises a tool error by
+  a brand string. And `createRequire` cannot resolve a TypeScript source, so
+  `@pdfsuite/compare` builds `dist/cli.js` — shipped in the tarball, checked by the
+  install test.
+- **`@pdfsuite/spec` exists (2026-11-06, W-32).** `src/features/spec/` became
+  `packages/spec/`, depending on `core` (one `loadPdf`, not two) and on `cli` for its
+  command module's types and its bin. Three barrels: `@pdfsuite/spec` for the app,
+  `/engine` for a headless caller, `/cli` for the host. The Specification tab imports the
+  package name; `pdfsuite spec` is now **discovered** like `compare`, so W-30's one
+  departure is closed — it stayed compiled in for one day because turning a working
+  command into "not installed" would have been a regression, not a step towards one.
+  `pdfsuite-spec` covers a global install. `scripts/check-boundary.sh`
+  retargeted to the package and `scripts/check-install.sh` extended — 21 checks, both
+  commands, a fresh project and a fresh global prefix.
+- **B-019 narrowed by W-33.** The shared classes now ship in `@pdfsuite/ui`'s stylesheet,
+  so anyone rendering `<PdfSuiteApp/>` gets a styled Spec tab. It still bites one case:
+  installing `@pdfsuite/spec` alone and rendering `SpecTestView` yourself, because `spec`
+  does not depend on `ui` (the dependency runs the other way). **B-020** — the stores
+  fetching their examples from the consumer's `public/` — is unchanged and now applies to
+  all four screens, not just Spec. **B-021** is new: `@pdfsuite/ui`'s stylesheet defines
+  `.card`, `.btn`, `.tabs` and friends as **global** class names, which will collide with
+  a host application's own CSS.
+- **`@pdfsuite/ui` holds the screens (2026-11-06, W-33).** `src/components`, `src/store`,
+  `src/services`, `App.tsx`, `styles.css` and the flag list moved into `packages/ui`; this
+  repository's `src/` is now `main.tsx` and nothing else. `<PdfSuiteApp config={…}/>` takes
+  the tabs, the first tab and the feature flags as **configuration**, so a created app
+  never edits a component — decision 7's reason, and L4 decision 5's. `flag.env` survives
+  as *this app's* config: the shell reads it and parses it with the package's own
+  `parseFlagEnv`.
+- **Nothing depends on the app any more.** `check-packages.sh` rule 2 has **no allowances
+  left**: `src/features/spec/engine` went with W-32 and `packages/ui/src/services/export*` with W-33.
+  The last crossing was the CLI's spike, repointed at `@pdfsuite/compare`'s builders — and
+  found broken since W-29, because its sample path still assumed `cli/` rather than
+  `packages/cli/` and nobody had run it.
+- **Decisions 7 and 8 are built (2026-11-09, W-31).** `npm create @pdfsuite` writes a thin
+  shell over `@pdfsuite/ui`: in an empty directory a whole Vite + React app (seven files,
+  one of them a `.tsx`), and in a React app `src/pdfsuite/` plus the dependencies. The
+  mode is decided from **what is on disk**, never from a flag, and anything that is
+  neither — files but no `package.json`, or a `package.json` without React — is refused
+  with the reason. Every written file is recorded in `.pdfsuite/installed.json` with its
+  SHA-256, hashed **off disk** rather than from the strings that were written, which is
+  what makes W-34's sync able to tell an untouched file from an edited one.
+- **"No existing file is changed" is measured, not asserted.**
+  [`scripts/check-create.sh`](../scripts/check-create.sh) (39 checks) hashes the whole
+  project before and after add mode: the only pre-existing file that differs is
+  `package.json`, which gains `@pdfsuite/*` dependency entries and keeps its own keys,
+  its own indentation and its own trailing newline. It also builds a created app from the
+  packed tarballs and runs `npx pdfsuite compare` inside it.
+- **Decision 8 is built (2026-11-09, W-34).** `--sync` reads the record and applies four
+  rules: a file missing from it is **added**; one whose content hash matches is
+  **replaced**; one that was edited is **kept**, with the new version written beside it as
+  `.pdfsuite-new` and named in the report; one the consumer deleted **stays deleted**
+  unless `--restore`. `package.json` is never replaced as a file — only its `@pdfsuite/*`
+  entries move, all to one exact version. `--check` writes nothing and exits 1 only when
+  *we* have something newer, never because somebody edited their own config.
+- **Three things that only showed up by running it twice**, and all three are now checked
+  twice in [`check-create.sh`](../scripts/check-create.sh) (63 checks):
+  (1) the record was rebuilt by hashing the files **off disk**, which laundered a
+  consumer's edit into "what pdfsuite wrote" and let the *next* upgrade overwrite it
+  silently — the record is now built from what pdfsuite *intends* at each path;
+  (2) a deleted file was dropped from the record, so "stays deleted" lasted exactly one
+  upgrade; (3) in **new** mode `package.json` was a recorded file, so an upgrade would
+  have replaced it wholesale and deleted every dependency and script the consumer had
+  added — the loss L4 decision 5 exists to prevent, arriving through the command meant to
+  prevent it.
+- **Hashes are of content, not bytes** (W-34's hazard, applied back to W-31): line endings
+  are normalised to `\n` first, because `core.autocrlf` is guaranteed to happen and
+  guaranteed not to mean anything. Without it every file looks edited and an upgrade
+  delivers nothing.
+- **The smoke test found a packaging defect: `tsc` does not work for a consumer.** Every
+  package publishes TypeScript *source* as its entry, so a consumer's `tsc` compiles our
+  source with their settings and reports our problems in their project. A created app's
+  `build` is therefore `vite build` alone, which works and is said in the file. Filed as
+  **B-022**, and it should land **before** anything is published — publishing a library
+  nobody can type-check against is worse than publishing a week later.
+- **Agent files are not written yet.** W-31's DoD 5 waits on **W-10**, which owns what a
+  file for Claude, Kiro, Codex or Copilot contains and writes `pdfsuite agents init`.
+  `create` parses `--no-agents` so the default does not change when W-10 lands, and says
+  in its output that the files are not there yet rather than silently writing nothing.
+- **Still owed:** the Compare tab's richer HTML report, which shows what `result.json`
+  does not carry — **B-018**. It lives in `@pdfsuite/ui`'s `services/exportReport.ts` now,
+  which is the right place for a presentation-only report but still a second builder.
+- **Blocking publication:** `@sheetpane/import` declares `engines: node >=22` and this
+  package publishes `>=20`. `spec` is the first command that depends on it, so the floor
+  must rise to 22 or Arpit must lower sheetpane's — a ruling is in the queue (W-02 §Hazards).
+- **Enforced today:** `scripts/check-packages.sh` — no package reached into by path, no
+  package importing the app, one version, `pdfjs-dist` pinned, and (W-30) the host not
+  importing a command package; `packages/cli/verify/cli-discovery.ts` for the version
+  check; `scripts/check-boundary.sh` for the one package whose surface is a UI barrel, a
+  headless barrel and a stylesheet; `scripts/check-install.sh` for what an install gives
+  you, both commands, locally and globally. W-34's sync test is still owed.
 
 ### Alternatives considered
 
@@ -159,8 +269,10 @@ the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
 ### Reference (required)
 
 - [npm docs — `npm init` / `npm create`](https://docs.npmjs.com/cli/v10/commands/npm-init)
-- The bin measurement above — two packed packages, `npm i` and `npm i -g --prefix`
-- [`cli/package.json`](../cli/package.json) · [`package.json`](../package.json) · [`vite.config.ts`](../vite.config.ts)
+- The bin measurement above — two packed packages, `npm i` and `npm i -g --prefix`;
+  re-run as [`scripts/check-install.sh`](../scripts/check-install.sh) on 2026-11-06 and
+  confirmed: a local install links a dependency's bin, a global install does not
+- [`packages/cli/package.json`](../packages/cli/package.json) · [`package.json`](../package.json) · [`vite.config.ts`](../vite.config.ts)
 
 ### Veto condition
 
@@ -179,7 +291,7 @@ package other than its row, the shell holds screen code, or a sync overwrites an
 
 **Code**
 
-- [`cli/package.json`](../cli/package.json) · [`package.json`](../package.json) · [`vite.config.ts`](../vite.config.ts)
+- [`packages/cli/package.json`](../packages/cli/package.json) · [`package.json`](../package.json) · [`vite.config.ts`](../vite.config.ts)
 
 **Project docs**
 

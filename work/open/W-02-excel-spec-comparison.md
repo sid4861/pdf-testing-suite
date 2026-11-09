@@ -19,7 +19,7 @@ ball: agent
 | **What** | Upload an Excel spec (or a spec JSON), validate it, and compile it to a spec JSON in which every value names its sheet and cell |
 | **Why** | Specs are kept in Excel and Excel is the truth; today the app takes JSON only |
 | **Done when** | A workbook drops in, every problem is listed with its cell — a missing, in-value or unknown unit is an error, never a guess — and the spec JSON downloads and re-uploads unchanged |
-| **Status** | 🟢 8 of 10 DoD done (1, 2, 4, 6, 7, 8, 9, 10) · 3 and 5 part-done: no blank template artefact, and decisions 10 (rich text) and 12 (relative values) unbuilt |
+| **Status** | 🟢 9 of 10 DoD done · DoD 5 part-done: decisions 10 (rich text) and 12 (relative values) unbuilt, and no fixture row exercises either |
 | **Waits on** | nothing — both blockers cleared: W-05 landed 2026-11-03, `@sheetpane/import` published 0.5.1 |
 | **Who** | `agent` · Opus |
 | **Record** | SR-SPEC-INTAKE |
@@ -75,7 +75,7 @@ and uploaded again.
 |---|---|---|
 | 1 · upload | ✅ `uploadKind` accepts `.xlsx`/`.json` and refuses `.xls`, `.xlsm`, `.csv` and anything else, each with its own way out; password-protected mapped from the reader. The tab's own label and `accept` now say `.xlsx` or `.json` too | ✅ |
 | 2 · reader | ✅ `specIntake.ts` over `read()` (pinned `0.5.1`), never the zip; refusals mapped; raw size checked before unzip and `maxTotalSize` passed from SR-CONSTANTS; hidden sheets, rows, columns and filtered rows listed with their cells; formulas per decision 5; **units per 7a** in `specTemplate.ts` | ✅ |
-| 3 · template v2 | ✅ `specTemplate.ts` reads Pages List, Settings, Lists and the page sheets; merged labels read from the declared range, never forward-filled; the clean fixture reads with **0 errors, 0 warnings, 290 rows**, and the with-errors fixture yields **exactly its ten**. **Blank template not produced** — a separate artefact, left for the UI pass | 🟡 |
+| 3 · template v2 | ✅ `specTemplate.ts` reads Pages List, Settings, Lists and the page sheets; merged labels read from the declared range, never forward-filled; the clean fixture reads with **0 errors, 0 warnings, 290 rows**, and the with-errors fixture yields **exactly its ten**. The **blank Template v2 workbook** is written by the same builders as the legacy draft — from the Export menu and from `pdfsuite spec --template <file>` — and reads back through the same reader with no error, asserting nothing until someone edits it | ✅ |
 | 4 · legacy | ✅ `specLegacy.ts` reads the nested layout — merged labels from the file's own declared ranges, prose pulled apart into Value / Unit / From with a built-in vocabulary, every cell marked **read**, **inferred** or **unreadable**. `specDraft.ts` writes the draft Template v2 workbook: amber where it inferred, red where it could not read, **Check? = Note on every row**, so the draft itself asserts nothing. The tab offers it as a download and checks nothing until the confirmed workbook comes back. `sheetRead.ts` and `sheetSpec.ts`, which turned a legacy sheet straight into assertions, are gone | ✅ |
 | 5 · values | ✅ decision 9 (fractions, comma decimals, leading dots, ranges as bands, `~` and range+Tolerance refused) and decision 11 strikethrough. **Decision 10 rich text and decision 12 relative values not done** — no fixture row exercises either | 🟡 |
 | 6 · validation | ✅ the three severities separate as decision 13 draws them — an error on the file or the Pages List stops the run, an error on an element only removes it; the report is the first thing the tab shows, every line naming its sheet and cell, with the rows that have no check and **every accepted assertion in plain words** (decision 14) behind a disclosure | ✅ |
@@ -86,7 +86,7 @@ and uploaded again.
 
 ## Landed
 
-**2026-11-04 — DoD 1 and 2.** `src/features/spec/specIntake.ts`: `uploadKind` decides on
+**2026-11-04 — DoD 1 and 2.** `packages/spec/src/specIntake.ts`: `uploadKind` decides on
 the extension before a byte is read, and the three near-misses each get their own way out
 (`.xls` → save as .xlsx; `.xlsm` → the spec needs no macros; `.csv` → a sheet carries no
 Pages List). `readSpecWorkbook` checks the raw size against `MAX_UPLOAD_BYTES` **before**
@@ -95,7 +95,7 @@ unzipping, passes `MAX_UNZIPPED_BYTES` as the reader's `maxTotalSize`, maps ever
 for every hidden sheet, hidden row, filtered row, hidden column and formula cell.
 Exported from `engine.ts`, so `pdfsuite spec` (W-11) uses the same reader.
 
-`cli/verify/spec-intake.ts`, 17/17, in `npm run verify` — which also proves the reader
+`packages/cli/verify/spec-intake.ts`, 17/17, in `npm run verify` — which also proves the reader
 works under Node, as decision 3 requires.
 
 **A defect the test caught:** `read()` accepts CSV too and decides partly on the bytes, so
@@ -128,7 +128,7 @@ None. Both are cleared: W-05 landed 2026-11-03, and `@sheetpane/import` reached 
 - ~~**The unzipped cap is sheetpane's.**~~ Settled in 0.5.1: `read()` takes
   `maxEntrySize` and `maxTotalSize`, so SR-CONSTANTS's cap is passed in. No upstream change
   needed.
-- **`@sheetpane/import` declares `engines: node >=22`** while `cli/package.json` publishes
+- **`@sheetpane/import` declares `engines: node >=22`** while `packages/cli/package.json` publishes
   `node >=20`. It runs under this machine's Node, but the published `pdfsuite` would be
   claiming support it may not have once W-11 puts the spec check on the CLI. Needs a
   ruling: raise pdfsuite's floor to 22, or ask for 20 upstream.
@@ -139,5 +139,5 @@ None. Both are cleared: W-05 landed 2026-11-03, and `@sheetpane/import` reached 
 
 - [`work/samples/excel-spec-template-v2/`](../../work/samples/excel-spec-template-v2/README.md) — the spec sample (Template v2; the legacy-layout fixture was deleted 2026-10-18): a fictional 4-page landscape report with images, a vector graph, an image graph, tables and text; a matching PDF and a PDF with 12 known deviations
 - [SR-SPEC-INTAKE](../../records/0101_SPEC-intake.md) · [SR-CONSTANTS](../../records/0103_CONSTANTS.md) · [`work/proposals/excel-spec-comparison.md`](../proposals/excel-spec-comparison.md)
-- [`spec-standard.md`](../../spec-standard.md) · [`src/features/spec/types.ts`](../../src/features/spec/types.ts) · [`src/features/spec/SpecTestView.tsx`](../../src/features/spec/SpecTestView.tsx)
+- [`spec-standard.md`](../../spec-standard.md) · [`packages/spec/src/types.ts`](../../packages/spec/src/types.ts) · [`packages/spec/src/SpecTestView.tsx`](../../packages/spec/src/SpecTestView.tsx)
 - [`docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md) §Spec driven comparison

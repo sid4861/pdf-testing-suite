@@ -18,7 +18,7 @@ ball: agent
 |---|---|
 | **What** | `pdfsuite compare` prints a header, one line per pair and one summary line; everything else goes to stderr |
 | **Why** | Arpit agreed this console format; today's output mixes progress, tables and results on stdout |
-| **Done when** | A run over `cli/fixtures` prints exactly the agreed shape; the build passes; exit codes unchanged |
+| **Done when** | A run over `packages/cli/fixtures` prints exactly the agreed shape; the build passes; exit codes unchanged |
 | **Status** | 🟢 ready · 0 of 6 DoD done |
 | **Waits on** | nothing |
 | **Who** | `agent` · Sonnet |
@@ -65,7 +65,7 @@ FAIL · 1 differs · 1 error · 1 pass · report: reports/index.html · exit 1
 | 3 · summary | one line: `PASS` or `FAIL` · counts · report path · exit code; the exit code printed is the one returned | ⏳ |
 | 4 · streams | stdout carries only the lines above; the pairing table, progress, "wrote …" lines and pdf.js warnings go to stderr; `--verbose` adds detail there, never to stdout | ⏳ |
 | 5 · plain terminals | without a TTY or with `NO_COLOR`: no colour, no `\r` progress, same characters | ⏳ |
-| 6 · check | `npm run build` in `cli/` passes; a run over `cli/fixtures` matches the shape above; exit codes unchanged | ⏳ |
+| 6 · check | `npm run build` in `packages/cli/` passes; a run over `packages/cli/fixtures` matches the shape above; exit codes unchanged | ⏳ |
 
 ## Out of scope
 
@@ -80,15 +80,15 @@ None.
 ## Record affected
 
 [SR-CLI](../../records/0115_CLI.md) decision 4 — stdout carries only this shape, everything else
-goes to stderr. W-01 owns the touched files until SR-CLI's `owns:` claims `cli/` (W-09 DoD 1).
+goes to stderr. W-01 owns the touched files until SR-CLI's `owns:` claims `packages/cli/` (W-09 DoD 1).
 
 ## Hazards
 
 - Anything that parses today's stdout (`[1/3] id … PASS`, `n/m pair(s) passed`) breaks;
-  say so in `cli/README.md`.
+  say so in `packages/cli/README.md`.
 - The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too.
 
 ## Reference
 
-- `cli/src/commands/compare.ts` — today's `console.log` / `process.stdout.write` calls
+- `packages/compare/src/cli/pair.ts` — today's `console.log` / `process.stdout.write` calls
 - [proposal](../proposals/pdfsuite-compare-cli.md) §6 · Console

@@ -1,0 +1,35 @@
+{
+  "name": "@pdfsuite/ui",
+  "version": "2.0.0",
+  "description": "The screens \u2014 Compare, Spec and Inspect \u2014 as React components, and one <PdfSuiteApp/>.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles.css"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "@pdfsuite/compare": "2.0.0",
+    "@pdfsuite/core": "2.0.0",
+    "@pdfsuite/spec": "2.0.0",
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "4.10.38",
+    "zustand": "^4.5.5"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

@@ -66,12 +66,12 @@ specified below. Close to Opus for that part alone.
 | 4 · tab | in the Specification tab, before any PDF is loaded: counts (errors · warnings · info · rows accepted), the lines table (errors first, filter by severity, each line's cell), the plain-words list, and two downloads — *validation report* (`.json`, decision 14) and *annotated workbook* (`.xlsx`); **built on the spec machine** (the tab is sealed); W-46 adds the in-place marks later | ⏳ |
 | 5 · CLI | `pdfsuite spec <spec.xlsx> --validate-only --out <dir>` writes `validation.json` and `<name>.annotated.xlsx`, prints the counts line on stdout, exits 0 (no error), 1 (errors) or 2 (file broken); same function through `engine.ts` (L3); W-11 owns the command, this item its `--validate-only` outputs | ⏳ |
 | 6 · oracle | a test: `work/samples/excel-spec-template-v2/report-spec-with-errors.xlsx` → exactly the ten lines of `expected-validation.json` (sheet, cell, code), through the engine and through the CLI; `report-spec.xlsx` → 0 errors, 0 warnings, every row accepted; the clean workbook with one Unit cell blanked in memory → one `unit-missing`, and no assertion for that row (SR-SPEC-INTAKE veto condition) | ⏳ |
-| 7 · record | SR-SPEC-INTAKE decision 14 marked built; a core row *"Validate the workbook, render its plain words, annotate it"* in SR-SURFACE-PARITY (the tab and the CLI call it); `cli/README.md` and `docs/ARCHITECTURE.md` §Spec driven comparison, end to end | ⏳ |
+| 7 · record | SR-SPEC-INTAKE decision 14 marked built; a core row *"Validate the workbook, render its plain words, annotate it"* in SR-SURFACE-PARITY (the tab and the CLI call it); `packages/cli/README.md` and `docs/ARCHITECTURE.md` §Spec driven comparison, end to end | ⏳ |
 
 ## Blockers
 
 - 🟡 **Waiting on W-02** — the reader and the decision-7a checks produce the lines this item shapes and shows.
-- DoD 4 is spec-machine work (`src/features/spec/`); this machine does not edit that folder. DoD 1–3 and 5–6 live in the engine and the CLI and can be built here against the mirror.
+- DoD 4 is spec-machine work (`packages/spec/src/`); this machine does not edit that folder. DoD 1–3 and 5–6 live in the engine and the CLI and can be built here against the mirror.
 
 ## Record affected
 
@@ -85,7 +85,7 @@ specified below. Close to Opus for that part alone.
 - **The annotated workbook must not become a second reader.** It edits XML parts by string in the parts it touches and copies every other part byte for byte — if a part must be re-serialised, that is the finding; stop and raise it.
 - **`px` is only ever a declared conversion.** Settings · *Pixels per inch* is read as a number with the unit `px/in`; a workbook that declares none makes every `px` row an error — do not default to 72, 96 or 144.
 - **Confidential:** only the fictional fixtures in tests and docs; real workbooks are validated on the spec machine and their reports stay there.
-- The touched engine and CLI files are W-01's until their records claim them (W-09, W-32), so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched engine and CLI files are W-01's until their records claim them (W-09, W-32), so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 

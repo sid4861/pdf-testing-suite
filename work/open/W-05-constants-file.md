@@ -1,12 +1,12 @@
 ---
 type: Handoff
 name: W-05
-description: "Arpit, 2026-10-16: create src/services/specConstants.ts — one file for every default and limit — and move today's scattered literals into it."
+description: "Arpit, 2026-10-16: create packages/ui/src/services/specConstants.ts — one file for every default and limit — and move today's scattered literals into it."
 item: W-05
 filed: 2026-10-16
 filed_by: Arpit
 updated: 2026-11-03
-updated_by: agent
+updated_by: Siddharth
 ball: agent
 ---
 
@@ -16,10 +16,10 @@ ball: agent
 
 | | |
 |---|---|
-| **What** | One file, `src/services/specConstants.ts`, for every default and limit; today's scattered values move into it unchanged |
+| **What** | One file, `packages/ui/src/services/specConstants.ts`, for every default and limit; today's scattered values move into it unchanged |
 | **Why** | The same value lives in up to three places today, and W-02 and W-04 need one place to read theirs from |
 | **Done when** | Every engine and CLI module reads from the one file, both builds pass, and the CLI regression run gives the same verdicts |
-| **Status** | ✅ done 2026-11-03 · 5 of 5 DoD |
+| **Status** | 🟢 5 of 5 DoD done · closed 2026-11-03 |
 | **Waits on** | nothing — W-02 and W-04 are free to start |
 | **Who** | `agent` · Sonnet |
 | **Record** | SR-CONSTANTS |
@@ -46,7 +46,7 @@ mechanical; the type check and the existing tests catch a slip.
 
 ## Goal
 
-`src/services/specConstants.ts` exists, holds every default and hard limit in
+`packages/ui/src/services/specConstants.ts` exists, holds every default and hard limit in
 SR-CONSTANTS decision 2 plus the literals listed in its *Context*, and every engine and
 CLI module reads from it. No value changes.
 
@@ -54,9 +54,9 @@ CLI module reads from it. No value changes.
 
 | DoD | what | state |
 |---|---|---|
-| 1 · file | `src/services/specConstants.ts`: zero dependencies, every key typed and required, the defaults in SR-CONSTANTS decision 2 | ✅ |
+| 1 · file | `packages/ui/src/services/specConstants.ts`: zero dependencies, every key typed and required, the defaults in SR-CONSTANTS decision 2 | ✅ |
 | 2 · move | all of them, values unchanged: `BASE_SCALE` ×3 (`pdfCompare.ts`, `pdfElements.ts`, `specCheck.ts`), `MAX_PAGE_WIDTH`, the page-verdict limits (`changes.ts`), `MOVED_OFFSET_IN` (`exportReport.ts`), `AUTO_SCAN_MAX_PAGES` (`App.tsx`), `DEFAULT_TOL` and `DEFAULT_ANCHOR_WITHIN` (`specCheck.ts`, after the 2026-11-03 ruling). `DEFAULT_THRESHOLDS` no longer exists | ✅ |
-| 3 · CLI | the CLI build imports the same file through its engine seam | ✅ `cli/src/platform/engine.ts` re-exports it |
+| 3 · CLI | the CLI build imports the same file through its engine seam | ✅ `packages/cli/src/platform/engine.ts` re-exports it |
 | 4 · check | `npm run build` and the CLI build pass; the CLI regression run gives the same verdicts as before | ✅ both build, `verify:regression` unchanged, `verify:spec` 8/8 |
 | 5 · record | SR-CONSTANTS `built` set to yes in the register; its Consequences updated | ✅ |
 
@@ -66,9 +66,9 @@ CLI module reads from it. No value changes.
 `MAX_PAGE_WIDTH`, the page-verdict limits, `MOVED_OFFSET_IN`, `AUTO_SCAN_MAX_PAGES`.
 
 Not moved, and not movable from this machine: `DEFAULT_TOL`, `DEFAULT_ANCHOR_WITHIN` and
-the third `BASE_SCALE`, all in `src/features/spec/specCheck.ts`. That folder is sealed —
+the third `BASE_SCALE`, all in `packages/spec/src/specCheck.ts`. That folder is sealed —
 CLAUDE.md §*The sealed feature boundary* forbids editing it here, and
-`scripts/check-boundary.sh` rule 2 forbids it importing from `src/services/`, which is
+`scripts/check-boundary.sh` rule 2 forbids it importing from `packages/ui/src/services/`, which is
 what reading the shared file would require. Doing it anyway breaks the build check and
 writes work the spec machine never receives.
 
@@ -76,7 +76,7 @@ writes work the spec machine never receives.
 the spec checker keeps its own constants and SR-CONSTANTS decision 4 needs amending to
 say so.
 
-`DEFAULT_THRESHOLDS` in `cli/src/core/pairs.ts` is named in the DoD but no longer exists —
+`DEFAULT_THRESHOLDS` in `packages/cli/src/core/pairs.ts` is named in the DoD but no longer exists —
 thresholds came out of the CLI on 2026-10-16.
 
 ## Record affected

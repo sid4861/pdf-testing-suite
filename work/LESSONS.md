@@ -11,6 +11,117 @@ named here only as the failure that produced it. A lesson whose remedy is
 
 ---
 
+## 2026-11-09 — a rule about not losing data has to be run twice
+
+**What happened.** `--sync` has four rules, and the one that matters is "never overwrite
+a file the consumer edited". It passed on the first upgrade. Then the smoke test ran a
+*second* upgrade on the same app, and three separate bugs appeared at once: the edited
+file was silently overwritten, the deleted file came back, and in new mode
+`package.json` would have been replaced wholesale — taking with it every dependency and
+script the consumer had added.
+
+**Why the first run proves nothing.** Each bug was in how the *record* was rewritten
+after a successful sync, not in the rules themselves. The rules read correctly, ran
+correctly, and then left behind a record that made the next run wrong. The worst of them
+inverted the feature's one promise: hashing the files off disk recorded the consumer's
+edit as "what pdfsuite wrote here", so the following upgrade saw a match and overwrote
+it. A reviewer reading the diff would have seen four correct rules.
+
+**The judgment.** Anything that decides *not* to touch something, based on state it also
+maintains, has to be exercised until that state has been through at least two cycles.
+"Run it twice" is cheap — it is one more line in the test — and it is the only thing
+that distinguishes a rule from a rule plus the bookkeeping that keeps it true. The same
+shape applies to the other side: the record a step writes should be built from what the
+step **intended**, not from reading back whatever ended up on disk, because the disk also
+contains everything the step deliberately left alone.
+
+**Cost:** about an hour, nothing shipped wrong — the second run was in the test before
+the feature was called done.
+
+---
+
+## 2026-11-06 — a driven click is not a mouse, and the app is not the first suspect
+
+**What happened.** Verifying the Inspect tab after its measurements moved into the core,
+I hovered an element (the outline appeared, the panel said *Selecting: Account 100482-7*)
+and clicked it. Nothing selected. I tried it again with a second between the two, then at
+other coordinates, then started reading my own diff for a state bug I had introduced.
+There was none. Dispatching one `mousemove` and one `click` from a single
+`javascript_tool` call selected it immediately, first try.
+
+**Why.** `onClick` reads `hovered` out of its render closure. A real mouse produces a
+long stream of `mousemove`s, so by the time the click lands React has re-rendered and the
+handler closes over the current value. Two separate automation calls do not reliably
+produce that: the click can run against a closure from before the hover committed. The UI
+is correct for a human and wrong for a robot, which is a thing automation does and the
+code does not.
+
+**The judgment.** When a driven interaction does nothing and the *visible state* says the
+app understood the step before it — the hover outline was drawn, the hint named the
+element — the gap is between the two tool calls, not in the component. Collapse them:
+dispatch the events together from one script, or verify through the state the app already
+shows rather than through a second interaction. Read the diff only after that rules out.
+
+**Cost:** four rounds and a partial re-read of a file I had just written.
+
+---
+
+## 2026-11-06 — the same defect in a third walker, and a fix that can prove itself
+
+**What happened.** `pdfElements.ts` ignored a Form XObject's own `/Matrix`, so every
+image inside a form was measured at the wrong place. This is the *third* copy of that
+defect: W-04 found and fixed it twice in the spec walkers. It was found this time by
+reading the two walkers side by side while moving code, not by a test — no fixture in the
+repository has an image inside a form.
+
+**Why it keeps happening.** pdf.js delivers a form's matrix as the first argument to
+`paintFormXObjectBegin`, not as a `transform` op. Anyone writing an operator-list walker
+tracks `save`, `restore` and `transform`, which looks complete, and is wrong only for
+documents a quick fixture does not contain.
+
+**The judgment.** Two things. A walker over pdf.js's operator list now has a known
+checklist, and `/Matrix` is on it. And the fixture that proves the fix must be **assembled
+by hand**: `pdf-lib` writes only an identity matrix, and identity is precisely the case
+where the bug and the fix agree — W-04's first test passed with the fix reverted. The
+fixture is now shared (`verify/fixtures-form-xobject.ts`) rather than copied, and the
+habit that goes with it is cheap: **revert the fix and watch the test fail**, at the
+numbers you predicted. Here it reported 0.2778″ where 0.4167″ is correct, which is what
+made the test worth having.
+
+---
+
+## 2026-11-06 — a plugin boundary is a bundle boundary, so `instanceof` stops being true
+
+**What happened.** W-30 makes `pdfsuite` load its `compare` command out of an installed
+package. The first cut had the command module import `ToolError` from the host and throw
+it, exactly as the command had done while it lived inside the host. That compiles, passes
+every type check, and runs correctly in the workspace — because in the workspace both
+sides resolve to the same file. Published, they do not: the module is bundled into
+`@pdfsuite/compare/dist/cli.js` with its own copy of the class, and the host's
+`err instanceof ToolError` is then false for every error the module raises. Every clean
+"Error: no --out directory" would have printed as `Unexpected error:` with a stack, and
+the exit code would still have been 2, so nothing would have failed loudly.
+
+**Why it is easy to miss.** Nothing about the *import* is wrong. The mistake is in
+believing one thing — "the host and the command share a type" — which is true of a
+monorepo and false of an install. A workspace symlink is specifically designed to make
+the difference invisible.
+
+**The judgment.** The moment code is loaded at run time from somewhere else, ask what is
+*shared* and what is *copied*. Values and classes crossing that line are copied; only the
+shape survives. So: recognise by a brand (`err.brand === 'pdfsuite.ToolError/1'`), not by
+identity; put what both sides genuinely need in a package they both depend on
+(`@pdfsuite/core/node`); and import the host for **types only**, handing over anything
+runtime through the interface it passes in. The same reasoning answers the other wall hit
+that day — `createRequire` cannot resolve a TypeScript source, so a package whose command
+is loaded at run time must ship built JavaScript, which means a `prepack` and a `files`
+entry, which means the install test is the only thing that can prove it.
+
+**Cost:** about forty minutes of design, nothing shipped wrong — the second wall is what
+raised the first question.
+
+---
+
 ## 2026-11-05 — a hidden browser pane freezes `requestAnimationFrame`, and pdf.js then never finishes
 
 **What happened.** After wiring page binding into `runSpec`, the Spec tab sat on

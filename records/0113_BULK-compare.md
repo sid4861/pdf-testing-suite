@@ -7,7 +7,7 @@ description: "Many golden and candidate PDFs paired by name, each pair judged by
 status: accepted
 date: 2026-10-18
 feature: compare many pairs
-owns: []
+owns: [packages/compare/src/comparePair.ts, packages/compare/src/cli/each.ts]
 laws: [L0, L3, L4]
 timestamp: 2026-10-18T13:10:00+05:30
 content_sha: ""
@@ -87,14 +87,14 @@ so the loop and the orphan check exist once.
 
 ### Reference (required)
 
-- [`src/store/batchStore.ts`](../src/store/batchStore.ts) · [`src/components/batch/BatchView.tsx`](../src/components/batch/BatchView.tsx) · [`src/services/batchExport.ts`](../src/services/batchExport.ts)
+- [`packages/ui/src/store/batchStore.ts`](../packages/ui/src/store/batchStore.ts) · [`packages/ui/src/components/batch/BatchView.tsx`](../packages/ui/src/components/batch/BatchView.tsx) · [`packages/ui/src/services/batchExport.ts`](../packages/ui/src/services/batchExport.ts)
 
 ### Veto condition
 
 **Reopen this decision if:** the tab and `--each` give a different verdict for the same two
 folders, or an orphan does not fail the run.
 
-**How to check it:** a `cli/verify` test with one orphan on each side, run through both paths.
+**How to check it:** a `packages/cli/verify` test with one orphan on each side, run through both paths.
 
 ---
 
@@ -102,4 +102,4 @@ folders, or an orphan does not fail the run.
 
 **Records** — [SR-COMPARE](0111_COMPARE.md) · [SR-REPORT-JSON](0109_REPORT-json.md) · [SR-REPORT-HTML](0108_REPORT-html.md) · [SR-MANIFEST](0110_MANIFEST.md) · [SR-CLI](0115_CLI.md) · [SR-SURFACE-PARITY](0106_SURFACE-parity.md)
 
-**Code** — [`src/store/batchStore.ts`](../src/store/batchStore.ts) · [`src/services/batchExport.ts`](../src/services/batchExport.ts)
+**Code** — [`packages/ui/src/store/batchStore.ts`](../packages/ui/src/store/batchStore.ts) · [`packages/ui/src/services/batchExport.ts`](../packages/ui/src/services/batchExport.ts)

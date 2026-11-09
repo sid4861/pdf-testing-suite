@@ -75,9 +75,9 @@ Ask the spec machine to accept the same prompt in the Spec tab. The spec machine
 ## Hazards
 
 - **Leaks:** the test greps reports, ZIPs and logs for the fixture's password.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` `loadPdf` · `src/store/compareStore.ts` · `cli/src/index.ts`
+- `packages/core/src/pdfCompare.ts` `loadPdf` · `packages/ui/src/store/compareStore.ts` · `packages/cli/src/index.ts`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

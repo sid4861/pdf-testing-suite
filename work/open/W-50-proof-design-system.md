@@ -49,7 +49,7 @@ named **Proof** in session.
 | DoD | what | state |
 |---|---|---|
 | 1 · record | SR-PROOF: one accent for action and selection; four change colours, each with a glyph; three statuses for verdicts only; numbers in mono with units; page first — and the token list | ⏳ |
-| 2 · tokens | `src/styles/tokens.css` from `proof.css` `:root`, renamed `--pdfsuite-*`; `src/styles.css` reads only tokens | ⏳ |
+| 2 · tokens | `src/styles/tokens.css` from `proof.css` `:root`, renamed `--pdfsuite-*`; `packages/ui/src/styles.css` reads only tokens | ⏳ |
 | 3 · fonts · icons | IBM Plex Sans and Mono (OFL) bundled, no CDN (W-35); one inline stroke icon set replaces every emoji | ⏳ |
 | 4 · components | buttons, segmented, underline tabs, chips, verdict, file pill, page strip, finding row, table, menu, dialog, banner, change highlights — as in `Main.dc.html` | ⏳ |
 | 5 · sweep | no hex outside `tokens.css`; no emoji in UI text; change colours only where a change is drawn | ⏳ |

@@ -30,7 +30,7 @@ FEAT="src/features/spec"
 BACKUP=".spec-backup/$(date +%Y%m%d-%H%M%S)"
 
 # Restored after the refresh: your feature, your packages, your local config.
-PROTECT="$FEAT node_modules .git flag.env .spec-backup cli/node_modules cli/.work"
+PROTECT="$FEAT node_modules .git flag.env .spec-backup packages/cli/node_modules packages/cli/.work"
 
 die() { printf 'STOP  %s\n' "$1" >&2; exit 1; }
 

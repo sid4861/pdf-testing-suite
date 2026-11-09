@@ -62,7 +62,7 @@ encrypted, layers, attachments — in a Document panel (W-26), "not set" where a
 
 ### Context
 
-On 2026-10-18 extraction lived in `src/services/pdfElements.ts` but line height and edge
+On 2026-10-18 extraction lived in `packages/core/src/pdfElements.ts` but line height and edge
 distances were computed inside `MeasureView.tsx`, and there was no CLI (SR-SURFACE-PARITY).
 
 ### Decision
@@ -79,6 +79,34 @@ distances were computed inside `MeasureView.tsx`, and there was no CLI (SR-SURFA
 
 ### Consequences
 
+- **Decisions 1–5 are built (2026-11-06, W-28).** `inspectCore` and `inspectPage` are in
+  `@pdfsuite/core`; the Inspect tab calls them and keeps only hit-testing and drawing;
+  `pdfsuite inspect <file.pdf> [--page n] --out <dir>` is a built-in command of the host
+  and writes the three files with `kind: "inspect"`.
+  [`packages/cli/verify/inspect-parity.ts`](../packages/cli/verify/inspect-parity.ts)
+  (28 checks) measures one page both ways — the built binary as a process, and
+  `renderElements` → `inspectPage` as `MeasureView.tsx` calls them — and the two
+  documents are **identical outside `run`, 760 lines**.
+- **An inspect has no verdict** (and the record does not give it one). It answers a
+  question, so `exitCode` is 0 whenever the document opened and 2 when it did not.
+  Inventing a failure — "no text layer", say — would make the command refuse documents it
+  had read perfectly well; the pages without text are *named* in the summary instead.
+- **Decision 4 is visible in the output:** a font pdf.js cannot resolve is `name: null`
+  with a reason, and its weight is `"undeclared"` rather than `"regular"` — because bold
+  is read off the font *name*, so a nameless font says nothing about weight either. The
+  tab prints *not stated* for both.
+- **A defect found on the way:** the image walker in `pdfElements.ts` ignored a Form
+  XObject's own `/Matrix`, which is delivered as an argument to
+  `paintFormXObjectBegin` and not as a `transform` op — so every image inside a form was
+  measured at the wrong place. The same defect had been found and fixed twice in the spec
+  walkers (W-04); this third copy was found by reading them side by side.
+- **Still owed:** document properties in the output (**W-26**), and the images-in-report
+  cap (20 pages, `--images` to override) is a judgment nobody has ruled on.
+
+
+- **Since W-29 (2026-11-06)** Inspect's reading comes from `@pdfsuite/core` by name, and
+  since **W-28** (the same day) so do its measurements: `MeasureView.tsx` holds no
+  arithmetic at all.
 - Built by W-28; grows with W-14, W-15, W-17, W-19, W-20, W-22, W-23, W-26.
 
 ### Alternatives considered
@@ -89,7 +117,7 @@ distances were computed inside `MeasureView.tsx`, and there was no CLI (SR-SURFA
 
 ### Reference (required)
 
-- [`src/services/pdfElements.ts`](../src/services/pdfElements.ts) · [`src/components/measure/MeasureView.tsx`](../src/components/measure/MeasureView.tsx)
+- [`packages/core/src/pdfElements.ts`](../packages/core/src/pdfElements.ts) · [`packages/ui/src/components/measure/MeasureView.tsx`](../packages/ui/src/components/measure/MeasureView.tsx)
 
 ### Veto condition
 
@@ -104,4 +132,4 @@ same element.
 
 **Records** — [SR-PDF-SUPPORT](0105_PDF-support.md) · [SR-REPORT-JSON](0109_REPORT-json.md) · [SR-REPORT-HTML](0108_REPORT-html.md) · [SR-MANIFEST](0110_MANIFEST.md) · [SR-CLI](0115_CLI.md)
 
-**Code** — [`src/services/pdfElements.ts`](../src/services/pdfElements.ts) · [`src/components/measure/MeasureView.tsx`](../src/components/measure/MeasureView.tsx)
+**Code** — [`packages/core/src/pdfElements.ts`](../packages/core/src/pdfElements.ts) · [`packages/ui/src/components/measure/MeasureView.tsx`](../packages/ui/src/components/measure/MeasureView.tsx)

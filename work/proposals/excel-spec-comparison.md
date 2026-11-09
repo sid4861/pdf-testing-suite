@@ -130,7 +130,7 @@ Read from the code on 2026-10-14.
 | **Validation** | `validateSpec` checks the top-level shape only | an unknown element type or a missing number fails confusingly |
 | **Units** | `in` / `pt` / `mm`; default tolerances are inch values applied in any unit; unknown unit treated as inches | an `mm` workbook would fail everything |
 | **Report** | per-element pass/fail, expected (dashed) vs actual box on the page; HTML and JSON export | no link back to the Excel cell; no count of what was **not** checked |
-| **Tests** | `cli/verify/spec-target.ts` — page targeting only | no extraction or checker fixtures |
+| **Tests** | `packages/cli/verify/spec-target.ts` — page targeting only | no extraction or checker fixtures |
 | **Security** | `units` inserted unescaped into the HTML export | must be escaped once workbooks are uploaded |
 
 ### Observed spec-sheet conventions (2026-10-14 sample)
@@ -170,7 +170,7 @@ content (deleted 2026-10-18; the live sample is
   current releases (0.20.3) install from its own CDN tarball. ExcelJS 4.4.0 was last
   published October 2023 and is about 250 KB gzipped with 9 dependencies.
 - **One implementation, two front ends.** The Node CLI already reuses `src/services`
-  through one seam ([`cli/src/platform/engine.ts`](../../cli/src/platform/engine.ts)).
+  through one seam ([`packages/cli/src/platform/engine.ts`](../../packages/cli/src/platform/engine.ts)).
   A TypeScript reader there serves the app and the Node CLI.
   A second Python converter would drift, as the two `generate` implementations
   already have.
@@ -222,7 +222,7 @@ content (deleted 2026-10-18; the live sample is
 | phase | delivers | done when |
 |---|---|---|
 | **P0 · survey** | a read-only script listing labels, frequencies and sheet shapes across real workbooks | we know whether there are 3 recurring shapes or 30 |
-| **P1 · foundations** | decision 14 fixes; line grouping that respects columns (side-by-side text on one baseline is merged today); strict validation; extraction + checker fixtures in `cli/verify/` | a deliberate regression fails a fixture |
+| **P1 · foundations** | decision 14 fixes; line grouping that respects columns (side-by-side text on one baseline is merged today); strict validation; extraction + checker fixtures in `packages/cli/verify/` | a deliberate regression fails a fixture |
 | **P2 · read + extract** | xlsx reader; profile; extraction with cell refs and tiers; coverage view in the app (read-only) | any sheet shows what was found, where, and what was not |
 | **P3 · check from Excel** | `.xlsx` upload compiles and checks in the app; findings cite cells; overrides | the user's ask works end to end on the surveyed shapes |
 | **P4 · bind + extend** | content-based page binding; checker extensions the survey called for | a multi-sheet workbook checks with no page numbers typed |

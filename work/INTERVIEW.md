@@ -25,7 +25,7 @@ entry.**
 ## 1 · State of play
 
 *Updated 2026-10-13.* The work system is set up on branch `work-system-setup`.
-The product — a React/Vite PDF comparison app (`src/`), a Node CLI (`cli/`) and
+The product — a React/Vite PDF comparison app (`src/`), a Node CLI (`packages/cli/`) and
 a Python CLI (`cli-py/`, removed 2026-10-16) — predates it and has no records yet; W-01 owns every
 product path until records claim them. **Ground it before you edit it** —
 `git log`, the queue, the code.
@@ -48,7 +48,7 @@ PDFs and expected results. It shows today's checker merges side-by-side text int
 answers** — [SR-SPEC-INTAKE](../records/0101_SPEC-intake.md) (upload, validation,
 template v2 + legacy, spec JSON with source cells), [SR-SPEC-CHECK](../records/0102_SPEC-check.md)
 (pages, fonts, colour, wording, coverage), [SR-CONSTANTS](../records/0103_CONSTANTS.md)
-(one `src/services/specConstants.ts`), [SR-STACK-TYPESCRIPT](../records/0104_STACK-typescript.md)
+(one `packages/core/src/constants.ts`), [SR-STACK-TYPESCRIPT](../records/0104_STACK-typescript.md)
 (product is TypeScript; `cli-py/` removed same day by W-03). Only SR-STACK-TYPESCRIPT is built. The proposal is
 graduated. Real workbooks are confidential: never commit them, quote them or describe them.
 
@@ -94,7 +94,7 @@ messages); a person-run judge marks our reports (SR-TESTING decisions 11–16). 
 records archived (`0003`) · **L2 only open-source, free dependencies** (`0004`) · L3 one
 function for UI and CLI (`0005`) · L4 how packages work (`0006`) — file number and handle now
 line up. Earlier worklog entries keep the handles they were written with. **MIT `LICENSE`** added
-(root and `cli/`; SR-NPM-PACKAGES decision 15). **W-43** (🟢): CI/CD on GitHub Actions — every
+(root and `packages/cli/`; SR-NPM-PACKAGES decision 15). **W-43** (🟢): CI/CD on GitHub Actions — every
 check on each pull request; approval-gated release with npm trusted publishing. **W-44** (🟢):
 monorepo — SR-MONOREPO, `apps/web` + `packages/` on npm workspaces, room for a viewer,
 designer and creator (B-015–B-017; the creator's package is `@pdfsuite/render`, not
@@ -109,7 +109,7 @@ rules on the ledger); records 0108–0115 accepted (L0 decision 3); SR-TESTING d
 SR-SPEC-CHECK decision 15 amended to the three files, no JUnit. W-07 narrowed to six open points.
 **New inbox row:** the verdict effect of the new finding types (W-14, W-19, W-21, W-24, W-25, W-26 —
 each builds with its stated default meanwhile). Twelve items reconciled against the records written the
-same day (stale "a new CLI record", "six packages", "README batch script", `src/services/` paths).
+same day (stale "a new CLI record", "six packages", "README batch script", `packages/ui/src/services/` paths).
 `docs/ARCHITECTURE.md` re-verified against the code (tab labels, sealed spec, `regionStore`), Part 4
 rewritten as the ruled target — eight new diagrams (17–25), old 18 archived. **Still with Arpit:** W-32
 (where `@pdfsuite/spec` is built), W-07's six points, the verdict-effect row, W-42, W-45.
@@ -131,8 +131,71 @@ row is its sheet and row number. **W-48** (🟡 on W-02) is the validation contr
 in-place sheet viewer and editor on top of it. **Arpit, 2026-10-19: sheetpane loads and displays
 every workbook** — `@sheetpane/import` is the one reader (browser and Node, so the CLI too) and
 `@sheetpane/grid` the view; SR-SPEC-INTAKE decision 3 amended (was: own reader on `jszip`). sheetpane
-is MIT but not on npm yet, so W-02 and W-46 now also wait on its first release. Real workbooks on the spec machine must be migrated
+is MIT, and **published since: `@sheetpane/import` and `@sheetpane/grid` are both at 0.5.1 on npm** (checked 2026-11-09), which unblocked W-46 and the dependency half of W-47. The intake has used `@sheetpane/import` since W-02. Real workbooks on the spec machine must be migrated
 to v2 before they are checked — the legacy path only drafts.
+
+**2026-11-03 → 2026-11-06 — the packaging became real, and this section had stopped
+keeping up.** Nothing between 2026-10-19 and this paragraph was written here while it
+happened, against [SR-WORK-SESSION](../records/0054_WORK-session.md); the ledger
+([`IMPLEMENTATION.md`](IMPLEMENTATION.md)) carries those days with their evidence, and
+nothing is reconstructed here after the fact. The state they left:
+
+- **The spec feature is unsealed** (Siddharth, 2026-11-03, W-32 option B): it is edited in
+  this repository like any other code, and this repository holds the live version. *Real
+  spec workbooks still never leave the spec machine* — a rule about data, not code.
+- **The workspace is real** (W-29): `packages/core`, `compare`, `cli`, `agents`, `ui`,
+  `create`, all at **2.0.0**, importing each other by name, with
+  `scripts/check-packages.sh` as the gate. `pdfjs-dist` is pinned exactly — a range once
+  installed two copies of pdf.js and broke every render.
+- **One compare core** (W-27): `pageVerdict` and `comparePair` decide for the Compare tab,
+  the Bulk tab and the CLI alike; `compare-parity.ts` diffs the tab's `result.json` against
+  the built binary's byte for byte. 6 of 7 DoD — the tab's richer report is **B-018**.
+- **`pdfsuite compare` and `pdfsuite spec` are built** (W-09, W-11): one pair per command,
+  `--each` for folders, three files always; `pairs.json`, the `pairs` command and the
+  JUnit/CSV/Markdown writers are gone.
+- **The CLI is a host** (W-30, 2026-11-06): `compare` lives in `@pdfsuite/compare` and is
+  loaded by name at run time, so installing compare is what makes the command exist. The
+  judgment that cost the most to find: *a plugin boundary is a bundle boundary* — what
+  crosses it is copied, not shared, so a tool error is recognised by a brand string and
+  never by `instanceof` ([`LESSONS.md`](LESSONS.md), 2026-11-06). `spec` stays compiled
+  into the host until **W-32**, because reporting a working command as "not installed"
+  would be a regression.
+- **The spec feature is a package** (W-32, 2026-11-06): `packages/spec/`, three barrels,
+  its own command module. Both CLI commands are now *loaded by name* — `generate` is the
+  only thing the host runs itself — and installing `@pdfsuite/compare` or `@pdfsuite/spec`
+  is what makes its command exist. The move was cheap because the folder imported nothing
+  from the app; what it cost was references. It also showed what a package boundary
+  exposes that a folder hides: the tab is styled with the *app's* classes (**B-019**).
+- **All four CLI commands are in** (W-28, 2026-11-06): `generate` and `inspect` built into
+  the host, `compare` and `spec` loaded from their packages. Inspect was the last surface
+  with maths in a component — the edge distances and the line-height rule lived in
+  `MeasureView.tsx`'s JSX, so there was nothing for a CLI to call. They are
+  `inspectPage` in core now, and `inspect-parity.ts` diffs the tab's document against the
+  binary's. The item also turned up a **third** copy of the Form XObject `/Matrix`
+  defect; this time the fix was proved by reverting it, which is the lesson W-04 paid for.
+- **The app is a shell** (W-33, 2026-11-06). Every screen is in `@pdfsuite/ui`; `src/` is
+  `main.tsx`. The dependency now runs one way with nothing left over: **no package
+  reaches into the app**, and `check-packages.sh` rule 2 has no allowances. The question
+  the move forced, and the answer worth keeping: a package cannot read a *virtual module*
+  its host's build config synthesises, so `flag.env` became this app's configuration and
+  the flag list became the package's — which is the shape every "how do I configure it"
+  question in `ui` should take.
+- **`npm create @pdfsuite` works** (W-31, 2026-11-09), and finding that out turned up the
+  thing that now gates publication as much as the Node floor does: **the packages ship
+  TypeScript source**, so a consumer running `tsc` compiles ours with their settings and
+  gets our errors in their project (**B-022**). It is invisible from inside the
+  workspace — only an install from packed tarballs shows it, which is what
+  `check-create.sh` does.
+- **L4 decision 5 is enforced** (W-34, 2026-11-09): `--sync` upgrades a created app and
+  cannot take anybody's work away. The judgment that generalises beyond this item: **a
+  rule about not losing data has to be run twice before it is believed.** All three bugs
+  in the first cut were invisible on the first upgrade and destructive on the second —
+  an edit laundered into the record, a deletion forgotten, a `package.json` replaced
+  wholesale. None would have been found by reading the code.
+- **Owed before publishing:** the Node-floor ruling (`@sheetpane/import` wants `>=22`,
+  pdfsuite publishes `>=20`). It bites only at publish, so it blocks W-10, not the work.
+- **Next:** **W-32** (`@pdfsuite/spec`, now unblocked by W-29) — which is also what lets
+  `spec` join discovery — or **W-28** (`pdfsuite inspect`).
 
 `docs/ARCHITECTURE.md` and its SVGs were first landed on branch
 `architecture-diagrams-records`, PR #3, stacked on PR #2. The 2026-10-14→16 spec work and W-03

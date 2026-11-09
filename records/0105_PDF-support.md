@@ -81,17 +81,17 @@ flowchart LR
 | Fillable form | ⚠️ values visible, not selectable | ⚠️ value changes caught by pixel diff only | ⚠️ as Compare | ❌ field text not found | — | W-17 |
 | Dynamic form (XFA) | ❌ fallback page, no message | ❌ | ❌ | ❌ | — | W-18 |
 | Annotated | ⚠️ drawn, not inspectable | ⚠️ pixel diff only | ⚠️ as Compare | ⚠️ ignored | — | W-19 |
-| Outlined text | ❌ no text, no message | ⚠️ text diff blind; pixel diff only | ⚠️ as Compare | ❌ fails instead of "unverifiable" | — | W-20 |
+| Outlined text | ❌ no text, no message | ⚠️ text diff blind; pixel diff only | ⚠️ as Compare | ✅ reported `unverifiable`, once per page | — | W-20 |
 | Scanned | ⚠️ one big image | ⚠️ pixel diff only | ⚠️ as Compare | ❌ | — | W-20 |
 | Scanned + OCR | ⚠️ positions rough, font meaningless, not flagged | ⚠️ OCR text differs between scans | ⚠️ as Compare | ⚠️ | — | W-20 |
 | Tagged | ✅ tags ignored | ✅ tags ignored | ✅ tags ignored | ✅ tags ignored | — | W-21 |
 | Archival (PDF/A) | ✅ | ✅ | ✅ | ✅ | — | — |
-| Print (PDF/X, CMYK) | ✅ no colour readout | ✅ colour change unnamed (pixel only) | ✅ as Compare | ⚠️ colour not checked | — | W-22 |
+| Print (PDF/X, CMYK) | ✅ no colour readout | ✅ colour change unnamed (pixel only) | ✅ as Compare | ⚠️ text colour checked by ΔE (CMYK and gray converted); container fills not | — | W-22 |
 | Password to open | ❌ error, no prompt | ❌ | ❌ exits 2 | ❌ | — | W-16 |
 | Permissions-only password | ✅ | ✅ | ✅ | ✅ | — | — |
-| Rotated or cropped pages | ⚠️ text right, images off | ⚠️ image boxes off | ⚠️ as Compare | ⚠️ page geometry not handled | — | W-23 |
-| Images in Form XObjects | ⚠️ misplaced | ⚠️ misplaced | ⚠️ misplaced | ⚠️ misplaced | — | W-23 |
-| Mixed page sizes | ✅ | ⚠️ letterboxed; size difference unnamed | ⚠️ as Compare | ⚠️ page-size check not built | — | W-24 |
+| Rotated or cropped pages | ⚠️ text right, images off | ⚠️ image boxes off | ⚠️ as Compare | ⚠️ text and page size right (the viewport applies `/Rotate` and the crop box); image boxes still unrotated | — | W-23 |
+| Images in Form XObjects | ⚠️ misplaced | ⚠️ misplaced | ⚠️ misplaced | ✅ the form's `/Matrix` is applied (`packages/cli/verify/spec-form-xobject.ts`) | — | W-23 |
+| Mixed page sizes | ✅ | ⚠️ letterboxed; size difference unnamed | ⚠️ as Compare | ✅ the page size is checked: a warning, or an error where the workbook pins it | — | W-24 |
 | CJK / CID fonts | ⚠️ text may not appear | ⚠️ | ⚠️ | ⚠️ | — | W-13 |
 | Signed, or edited in place | ✅ latest version; signature not shown | ✅ signature and revision changes unreported | ✅ as Compare | ✅ | — | W-25 |
 
@@ -106,9 +106,10 @@ PDF version, PDF/A or PDF/X claims, layers, attachments — are read by no surfa
 ### Context
 
 Read from the code on 2026-10-18, not from running files. Every surface opens PDFs with
-`pdfjsLib.getDocument({ data })` and nothing else — `src/services/pdfCompare.ts` (Compare,
-Inspect, the compare CLI through `cli/src/platform/engine.ts`) and
-`src/features/spec/pdfjs.ts` (Spec). Text comes from `getTextContent()`, which excludes
+`pdfjsLib.getDocument({ data })` and nothing else — `packages/core/src/pdfCompare.ts` (Compare,
+Inspect, the compare CLI through `packages/cli/src/platform/engine.ts`) and
+`@pdfsuite/core` (both — Spec had its own ten-line copy until W-32 dropped it).
+Text comes from `getTextContent()`, which excludes
 form fields and annotations; images come from walking the operator list with a
 transformation matrix that ignores Form XObject matrices, `/Rotate` and the crop-box
 offset. Font style comes from pdf.js font objects, whose `bold` / `italic` are inferred
@@ -125,7 +126,8 @@ from the font **name** only.
    an explicit message (app), finding (report) or exit code (CLI) — never a pass and never
    an empty result without a reason.
 4. **The Spec and Spec CLI columns describe this repository's mirror** of
-   `src/features/spec/`. The live spec feature is on the spec machine and may differ; that
+   `packages/spec/src/`. (Superseded: the feature was unsealed on 2026-11-03 and became
+   `@pdfsuite/spec` on 2026-11-06, so there is one copy and this repository holds it. That
    machine is asked for each Spec-side change in the item's *Spec machine* section.
 5. **Confidential inputs:** every fixture behind this table is fictional (W-12).
 
@@ -147,9 +149,9 @@ from the font **name** only.
 
 ### Reference (required)
 
-- [`src/services/pdfCompare.ts`](../src/services/pdfCompare.ts) — `loadPdf`, `resolveStyle`, image boxes
-- [`src/services/pdfElements.ts`](../src/services/pdfElements.ts) — Inspect's text, font and image extraction
-- [`src/features/spec/pdfjs.ts`](../src/features/spec/pdfjs.ts) · [`src/features/spec/specCheck.ts`](../src/features/spec/specCheck.ts)
+- [`packages/core/src/pdfCompare.ts`](../packages/core/src/pdfCompare.ts) — `loadPdf`, `resolveStyle`, image boxes
+- [`packages/core/src/pdfElements.ts`](../packages/core/src/pdfElements.ts) — Inspect's text, font and image extraction
+- [`packages/core/src/pdfCompare.ts`](../packages/core/src/pdfCompare.ts) — the one `loadPdf` · [`packages/spec/src/specCheck.ts`](../packages/spec/src/specCheck.ts)
 - `node_modules/pdfjs-dist` 4.10.38 — ships `cmaps/` (1.7 MB) and `standard_fonts/` (804 KB), unused today
 
 ### Veto condition
@@ -157,7 +159,7 @@ from the font **name** only.
 **Reopen this decision if:** a surface handles a kind differently from its cell — shown by
 W-12's harness once it exists, by a fixture until then.
 
-**How to check it:** `grep -n "getDocument(" src/services/pdfCompare.ts src/features/spec/pdfjs.ts` still shows `{ data }` alone while the table says ⚠️/❌ for fonts, CJK, password and XFA; after W-12, run its harness and diff its table against §1.
+**How to check it:** `grep -n "getDocument(" packages/core/src/pdfCompare.ts` still shows `{ data }` alone while the table says ⚠️/❌ for fonts, CJK, password and XFA; after W-12, run its harness and diff its table against §1.
 
 ---
 
@@ -169,9 +171,9 @@ W-12's harness once it exists, by a fixture until then.
 
 **Code**
 
-- [`src/services/pdfCompare.ts`](../src/services/pdfCompare.ts) · [`src/services/pdfElements.ts`](../src/services/pdfElements.ts) · [`src/services/changes.ts`](../src/services/changes.ts)
-- [`src/features/spec/pdfjs.ts`](../src/features/spec/pdfjs.ts) · [`src/features/spec/specCheck.ts`](../src/features/spec/specCheck.ts)
-- [`cli/src/platform/engine.ts`](../cli/src/platform/engine.ts) · [`cli/src/platform/dom-shim.ts`](../cli/src/platform/dom-shim.ts)
+- [`packages/core/src/pdfCompare.ts`](../packages/core/src/pdfCompare.ts) · [`packages/core/src/pdfElements.ts`](../packages/core/src/pdfElements.ts) · [`packages/compare/src/changes.ts`](../packages/compare/src/changes.ts)
+- [`packages/core/src/pdfCompare.ts`](../packages/core/src/pdfCompare.ts) — the one `loadPdf` · [`packages/spec/src/specCheck.ts`](../packages/spec/src/specCheck.ts)
+- [`packages/cli/src/platform/engine.ts`](../packages/cli/src/platform/engine.ts) · [`packages/cli/src/platform/dom-shim.ts`](../packages/cli/src/platform/dom-shim.ts)
 
 **Project docs**
 

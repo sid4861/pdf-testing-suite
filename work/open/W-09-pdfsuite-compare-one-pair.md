@@ -5,8 +5,8 @@ description: "Arpit, 2026-10-18: rebuild `pdfsuite compare` as one pair per comm
 item: W-09
 filed: 2026-10-18
 filed_by: Arpit
-updated: 2026-10-18
-updated_by: Arpit
+updated: 2026-11-06
+updated_by: Siddharth
 ball: agent
 ---
 
@@ -19,8 +19,8 @@ ball: agent
 | **What** | `pdfsuite compare <golden.pdf> <candidate.pdf> --out <dir>` compares one pair and writes report.html, result.json and manifest.json; `--each <golden-dir> <candidate-dir>` runs every pair in one process |
 | **Why** | Arpit chose Option A (one pair per command), then ruled bulk into the package as `--each` so nobody hand-writes the loop or forgets orphans |
 | **Done when** | One pair in → three files out, exit code for that pair; `--each` fails on missing and new files with one combined exit code; a CLI record states it |
-| **Status** | 🟡 waiting · 0 of 7 DoD done |
-| **Waits on** | W-27 — the shared compare core and report builders |
+| **Status** | 🟢 7 of 7 DoD done |
+| **Waits on** | nothing — W-27's core landed 2026-11-06 |
 | **Who** | `agent` · Opus |
 | **Record** | SR-CLI · SR-COMPARE · SR-BULK-COMPARE (the files: SR-REPORT-JSON, SR-REPORT-HTML, SR-MANIFEST) |
 
@@ -61,13 +61,13 @@ pdfsuite compare --each golden/ candidate/ --out reports/   # every pair, one pr
 
 | DoD | what | state |
 |---|---|---|
-| 1 · record | SR-CLI's `owns:` claims `cli/` (or `packages/cli` after W-29) and the register's Ownership table releases W-01's claim; SR-CLI, SR-COMPARE and SR-BULK-COMPARE already state the command, `--pages`, the three files and the exit codes — amend them in place only where the build proves them wrong | ⏳ |
-| 2 · command | positional `<golden.pdf> <candidate.pdf>`, `--out <dir>`; two files only — a folder is a usage error | ⏳ |
-| 3 · pages | `--pages "g:c,…"`, `g:-` = golden page with no partner, `-:c` = extra candidate page; unmapped default 1:1; nothing inferred | ⏳ |
-| 4 · outputs | exactly three files in `--out`: **report.html** (self-contained, page images embedded, every value escaped), **result.json** (versioned schema; the source of truth — the HTML is rendered from it; wall-clock only in a `run` block), **manifest.json** (SHA-256 and bytes of both input PDFs and of the two other outputs) | ⏳ |
-| 5 · --each | `pdfsuite compare --each <golden-dir> <candidate-dir> --out <dir>`: pairs by relative path, calls `compareMany` (the function Bulk compare calls — W-27), one sub-folder of three files per pair plus a summary `result.json`; a **missing** or **new** file fails; one combined exit code | ⏳ |
-| 6 · remove old | `pairs.json`, folder inputs, the `pairs` command and the JUnit / CSV / Markdown writers removed; version 2.0.0 with a migration note | ⏳ |
-| 7 · check · docs | `npm run build` in `cli/` passes; `cli/verify` passes or is updated to single-pair calls; `docs/ARCHITECTURE.md` Part 3 and its SVGs redrawn | ⏳ |
+| 1 · record | ✅ SR-CLI `owns:` `packages/cli/` and states `compare` as built; the register's Ownership table releases W-01's claim; SR-BULK-COMPARE owns `compare-each.ts`; SR-SURFACE-PARITY's `result.json` row is closed and its `report.html` row re-pointed at **B-018** | ✅ |
+| 2 · command | ✅ `pdfsuite compare <golden.pdf> <candidate.pdf> --out <dir>`; a folder where a file belongs is a usage error that names `--each` | ✅ |
+| 3 · pages | ✅ `--pages "1:1,2:-,3:2"`, `-` on either side meaning no partner, unmapped 1:1, nothing inferred. It fixed a real defect on the way: `comparePair` was turning a stated `null` back into “the page at this index”, so a pairing the person wrote was being ignored | ✅ |
+| 4 · outputs | ✅ exactly three in `--out`: `result.json` (`pdfsuite.result/1`, byte-stable outside `run`, every verdict-moving knob in `policy`), `report.html` (built from `result.json` **alone**, self-contained, no script, changed pages imaged, everything escaped) and `manifest.json` (both PDFs and both other outputs, written last) | ✅ |
+| 5 · --each | ✅ pairs by relative path, one sub-folder of three files per pair plus a `kind: compare-many` summary; a **missing** or **new** file is named and fails the run; one combined exit code | ✅ |
+| 6 · remove old | ✅ `pairs.json`, the folder inputs, the `pairs` command and the JUnit / CSV / Markdown writers are deleted, with `core/pairs.ts` and `report/` with them. Every `@pdfsuite` package is **2.0.0** — one version, published together — and the migration note is in `cli/README.md`, `START-HERE.html` and `docs.html` | ✅ |
+| 7 · check · docs | ✅ both builds and all **24** verify suites pass, including the new `compare-cli.ts` (23 checks, the built binary as a process) and `compare-parity.ts`; `docs/ARCHITECTURE.md` Part 3 redrawn with a new SVG and the `pairs` section removed; `cli/README.md`, `START-HERE.html` and `docs.html` rewritten for 2.0 | ✅ |
 
 ## Out of scope — still open on W-07
 
@@ -81,7 +81,7 @@ Exit codes stay **0 · 1 · 2** as today (W-07 proposes a 3); the shared verdict
 
 ## Record affected
 
-[SR-CLI](../../records/0115_CLI.md) · [SR-COMPARE](../../records/0111_COMPARE.md) · [SR-BULK-COMPARE](../../records/0113_BULK-compare.md), and for the files [SR-REPORT-JSON](../../records/0109_REPORT-json.md) · [SR-REPORT-HTML](../../records/0108_REPORT-html.md) · [SR-MANIFEST](../../records/0110_MANIFEST.md) — all accepted 2026-10-18. W-01 owns `cli/` until DoD 1.
+[SR-CLI](../../records/0115_CLI.md) · [SR-COMPARE](../../records/0111_COMPARE.md) · [SR-BULK-COMPARE](../../records/0113_BULK-compare.md), and for the files [SR-REPORT-JSON](../../records/0109_REPORT-json.md) · [SR-REPORT-HTML](../../records/0108_REPORT-html.md) · [SR-MANIFEST](../../records/0110_MANIFEST.md) — all accepted 2026-10-18. W-01 owns `packages/cli/` until DoD 1.
 
 ## Hazards
 
@@ -95,4 +95,4 @@ Exit codes stay **0 · 1 · 2** as today (W-07 proposes a 3); the shared verdict
 ## Reference
 
 - [proposal](../proposals/pdfsuite-compare-cli.md) · [W-07](W-07-pdfsuite-compare-redesign.md)
-- `cli/src/commands/compare.ts` · `cli/src/core/pairs.ts` · `cli/src/report/`
+- `packages/compare/src/cli/pair.ts` · `packages/cli/src/core/pairs.ts` · `packages/core/src/report/`

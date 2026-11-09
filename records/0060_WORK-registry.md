@@ -81,23 +81,23 @@ cannot be told apart from a stale one.
 
 | Document | Update trigger | Last verified | Notes |
 |---|---|---|---|
-| `CLAUDE.md` | any rule or pointer changes | 2026-10-18 | 2026-10-18 — laws L0–L4 in file order; L2 = open source only (SR-LAW-2, `0004`) |
+| `CLAUDE.md` | any rule or pointer changes | 2026-11-06 | 2026-11-06 — the spec section rewritten: the feature is `@pdfsuite/spec` behind three barrels (W-32) |
 | `work/README.md` | a file is added to or removed from `work/` | 2026-10-18 | 2026-10-18 — `design/` added |
-| `work/OPEN-WORK.md` | the same change as the work it tracks | 2026-10-18 | 2026-10-18 — W-44 (monorepo) and W-45 (rename) filed; inbox row for the name |
+| `work/OPEN-WORK.md` | the same change as the work it tracks | 2026-11-09 | 2026-11-09 — W-31 and W-34 closed; W-46 re-balled 🟢 (sheetpane published); inbox ages refreshed to 22 days |
 | `work/design/README.md` | the Design canvas changes — every file re-exported in one change | 2026-10-18 | 2026-10-18 — created: Proof design system and 15 screen boards exported |
-| `work/BACKLOG.md` | a record names something nobody is doing | 2026-10-18 | 2026-10-18 — B-014; B-015–B-017 (viewer, designer, creator) |
+| `work/BACKLOG.md` | a record names something nobody is doing | 2026-11-09 | 2026-11-09 — B-022 (W-31: the packages ship TypeScript source); B-019, B-020 (W-32), B-021 (W-33); `B-016` had been issued twice, so the Compare-report row became **B-018**. Next free: B-023 |
 | `work/open/README.md` | the item-file contract changes | 2026-10-18 | 2026-10-18 — template opens with *At a glance*; front matter gains `filed_by`, `updated`, `updated_by` |
-| `work/INTERVIEW.md` | direction, a decision or the live state changes — during the session | 2026-10-16 | 2026-10-16 — Excel-spec rulings recorded; four records filed |
-| `work/IMPLEMENTATION.md` | something lands | 2026-10-16 | 2026-10-16 — records 0101–0104 filed, nothing built yet |
-| `work/LESSONS.md` | a failure teaches something durable | 2026-10-13 | 2026-10-13 — created at setup |
+| `work/INTERVIEW.md` | direction, a decision or the live state changes — during the session | 2026-11-09 | 2026-11-09 — sheetpane is published, which unblocked W-46; the packaging items through W-34 |
+| `work/IMPLEMENTATION.md` | something lands | 2026-11-09 | 2026-11-09 — W-31 (`npm create @pdfsuite`) and W-34 (`--sync`); 2026-11-06 — W-30, W-32, W-28 and W-33 |
+| `work/LESSONS.md` | a failure teaches something durable | 2026-11-09 | 2026-11-09 — a rule about not losing data has to be run twice; 2026-11-06 — a plugin boundary is a bundle boundary; a driven click is not a mouse; a fix that can prove itself |
 | `work/MACHINE.md` | a surface breaks in a way the code did not cause | 2026-10-13 | 2026-10-13 — created at setup |
 | `work/compare/README.md` | a fork opens, closes, or its trigger fires | 2026-10-13 | 2026-10-13 — created at setup |
 | `work/proposals/README.md` | an idea is filed, graduates, or is rejected | 2026-10-16 | 2026-10-16 — excel-spec-comparison graduated |
-| `docs/GLOSSARY.md` | a term is coined or redefined | 2026-10-18 | 2026-10-18 — core, surface |
+| `docs/GLOSSARY.md` | a term is coined or redefined | 2026-11-06 | 2026-11-06 — command module, host, barrel |
 | `records/README.md` | a record's state, ownership or number changes | 2026-10-18 | 2026-10-18 — law files renumbered 0003–0006 to match handles L1–L4; SR-LAW-2 open source at 0004 |
 | `records/TEMPLATE.md` | the convention changes | 2026-10-13 | 2026-10-13 — created at setup |
-| `docs/ARCHITECTURE.md` | a change to `src/` or `cli/` alters a flow, a store, a tab, a command, a flag or a verdict rule | 2026-10-18 | 2026-10-18 — re-verified against the code; Part 4 rewritten as the ruled target (review session) |
-| `docs/architecture/` | a Mermaid block in `docs/ARCHITECTURE.md` changes — re-render its SVG | 2026-10-18 | 2026-10-18 — all 25 re-rendered; 17 (page pairing), 19–25 added; 18 replaced, old 18 archived |
+| `docs/ARCHITECTURE.md` | a change to `src/` or `packages/` alters a flow, a store, a tab, a command, a flag or a verdict rule | 2026-11-06 | 2026-11-06 — Part 3 redrawn as a host that loads its commands (W-30, W-32); the Inspect section follows W-28; the UI shell and the workspace follow W-33 |
+| `docs/architecture/` | a Mermaid block in `docs/ARCHITECTURE.md` changes — re-render its SVG | 2026-11-06 | 2026-11-06 — 02 (the UI shell), 11 (Inspect), 13 (the CLI build), 18, 19 and 27 re-rendered for W-28, W-30, W-32 and W-33 |
 | `work/proposals/excel-spec-comparison.md` | the research behind the spec records changes; archived when W-02 and W-04 close | 2026-10-16 | 2026-10-16 — graduated into four records; open questions answered |
 | `work/samples/excel-spec-template-v2/README.md` | `generate.ts`'s rows, planted errors or the PDFs change | 2026-10-18 | 2026-10-18 — moved from `tools/samples/`; legacy sample deleted; expected results carried over |
 

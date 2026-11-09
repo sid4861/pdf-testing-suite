@@ -37,7 +37,10 @@ def paragraphs(lines):
 
 
 def check(open_work: Path):
-    lines = open_work.read_text().splitlines()
+    # Explicitly UTF-8: the queue holds em dashes and curly quotes, and on
+    # Windows `read_text()` defaults to cp1252, where a byte of a smart quote
+    # is simply undefined — the check died on a row, not on a problem.
+    lines = open_work.read_text(encoding='utf-8').splitlines()
     try:
         start = next(i for i, l in enumerate(lines) if HEADING_RE.match(l.strip()))
     except StopIteration:

@@ -151,7 +151,7 @@ Measured with pdf.js as the app reads PDFs (`top` = baseline minus font size).
 ### `report.pdf` — the matching PDF
 
 All measured elements are **0.000 in** off, and the checker reports **no failure on this
-PDF** — asserted by `cli/verify/spec-fixture.ts`, which also drives the deviations table
+PDF** — asserted by `packages/cli/verify/spec-fixture.ts`, which also drives the deviations table
 below. The column-aware line grouping that this once depended on landed with W-04 DoD 1,
 and the footers, which are placed from the bottom-right, are checked since DoD 6 taught the
 compiler to convert every edge to a distance from the top-left.
@@ -186,5 +186,5 @@ undetectable for its own reason now that W-04 has landed fonts and colour:
   colour of painted *text*, so a filled box behind it is not yet compared.
 - The graph series colours are **Check? = Note** rows and sit in coverage, never as a pass.
 
-`cli/verify/spec-fixture.ts` asserts all three: none of them may appear as a finding, and
+`packages/cli/verify/spec-fixture.ts` asserts all three: none of them may appear as a finding, and
 none of them may appear as a pass.

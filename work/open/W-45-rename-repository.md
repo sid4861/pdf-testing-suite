@@ -58,9 +58,9 @@ updated so nothing depends on the redirect. The rename is done by the repository
 
 | where | change |
 |---|---|
-| `cli/package.json` | `repository`, `homepage`, `bugs` URLs |
+| `packages/cli/package.json` | `repository`, `homepage`, `bugs` URLs |
 | `scripts/update-from-zip.sh` | its example names `pdf-testing-suite-main.zip`; make it accept any zip name |
-| `src/features/spec/README.md` | names the old zip — **sealed: the spec machine edits it** |
+| `packages/spec/README.md` | names the old zip — **sealed: the spec machine edits it** |
 | `CLAUDE.md`, `README.md`, `docs/` | the repository's name and links |
 | `work/samples/excel-spec-template-v2/report*.pdf` | frozen PDFs may carry the old name in their metadata; W-37's generator rebuilds them |
 | git remotes | `git remote set-url origin <new>` on every clone |
@@ -92,4 +92,4 @@ updated so nothing depends on the redirect. The rename is done by the repository
 
 ## Reference
 
-- [W-44](W-44-monorepo-layout.md) · [W-43](W-43-ci-cd-test-publish.md) · `cli/package.json` · `scripts/update-from-zip.sh`
+- [W-44](W-44-monorepo-layout.md) · [W-43](W-43-ci-cd-test-publish.md) · `packages/cli/package.json` · `scripts/update-from-zip.sh`

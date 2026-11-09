@@ -77,4 +77,4 @@ flowchart LR
 
 ## Reference
 
-- [W-37](W-37-sample-test-data.md) · [SR-TESTING](../../records/0116_TESTING.md) · `cli/verify/`
+- [W-37](W-37-sample-test-data.md) · [SR-TESTING](../../records/0116_TESTING.md) · `packages/cli/verify/`

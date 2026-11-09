@@ -81,15 +81,15 @@ viewers (Nutrient, Apryse) had just been named and rejected for W-42.
 
 ### Reference (required)
 
-- The licence scan above, over `node_modules` and `cli/node_modules`, 2026-10-18
-- [`package.json`](../package.json) · [`cli/package.json`](../cli/package.json)
+- The licence scan above, over `node_modules` and `packages/cli/node_modules`, 2026-10-18
+- [`package.json`](../package.json) · [`packages/cli/package.json`](../packages/cli/package.json)
 
 ### Veto condition
 
 **Reopen this decision if:** any installed package — direct or transitive — has a licence
 outside decisions 1–4.
 
-**How to check it:** read every `node_modules/**/package.json` `license` field (and `cli/`'s) and list any not on the allow-list.
+**How to check it:** read every `node_modules/**/package.json` `license` field (and `packages/cli/`'s) and list any not on the allow-list.
 
 ---
 
@@ -97,4 +97,4 @@ outside decisions 1–4.
 
 **Records** — [SR-LAWS](0001_LAWS.md) · [SR-LAW-0](0002_LAW-0-authority.md) · [SR-NPM-PACKAGES](0107_NPM-packages.md) · [SR-TESTING](0116_TESTING.md)
 
-**Code** — [`package.json`](../package.json) · [`cli/package.json`](../cli/package.json)
+**Code** — [`package.json`](../package.json) · [`packages/cli/package.json`](../packages/cli/package.json)

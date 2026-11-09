@@ -1,0 +1,49 @@
+{
+  "name": "@pdfsuite/spec",
+  "version": "2.0.0",
+  "description": "The rulebook check: read a Template v2 workbook or spec JSON, validate it, check a PDF against it, and report coverage.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./engine": "./src/engine.ts",
+    "./cli": "./dist/cli.js",
+    "./spec.css": "./src/spec.css",
+    "./schema/result.v1.json": "./src/schema/result.v1.json"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin"
+  ],
+  "bin": {
+    "pdfsuite-spec": "./bin/pdfsuite-spec.mjs"
+  },
+  "dependencies": {
+    "@pdfsuite/cli": "2.0.0",
+    "@pdfsuite/core": "2.0.0",
+    "@sheetpane/grid": "0.5.1",
+    "@sheetpane/import": "0.5.1",
+    "jszip": "^3.10.1",
+    "pdfjs-dist": "4.10.38",
+    "zustand": "^4.5.5"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && node build.mjs",
+    "prepack": "node build.mjs"
+  }
+}

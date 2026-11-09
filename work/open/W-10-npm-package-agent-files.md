@@ -80,4 +80,4 @@ well as Copilot to execute these or help with these CLI executions."* — and, a
 ## Reference
 
 - [W-09](W-09-pdfsuite-compare-one-pair.md) · [proposal](../proposals/pdfsuite-compare-cli.md)
-- `cli/package.json` (`files`, `bin`) · `cli/README.md`
+- `packages/cli/package.json` (`files`, `bin`) · `packages/cli/README.md`

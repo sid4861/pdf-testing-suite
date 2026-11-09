@@ -7,7 +7,7 @@ description: "How the checker binds pages, reads the PDF, compares each assertio
 status: accepted
 date: 2026-10-16
 feature: spec check — a PDF against spec JSON
-owns: [src/features/spec/specCheck.ts, src/features/spec/specExport.ts, src/features/spec/specStore.ts, src/features/spec/SpecTestView.tsx, src/features/spec/SpecExportMenu.tsx, public/samples/spec-sample.json, public/samples/spec-sample.pdf]
+owns: [packages/spec/src/specCheck.ts, packages/spec/src/specOutputs.ts, packages/spec/src/specStore.ts, packages/spec/src/SpecTestView.tsx, packages/spec/src/SpecExportMenu.tsx, public/samples/spec-sample.json, public/samples/spec-sample.pdf]
 laws: [L0]
 timestamp: 2026-10-16T11:30:00+05:30
 content_sha: ""
@@ -121,14 +121,27 @@ HTML export inserts `units` unescaped; images inside Form XObjects are mis-place
 
 ### Consequences
 
-- **Built today:** position, size, font size, line spacing, table rows and columns,
-  anchors, on-page highlights, HTML and JSON export. Everything else here is unbuilt —
-  **W-04** builds it, after **W-05**.
-- **First in W-04:** decision 5 (column-aware lines), unit-aware tolerances (decision 11),
-  escaping (decision 15) and Form XObject images — the defects that make a correct PDF fail.
-- **Acceptance:** the fictional fixture's matching PDF reports no failure; its deviations
-  PDF reports what its README tables.
-- **Enforced today:** nothing; W-04's fixtures make the acceptance a gate.
+- **Built (2026-11-05, W-04):** decisions 1–8 and 10–14 in full, and decision 15 from the
+  Spec tab. Pages are bound by their identifying text with findings for order, absence,
+  variants and repeats; lines are grouped within a column; no text layer, an unnameable font
+  and a single-line paragraph are `unverifiable` rather than failures; fonts and text colour
+  are read and compared; every finding carries its workbook cell; coverage and the pair
+  tested are part of the result; and a run writes `result.json`, `report.html` and
+  `manifest.json` from one builder each. An element placed from the bottom or the right is
+  converted to a distance from the page's top-left at compile time, and a Form XObject's own
+  `/Matrix` is applied — both were silently dropping real content.
+- **Not built, and named:** decision 9's **opt-in image-content comparison** (images are
+  matched by position and size only); **container fills** under decision 8 — the colour
+  check reads the colour of painted text, so a filled box behind it is not compared; and
+  decision 15's other half, `pdfsuite spec`, which is **W-11**. The register therefore says
+  **partly**, not yes.
+- **Acceptance, and it holds:** the fictional fixture's matching PDF reports no failure and
+  no page finding; its deviations PDF reports all nine detectable deviations on the named
+  check and nothing else, with the three undetectable ones appearing as neither a finding
+  nor a pass.
+- **Enforced today:** `packages/cli/verify/spec-fixture.ts` is that gate, and
+  `packages/cli/verify/spec-oracle.ts` fails on any drift in the frozen extraction, spec or coverage.
+  Both run in `npm run verify`.
 
 ### Alternatives considered
 
@@ -145,8 +158,8 @@ HTML export inserts `units` unescaped; images inside Form XObjects are mis-place
 
 ### Reference (required)
 
-- [`src/features/spec/specCheck.ts`](../src/features/spec/specCheck.ts) — today's `runSpec`, `groupLines`, `extractImages`
-- [`src/features/spec/SpecTestView.tsx`](../src/features/spec/SpecTestView.tsx) — today's upload and report view
+- [`packages/spec/src/specCheck.ts`](../packages/spec/src/specCheck.ts) — today's `runSpec`, `groupLines`, `extractImages`
+- [`packages/spec/src/SpecTestView.tsx`](../packages/spec/src/SpecTestView.tsx) — today's upload and report view
 - [`work/samples/excel-spec-template-v2/README.md`](../work/samples/excel-spec-template-v2/README.md) — expected results, including today's false failures
 
 ### Veto condition
@@ -164,7 +177,7 @@ any failure once W-04 has landed.
 
 **Code**
 
-- [`src/features/spec/specCheck.ts`](../src/features/spec/specCheck.ts) · [`src/features/spec/specExport.ts`](../src/features/spec/specExport.ts) · [`src/features/spec/specStore.ts`](../src/features/spec/specStore.ts) · [`src/features/spec/SpecTestView.tsx`, `src/features/spec/SpecExportMenu.tsx`](../src/features/spec/SpecTestView.tsx, src/features/spec/SpecExportMenu.tsx)
+- [`packages/spec/src/specCheck.ts`](../packages/spec/src/specCheck.ts) · [`packages/spec/src/specOutputs.ts`](../packages/spec/src/specOutputs.ts) · [`packages/spec/src/specStore.ts`](../packages/spec/src/specStore.ts) · [`packages/spec/src/SpecTestView.tsx`, `packages/spec/src/SpecExportMenu.tsx`](../packages/spec/src/SpecTestView.tsx, packages/spec/src/SpecExportMenu.tsx)
 
 **Project docs**
 

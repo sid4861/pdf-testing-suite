@@ -96,26 +96,31 @@ one and the hooks that enforce it — [SR-WORK-BLOCKERS](records/0056_WORK-block
 One archive, [`archive/`](archive/README.md), at the repo root. What may be
 named, what may never be cited — [SR-WORK-ARCHIVE](records/0057_WORK-archive.md).
 
-## The spec feature's boundary
+## The spec feature is `@pdfsuite/spec`
 
 **Siddharth, 2026-11-03:** *"package can be developed on any machine now, remove
 this constraint"* — the ruling owed on [W-32](work/open/W-32-spec-package.md),
-option B. `src/features/spec/` **is no longer sealed**: it is edited here like
-any other code, and this repository holds the live version, not a mirror.
+option B. The folder is no longer sealed: it is edited here like any other code,
+and this repository holds the live version, not a mirror. On **2026-11-06** it
+became **`packages/spec/`**, a workspace package, and the `spec` command moved
+into it.
 
 **What has not changed: real spec workbooks never leave the spec machine.** That
 is a rule about data, not about code — fixtures in this repository are
 fictional ([SR-NPM-PACKAGES](records/0107_NPM-packages.md) decision 13).
 
-The folder stays **self-contained** behind two barrels — `index.ts` for the app,
-`engine.ts` for the CLI — because that is the surface W-32 publishes as
-`@pdfsuite/spec`. It may now import the project's shared services. The contract
-and the CSS prefix rule are in
-[`src/features/spec/README.md`](src/features/spec/README.md); the check that
-keeps the surface narrow is still:
+The package publishes **three barrels** — `@pdfsuite/spec` for the app,
+`/engine` for a headless caller, `/cli` for the host's command loader. Nothing
+outside imports past one of them. The contract, the dependency list and the CSS
+prefix rule are in [`packages/spec/README.md`](packages/spec/README.md); the two
+checks are:
 
 ```bash
 sh scripts/check-boundary.sh
+```
+
+```bash
+sh scripts/check-packages.sh
 ```
 
 ## Hard-won build knowledge
@@ -134,8 +139,9 @@ work/        THE SHARED MEMORY between sessions — start at work/README.md
 records/     THE STANDING RECORDS — the register, the template, the laws, the WORK records
 docs/        WHAT THE PROJECT IS — the glossary, the architecture diagrams
 archive/     THE ONE ARCHIVE — everything retired, mirroring the live tree
-scripts/     the commit guard, the inbox check, the boundary check, the zip refresh
+scripts/     the commit guard, the inbox check, the boundary and package checks, the zip refresh
 .claude/     hooks and their wiring
-src/ cli/ public/ tools/   the product — owned by W-01 until each has a record
-src/features/spec/   self-contained behind two barrels — becomes @pdfsuite/spec (W-32)
+packages/    THE npm WORKSPACES — core, compare, cli, and the agents/ui/create shells (W-29)
+src/ public/ tools/        the app and its statics — owned by W-01 until each has a record
+packages/spec/      @pdfsuite/spec — three barrels: the tab, the engine, the command (W-32)
 ```

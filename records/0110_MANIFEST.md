@@ -73,10 +73,10 @@ tells what all files are present" — with input hashes included (the refined op
 ### Consequences
 
 - **Built for the spec run (2026-11-05, W-04 DoD 5):** `buildManifest` in
-  `src/features/spec/`, written last over the final bytes of `result.json` and `report.html`,
+  `packages/spec/src/`, written last over the final bytes of `result.json` and `report.html`,
   with no timestamp in it. An input keeps the hash `result.json` already recorded rather than
   being hashed twice, so the two files cannot disagree about one file.
-- Still to build: compare (W-27, W-09), inspect (W-28).
+- **Built** for compare (W-27, W-09), spec (W-11) and inspect (W-28, 2026-11-06) — written last in all four, over the final bytes of the other two.
 
 ### Alternatives considered
 
@@ -87,7 +87,7 @@ tells what all files are present" — with input hashes included (the refined op
 
 ### Reference (required)
 
-- [`cli/src/core/manifest.ts`](../cli/src/core/manifest.ts) — today's `generate` manifest, the starting point
+- [`packages/cli/src/core/manifest.ts`](../packages/cli/src/core/manifest.ts) — today's `generate` manifest, the starting point
 
 ### Veto condition
 
@@ -101,4 +101,4 @@ tells what all files are present" — with input hashes included (the refined op
 
 **Records** — [SR-REPORT-JSON](0109_REPORT-json.md) · [SR-REPORT-HTML](0108_REPORT-html.md) · [SR-CLI](0115_CLI.md) · [SR-NPM-PACKAGES](0107_NPM-packages.md)
 
-**Code** — [`cli/src/core/manifest.ts`](../cli/src/core/manifest.ts)
+**Code** — [`packages/cli/src/core/manifest.ts`](../packages/cli/src/core/manifest.ts)

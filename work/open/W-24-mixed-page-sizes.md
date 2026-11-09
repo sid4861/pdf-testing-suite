@@ -74,9 +74,9 @@ SR-SPEC-CHECK decision 4 (page-size check) is W-04's, on the spec machine. The s
 ## Hazards
 
 - **Verdict change:** pairs that passed only because letterboxing hid the difference will fail — intended; say so.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` target box and letterbox · `src/services/changes.ts`
+- `packages/core/src/pdfCompare.ts` target box and letterbox · `packages/compare/src/changes.ts`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

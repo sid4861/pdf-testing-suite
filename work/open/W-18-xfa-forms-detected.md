@@ -73,9 +73,9 @@ Ask the spec machine to show the same message in the Spec tab. The spec machine 
 ## Hazards
 
 - Hybrid forms (AcroForm + XFA) render their AcroForm part — refuse only pure XFA, warn on hybrid.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` `loadPdf`
+- `packages/core/src/pdfCompare.ts` `loadPdf`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

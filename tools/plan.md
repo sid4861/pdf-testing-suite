@@ -17,7 +17,7 @@ Written to be picked up cold. Read §1 and §2 before writing any code.
 | `src/types/spec.ts` | `PdfSpec`, element types (`text` / `image` / `table` / `paragraph`), `SpecAnchor`. |
 | `src/services/specCheck.ts` | `runSpec(pdf, spec, options)` and `validateSpec(json)`. Anchors are implemented. |
 | `src/components/spec/SpecTestView.tsx` | The workspace UI, including **All pages** / **One page** targeting with a PDF-page stepper and a spec-page selector. |
-| `cli/verify/spec-target.ts` | Page-targeting regression suite, 8 checks. Run with `cd cli && npm run verify:spec`. |
+| `packages/cli/verify/spec-target.ts` | Page-targeting regression suite, 8 checks. Run with `cd cli && npm run verify:spec`. |
 | `work/samples/` | Where a worked example tab and its expected output belong (moved from `tools/samples/` 2026-10-18). |
 
 `RunSpecOptions` is `{ onProgress?, specPageIndex?, pdfPageOverride? }` — it checks one
@@ -225,7 +225,7 @@ Per §3.6.
 ### Step 6 — Regression fixtures
 
 Pick 8–10 tabs spanning the shapes Step 1 found, freeze their expected JSON, re-run on
-every converter change. Follow `cli/verify/` — that pattern is why the classification suite
+every converter change. Follow `packages/cli/verify/` — that pattern is why the classification suite
 still catches things. Add an npm script beside `verify:classification` / `verify:spec`.
 
 **Done when:** a deliberate regression in the parser fails the suite.

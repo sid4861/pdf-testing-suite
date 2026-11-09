@@ -52,7 +52,7 @@ flowchart LR
 
 - **Colour is never the only signal:** every box and row also carries its label — removed,
   added, moved, restyled, and the later field, annotation, font, recoloured, page-size.
-- **Fixed palette:** the change colours of `src/services/changes.ts` (`CHANGE_COLOR`), one
+- **Fixed palette:** the change colours of `packages/compare/src/changes.ts` (`CHANGE_COLOR`), one
   meaning each, the same in the app's views.
 - **Prints cleanly** on A4 and Letter; one page pair per printed section.
 - **Light theme only;** system fonts; no web fonts.
@@ -84,12 +84,12 @@ files, one of them `report.html`.
 ### Consequences
 
 - **The spec report is built (2026-11-05, W-04 DoD 5):** `buildReportHtml(result)` in
-  `src/features/spec/`, reading `result.json` and nothing else. Script-free, self-contained,
+  `packages/spec/src/`, reading `result.json` and nothing else. Script-free, self-contained,
   `<details>` for expanding, images for failing pages only, every inserted value escaped —
-  each checked in `cli/verify/spec-outputs-run.ts`, including a file name made of markup. The
+  each checked in `packages/cli/verify/spec-outputs-run.ts`, including a file name made of markup. The
   spec tab's own earlier HTML export (`specExport.ts`) is **deleted**: two report formats from
   one tab is what decision 1 exists to prevent.
-- Still to build: compare (W-27), `--each` (W-09), inspect (W-28).
+- **Built** for compare (W-27), `--each` (W-09), spec (W-11) and inspect (W-28, 2026-11-06). The inspect report departs from decision 6 — images for *failing* pages — because an inspect has no failing pages: it images every page it was asked for, and the command caps that by only inspecting the pages it was given (plus a 20-page default, `--images` to override).
 
 ### Alternatives considered
 
@@ -100,7 +100,7 @@ files, one of them `report.html`.
 
 ### Reference (required)
 
-- [`src/services/exportReport.ts`](../src/services/exportReport.ts) — today's app builder · [`cli/src/report/html.ts`](../cli/src/report/html.ts) — today's CLI writer
+- [`packages/ui/src/services/exportReport.ts`](../packages/ui/src/services/exportReport.ts) — today's app builder · [`packages/compare/src/reportHtml.ts`](../packages/compare/src/reportHtml.ts) — today's CLI writer
 - [SR-REPORT-JSON](0109_REPORT-json.md) — the only input
 
 ### Veto condition
@@ -116,4 +116,4 @@ the same `result.json`, or the file makes a network request.
 
 **Records** — [SR-REPORT-JSON](0109_REPORT-json.md) · [SR-MANIFEST](0110_MANIFEST.md) · [SR-COMPARE](0111_COMPARE.md) · [SR-BULK-COMPARE](0113_BULK-compare.md) · [SR-SPEC](0112_SPEC.md) · [SR-INSPECT](0114_INSPECT.md) · [SR-LAW-3](0005_LAW-3-one-function-ui-and-cli.md)
 
-**Code** — [`src/services/exportReport.ts`](../src/services/exportReport.ts) · [`cli/src/report/html.ts`](../cli/src/report/html.ts) · [`src/services/changes.ts`](../src/services/changes.ts)
+**Code** — [`packages/ui/src/services/exportReport.ts`](../packages/ui/src/services/exportReport.ts) · [`packages/compare/src/reportHtml.ts`](../packages/compare/src/reportHtml.ts) · [`packages/compare/src/changes.ts`](../packages/compare/src/changes.ts)

@@ -47,7 +47,7 @@ flowchart LR
 - **Folder:** `work/samples/pdf-kinds/<kind>/` — `golden.pdf`, and where Compare needs one, `variant.pdf` with one known change; a `README.md` per kind saying what is in it and how it was made.
 - **Generator in TypeScript with pdf-lib** (already a dependency): not-embedded standard fonts, AcroForm fields (and a flattened copy), annotations, rotation, crop box, mixed sizes, Form XObjects, invisible OCR text (render mode 3 via raw operators), outlined text (glyphs as paths), a scan (an embedded PNG of text).
 - **Made once with a dev tool, committed with provenance:** encrypted (qpdf), tagged, XFA, signed, CJK — only with self-made fictional content and fonts whose licence allows it. No Python (SR-STACK-TYPESCRIPT).
-- **Harness:** `cli/verify/support-matrix.ts`, Node, through the engine seam: per kind and surface it asserts observable facts (text found, font named, field value read, image box within 1 pt of truth, message shown) and prints ✅ / ⚠️ / ❌ in the SR's table shape.
+- **Harness:** `packages/cli/verify/support-matrix.ts`, Node, through the engine seam: per kind and surface it asserts observable facts (text found, font named, field value read, image box within 1 pt of truth, message shown) and prints ✅ / ⚠️ / ❌ in the SR's table shape.
 - **App columns** need a browser (system fonts differ from Node): checked by a Playwright run, or recorded by hand with the date until one exists.
 
 ## Definition of done
@@ -56,7 +56,7 @@ flowchart LR
 |---|---|---|
 | 1 · corpus | `work/samples/pdf-kinds/`: one folder per kind, all 20 rows, fictional, each with a README | ⏳ |
 | 2 · generator | `generate.ts` (pdf-lib) rebuilds every generable fixture byte-for-byte; the rest carry provenance | ⏳ |
-| 3 · harness | `cli/verify/support-matrix.ts` prints the table; `npm run verify:matrix` in `cli/` | ⏳ |
+| 3 · harness | `packages/cli/verify/support-matrix.ts` prints the table; `npm run verify:matrix` in `packages/cli/` | ⏳ |
 | 4 · cells | each cell's ✅ / ⚠️ / ❌ defined as a named assertion, listed in the corpus README | ⏳ |
 | 5 · browser | the Inspect and Compare columns checked in a browser (Playwright, or a dated manual record) | ⏳ |
 | 6 · record | SR-PDF-SUPPORT §1 matches the harness; its veto condition points at the harness | ⏳ |
@@ -78,9 +78,9 @@ None.
 - **Confidential:** fictional content only — never a real spec workbook or PDF.
 - **Fonts and licences:** embed only fonts whose licence allows redistribution.
 - **Node is not the browser:** a cell can differ between them; the harness says which it ran.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` · `src/services/pdfElements.ts` · `cli/verify/`
+- `packages/core/src/pdfCompare.ts` · `packages/core/src/pdfElements.ts` · `packages/cli/verify/`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

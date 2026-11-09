@@ -108,7 +108,7 @@ None. W-29 (packages) and W-33 (ui) build inside this layout — whichever lands
 
 ## Hazards
 
-- **No number may move** — a move, not a change; every `cli/verify` run unchanged.
+- **No number may move** — a move, not a change; every `packages/cli/verify` run unchanged.
 - **The sealed folder moves with the app** — never edit its contents from this machine (W-32).
 - The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too.
 

@@ -74,9 +74,9 @@ Ask the spec machine to record annotations in coverage as "excluded" rather than
 ## Hazards
 
 - **In the inbox (2026-10-18):** does an annotation difference fail the pair? Ruled with the other new finding types in one row of `OPEN-WORK.md`. Build with the default — failing — the ruling flips one flag in `pageVerdict`.
-- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `src/features/spec/` from this machine.
+- The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too; never edit `packages/spec/src/` from this machine.
 
 ## Reference
 
-- `src/services/pdfCompare.ts` `renderAndExtract` · `src/services/changes.ts`
+- `packages/core/src/pdfCompare.ts` `renderAndExtract` · `packages/compare/src/changes.ts`
 - [SR-PDF-SUPPORT](../../records/0105_PDF-support.md) — the row(s) this item closes

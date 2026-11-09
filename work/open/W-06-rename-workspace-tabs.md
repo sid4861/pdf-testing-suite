@@ -69,7 +69,7 @@ Designs: the *PDF Suite — Proof redesign* canvas (Compare boards carry the sco
 | DoD | what | state |
 |---|---|---|
 | 1 · ruling | Arpit confirms or changes the names; this item re-balled 🟢 and its inbox row removed | ⏳ |
-| 2 · app | `src/App.tsx` `WORKSPACE_TABS` → `compare` · `spec` · `measure`, labels *Compare* · *Specification* · *Inspect*; Compare's sub-header gains a *One · Many* segmented control (hidden when `FEATURE_BATCH_COMPARE` is off); *Many* renders `BatchView`; "Open" on a pair switches to *One*; `batchExport.ts` footer and user-facing "Batch" text read *Many* | ⏳ |
+| 2 · app | `packages/ui/src/PdfSuiteApp.tsx` `WORKSPACE_TABS` → `compare` · `spec` · `measure`, labels *Compare* · *Specification* · *Inspect*; Compare's sub-header gains a *One · Many* segmented control (hidden when `FEATURE_BATCH_COMPARE` is off); *Many* renders `BatchView`; "Open" on a pair switches to *One*; `batchExport.ts` footer and user-facing "Batch" text read *Many* | ⏳ |
 | 3 · user docs | `README.md`, `public/manual.html`, `public/demo.html`, `public/overview.html`, `public/presentation.html`: the new names and order | ⏳ |
 | 4 · records · glossary | user-facing names amended — SR-BULK-COMPARE §1 *Where you see it*, SR-SURFACE-PARITY section headings, SR-NPM-PACKAGES tab table, SR-LAW-4 §1 and decision 1 wording (tab list only), `docs/GLOSSARY.md`; record handles unchanged | ⏳ |
 | 5 · architecture | `docs/ARCHITECTURE.md` prose and Mermaid labels; SVGs 01, 02, 05, 10, 12 re-rendered | ⏳ |
@@ -81,7 +81,7 @@ Designs: the *PDF Suite — Proof redesign* canvas (Compare boards carry the sco
   `BatchView`, `batch-*` CSS classes, file names, and the `FEATURE_BATCH_COMPARE` key
   (renaming the key would silently reset anyone's `flag.env`).
 - Record handles (SR-BULK-COMPARE stays SR-BULK-COMPARE) and the CLI's command names.
-- Text inside the sealed `src/features/spec/` folder.
+- Text inside the sealed `packages/spec/src/` folder.
 
 ## Blockers
 
@@ -96,14 +96,14 @@ substance; Arpit's confirmation is the ruling). W-01 owns the touched files unti
 
 ## Hazards
 
-- **The sealed folder:** `src/features/spec/README.md` mentions "Batch compare". Do not edit
+- **The sealed folder:** `packages/spec/README.md` mentions "Batch compare". Do not edit
   it from this machine; it changes on the other machine or not at all.
 - **Deep links:** W-35 adds hash routes per tab; *Many* needs its own route
   (`#/compare/many`) so a bookmark still lands there.
 - The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too.
-- HTML report text changes; nothing asserts on it today, but `cli/verify/` must still pass.
+- HTML report text changes; nothing asserts on it today, but `packages/cli/verify/` must still pass.
 
 ## Reference
 
-- [`src/App.tsx`](../../src/App.tsx) `WORKSPACE_TABS`
+- [`packages/ui/src/PdfSuiteApp.tsx`](../../packages/ui/src/PdfSuiteApp.tsx) `WORKSPACE_TABS`
 - [`docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md) §UI shell and state, §Batch compare

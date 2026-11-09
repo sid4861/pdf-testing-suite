@@ -7,7 +7,7 @@ description: "One pair in, one verdict out: pages paired, each page compared by 
 status: accepted
 date: 2026-10-18
 feature: compare one pair
-owns: []
+owns: [packages/compare/]
 laws: [L0, L3, L4]
 timestamp: 2026-10-18T13:05:00+05:30
 content_sha: ""
@@ -66,7 +66,12 @@ and the verdict disagreed (2.9 px vs 2 px) — SR-SURFACE-PARITY.
 1. **`comparePair(golden, candidate, options)`** in `@pdfsuite/compare` is the only entry;
    the tab and the CLI call it.
 2. **Pairing is an input** (`PagePair[]`); unpaired pages are reported as added or removed.
-3. **One page rule, `pageVerdict`;** its limits live in `specConstants.ts` (SR-CONSTANTS).
+3. **One page rule, `pageVerdict`;** its limits live in `packages/core/src/constants.ts` (SR-CONSTANTS).
+   **Built 2026-11-06 (W-27)** in `packages/compare/src/verdict.ts`: it replaced
+   `summaryPageDiffers` and `pageHasChange`, which asked the same question with
+   different thresholds — a page that moved between 2 px and 2.9 px failed the report
+   and was skipped by Next change. It reports *which* evidence decided, and a summary
+   does not claim to know what only a full comparison can see.
 4. **Every knob that moves the verdict** — pixel sensitivity (default 0.1), anti-aliasing
    (default off) — is recorded in `result.json`'s `policy`.
 5. **Outputs** are SR-REPORT-JSON, SR-REPORT-HTML and SR-MANIFEST — nothing else.
@@ -87,7 +92,7 @@ and the verdict disagreed (2.9 px vs 2 px) — SR-SURFACE-PARITY.
 
 ### Reference (required)
 
-- [`src/services/pdfCompare.ts`](../src/services/pdfCompare.ts) `comparePage` · [`src/services/changes.ts`](../src/services/changes.ts) `buildChanges`, `summaryPageDiffers`, `pageHasChange`
+- [`packages/core/src/pdfCompare.ts`](../packages/core/src/pdfCompare.ts) `comparePage` · [`packages/compare/src/changes.ts`](../packages/compare/src/changes.ts) `buildChanges`, `summaryPageDiffers`, `pageHasChange`
 
 ### Veto condition
 
@@ -101,4 +106,4 @@ and the verdict disagreed (2.9 px vs 2 px) — SR-SURFACE-PARITY.
 
 **Records** — [SR-BULK-COMPARE](0113_BULK-compare.md) · [SR-REPORT-JSON](0109_REPORT-json.md) · [SR-REPORT-HTML](0108_REPORT-html.md) · [SR-MANIFEST](0110_MANIFEST.md) · [SR-CLI](0115_CLI.md) · [SR-PDF-SUPPORT](0105_PDF-support.md) · [SR-CONSTANTS](0103_CONSTANTS.md) · [SR-SURFACE-PARITY](0106_SURFACE-parity.md)
 
-**Code** — [`src/services/pdfCompare.ts`](../src/services/pdfCompare.ts) · [`src/services/changes.ts`](../src/services/changes.ts) · [`src/store/compareStore.ts`](../src/store/compareStore.ts)
+**Code** — [`packages/core/src/pdfCompare.ts`](../packages/core/src/pdfCompare.ts) · [`packages/compare/src/changes.ts`](../packages/compare/src/changes.ts) · [`packages/ui/src/store/compareStore.ts`](../packages/ui/src/store/compareStore.ts)

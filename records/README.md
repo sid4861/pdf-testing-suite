@@ -7,7 +7,7 @@ description: "The SR register: the convention, the ownership table, and the stat
 
 **How to use this file.** The naming convention, the record shape, the
 ownership table and the rules every record obeys. Read it before writing a
-record, before citing one, and before adding a module under every tracked path in the repository (`src/`, `cli/`, `public/`, `tools/` and the root files).
+record, before citing one, and before adding a module under every tracked path in the repository (`src/`, `packages/cli/`, `public/`, `tools/` and the root files).
 
 One record per completed feature or ruled measurement. **Every record is cited
 by NAME in prose, never by number.**
@@ -121,20 +121,20 @@ some are and the record's Consequences name the rest, `no` when none are.
 | [0059](0059_WORK-governance.md) | **SR-WORK-GOVERNANCE** | The governance map — which file governs what; no counts | accepted | yes |
 | [0060](0060_WORK-registry.md) | **SR-WORK-REGISTRY** | The doc registry — rules in §2, the table in §3 | accepted | yes |
 | [0101](0101_SPEC-intake.md) | **SR-SPEC-INTAKE** | The spec workbook, its validation, and its conversion to spec JSON | accepted | partly |
-| [0102](0102_SPEC-check.md) | **SR-SPEC-CHECK** | Checking a PDF against spec JSON — pages, reading, comparing, coverage | accepted | no |
+| [0102](0102_SPEC-check.md) | **SR-SPEC-CHECK** | Checking a PDF against spec JSON — pages, reading, comparing, coverage | accepted | partly |
 | [0103](0103_CONSTANTS.md) | **SR-CONSTANTS** | One constants file for every default and limit | accepted | yes |
 | [0104](0104_STACK-typescript.md) | **SR-STACK-TYPESCRIPT** | The product is TypeScript; the Python CLI is removed | accepted | yes |
 | [0105](0105_PDF-support.md) | **SR-PDF-SUPPORT** | Which kinds of PDF each tab and CLI can read — today's table, every gap tied to its work item | accepted | yes |
 | [0106](0106_SURFACE-parity.md) | **SR-SURFACE-PARITY** | Every step and where it lives — core, UI only or CLI only — each exception ratified | accepted | no |
-| [0107](0107_NPM-packages.md) | **SR-NPM-PACKAGES** | The seven `@pdfsuite` packages — what each installs; how an app is created, synced and hosted; which tab uses which | accepted | no |
+| [0107](0107_NPM-packages.md) | **SR-NPM-PACKAGES** | The seven `@pdfsuite` packages — what each installs; how an app is created, synced and hosted; which tab uses which | accepted | partly |
 | [0108](0108_REPORT-html.md) | **SR-REPORT-HTML** | report.html — what it shows and how it looks; one self-contained, script-free file from result.json | accepted | partly |
 | [0109](0109_REPORT-json.md) | **SR-REPORT-JSON** | result.json — the source of truth: schema, stable ids, wall-clock in one block | accepted | partly |
 | [0110](0110_MANIFEST.md) | **SR-MANIFEST** | manifest.json — every input and output with size and SHA-256 | accepted | partly |
 | [0111](0111_COMPARE.md) | **SR-COMPARE** | How comparing one pair works — pairing, three signals, changes, one page rule | accepted | no |
-| [0112](0112_SPEC.md) | **SR-SPEC** | Spec-driven checking end to end — routes to SR-SPEC-INTAKE and SR-SPEC-CHECK | accepted | no |
+| [0112](0112_SPEC.md) | **SR-SPEC** | Spec-driven checking end to end — routes to SR-SPEC-INTAKE and SR-SPEC-CHECK | accepted | partly |
 | [0113](0113_BULK-compare.md) | **SR-BULK-COMPARE** | How comparing many pairs works — pairing by name, compareMany, orphans fail | accepted | no |
-| [0114](0114_INSPECT.md) | **SR-INSPECT** | How inspecting one PDF works — elements, measurements, document properties | accepted | no |
-| [0115](0115_CLI.md) | **SR-CLI** | The pdfsuite command line — commands, console, exit codes, outputs | accepted | no |
+| [0114](0114_INSPECT.md) | **SR-INSPECT** | How inspecting one PDF works — elements, measurements, document properties | accepted | partly |
+| [0115](0115_CLI.md) | **SR-CLI** | The pdfsuite command line — commands, console, exit codes, outputs | accepted | partly |
 | [0116](0116_TESTING.md) | **SR-TESTING** | How pdfsuite is tested — every decision proven; a realistic sample set scored end to end | accepted | no |
 
 ---
@@ -161,14 +161,38 @@ directions.
 | `scripts/check-work-items.sh` | SR-WORK-LIFECYCLE | decisions 4a–4c and 4e's check |
 | `.claude/hooks/guard-work-items.sh` | SR-WORK-LIFECYCLE | decisions 4a–4c, in-session |
 | `src/` | W-01 | the React/Vite PDF compare app — no record yet |
-| `src/features/spec/specCheck.ts` | SR-SPEC-CHECK | the spec checker |
-| `src/features/spec/specExport.ts` | SR-SPEC-CHECK | the spec report exports |
-| `src/features/spec/specStore.ts` | SR-SPEC-CHECK | the spec tab's state |
-| `src/features/spec/SpecTestView.tsx` | SR-SPEC-CHECK | the spec tab |
-| `src/features/spec/SpecExportMenu.tsx` | SR-SPEC-CHECK | the spec tab's export menu |
-| `src/features/spec/types.ts` | SR-SPEC-INTAKE | the spec JSON type |
-| `src/services/specConstants.ts` | SR-CONSTANTS | every default and limit — created by W-05 |
-| `cli/` | W-01 | the Node CLI — no record yet |
+| `packages/spec/src/specCheck.ts` | SR-SPEC-CHECK | the spec checker |
+| `packages/spec/src/specStore.ts` | SR-SPEC-CHECK | the spec tab's state |
+| `packages/spec/src/SpecTestView.tsx` | SR-SPEC-CHECK | the spec tab |
+| `packages/spec/src/SpecExportMenu.tsx` | SR-SPEC-CHECK | the spec tab's export menu |
+| `packages/spec/src/types.ts` | SR-SPEC-INTAKE | the spec JSON type |
+| `packages/spec/src/specIntake.ts` | SR-SPEC-INTAKE | the one workbook reader (decisions 1–6) |
+| `packages/spec/src/specTemplate.ts` | SR-SPEC-INTAKE | Template v2 (decisions 7, 7a) |
+| `packages/spec/src/specValues.ts` | SR-SPEC-INTAKE | reading values (decisions 9, 11) |
+| `packages/spec/src/specCompile.ts` | SR-SPEC-INTAKE | the spec JSON, every value with its cell (decision 14) |
+| `packages/spec/src/specValidate.ts` | SR-SPEC-INTAKE | the validation report (decisions 13, 14) |
+| `packages/spec/src/SpecValidation.tsx` | SR-SPEC-INTAKE | that report, in the tab |
+| `packages/spec/src/specLegacy.ts` | SR-SPEC-INTAKE | the legacy nested layout (decision 8) |
+| `packages/spec/src/specDraft.ts` | SR-SPEC-INTAKE | the draft v2 workbook it produces (decision 8) |
+| `packages/spec/src/specOutputs.ts` | SR-SPEC-INTAKE | the four downloads (decision 14) |
+| `packages/spec/src/specPages.ts` | SR-SPEC-CHECK | binding the Pages List to the PDF (decisions 1–3) |
+| `packages/spec/src/specFonts.ts` | SR-SPEC-CHECK | font names and weights (decision 7) |
+| `packages/spec/src/specColour.ts` | SR-SPEC-CHECK | colour by CIEDE2000 (decision 8) |
+| `packages/spec/src/specFixList.ts` | SR-SPEC-CHECK | the Markdown fix-list, a UI-only view (decision 15) |
+| `packages/spec/src/cli/` | SR-CLI | the `spec` command, in its own package (W-32) |
+| `packages/spec/src/specResult.ts` | SR-REPORT-JSON | `buildResultJson` for a spec run |
+| `packages/spec/src/schema/result.v1.json` | SR-REPORT-JSON | the shipped schema (decision 2) |
+| `packages/spec/src/specReportHtml.ts` | SR-REPORT-HTML | `buildReportHtml` for a spec run |
+| `packages/spec/src/specManifest.ts` | SR-MANIFEST | `buildManifest` for a spec run |
+| `packages/core/src/constants.ts` | SR-CONSTANTS | every default and limit — created by W-05, moved into the core package by W-29 |
+| `packages/core/` | W-01 | `@pdfsuite/core` — the loader, extraction and types; no record of its own yet |
+| `packages/compare/` | SR-COMPARE | `@pdfsuite/compare` — the page rule, the page loop, changes and pairing (claimed by W-27) |
+| `packages/compare/src/comparePair.ts` | SR-BULK-COMPARE | `compareMany`, the one loop over many pairs |
+| `packages/agents/` | W-10 | `@pdfsuite/agents` — a named shell until W-10 fills it |
+| `packages/ui/` | W-33 | `@pdfsuite/ui` — a named shell until W-33 fills it |
+| `packages/create/` | W-31 | `@pdfsuite/create` — a named shell until W-31 fills it |
+| `scripts/check-packages.sh` | SR-NPM-PACKAGES | decisions 1 and 2's check |
+| `packages/cli/` | SR-CLI | `@pdfsuite/cli` — the `pdfsuite` command (claimed by W-09) |
 | `public/` | W-01 | static pages and samples — no record yet |
 | `public/samples/spec-sample.json` | SR-SPEC-CHECK | the in-app spec sample |
 | `public/samples/spec-sample.pdf` | SR-SPEC-CHECK | the in-app spec sample |
@@ -204,42 +228,56 @@ A component may be narrowed to symbols: `` `path::name,name` ``.
 
 | component | describer | why |
 |---|---|---|
-| `src/features/spec/specStore.ts` | SR-SPEC-INTAKE | holds the uploaded spec and its validation (decisions 1, 2, 13) |
-| `src/features/spec/SpecTestView.tsx` | SR-SPEC-INTAKE | the spec upload — accepted types, label, downloads (decisions 1, 14) |
-| `src/features/spec/specCheck.ts::validateSpec` | SR-SPEC-INTAKE | validates an uploaded spec JSON (decision 2) |
+| `packages/spec/src/specStore.ts` | SR-SPEC-INTAKE | holds the uploaded spec and its validation (decisions 1, 2, 13) |
+| `packages/spec/src/SpecTestView.tsx` | SR-SPEC-INTAKE | the spec upload — accepted types, label, downloads (decisions 1, 14) |
+| `packages/spec/src/specCheck.ts::validateSpec` | SR-SPEC-INTAKE | validates an uploaded spec JSON (decision 2) |
 | `scripts/check-work-items.sh` | SR-WORK-OPEN-QUEUE | checks a queue row's `filed by` against its item file (rule 14a) |
-| `src/services/pdfCompare.ts` | SR-PDF-SUPPORT | its loader, text, style and image extraction decide the Compare and compare-CLI cells |
-| `src/services/pdfElements.ts` | SR-PDF-SUPPORT | its text, font and image extraction decide the Inspect cells |
-| `src/features/spec/pdfjs.ts` | SR-PDF-SUPPORT | the spec loader decides the Spec cells (decision 4) |
-| `src/features/spec/specCheck.ts` | SR-PDF-SUPPORT | the spec reader decides the Spec cells (decision 4) |
-| `cli/src/platform/dom-shim.ts` | SR-PDF-SUPPORT | Node rendering decides the compare-CLI cells |
-| `cli/src/platform/engine.ts` | SR-PDF-SUPPORT | the CLI's door to the engine decides the compare-CLI cells |
-| `src/store/compareStore.ts` | SR-SURFACE-PARITY | its page loop, "page changed" rule and pairing are parity rows |
-| `src/store/batchStore.ts` | SR-SURFACE-PARITY | its page loop and multi-pair loop are parity rows |
-| `src/store/regionStore.ts` | SR-SURFACE-PARITY | its ignored regions are a parity row |
-| `src/services/exportReport.ts` | SR-SURFACE-PARITY | its report builders are parity rows |
-| `src/components/measure/MeasureView.tsx` | SR-SURFACE-PARITY | holds Inspect measurements that belong in the core |
-| `cli/src/commands/compare.ts` | SR-SURFACE-PARITY | its page loop is a parity row |
-| `cli/src/report/` | SR-SURFACE-PARITY | its report writers are parity rows |
-| `cli/package.json` | SR-NPM-PACKAGES | today's single package, split into seven by W-29 |
+| `packages/core/src/pdfCompare.ts` | SR-PDF-SUPPORT | its loader, text, style and image extraction decide the Compare and compare-CLI cells |
+| `packages/core/src/pdfElements.ts` | SR-PDF-SUPPORT | its text, font and image extraction decide the Inspect cells |
+| `packages/core/src/pdfCompare.ts` | SR-PDF-SUPPORT | the one `loadPdf`; the spec copy went with W-32 |
+| `packages/spec/src/specCheck.ts` | SR-PDF-SUPPORT | the spec reader decides the Spec cells (decision 4) |
+| `packages/cli/src/platform/dom-shim.ts` | SR-PDF-SUPPORT | Node rendering decides the compare-CLI cells |
+| `packages/cli/src/platform/engine.ts` | SR-PDF-SUPPORT | the CLI's door to the engine decides the compare-CLI cells |
+| `packages/ui/src/store/compareStore.ts` | SR-SURFACE-PARITY | its page loop, "page changed" rule and pairing are parity rows |
+| `packages/ui/src/store/batchStore.ts` | SR-SURFACE-PARITY | its page loop and multi-pair loop are parity rows |
+| `packages/ui/src/store/regionStore.ts` | SR-SURFACE-PARITY | its ignored regions are a parity row |
+| `packages/ui/src/services/exportReport.ts` | SR-SURFACE-PARITY | its report builders are parity rows |
+| `packages/ui/src/components/measure/MeasureView.tsx` | SR-SURFACE-PARITY | holds Inspect measurements that belong in the core |
+| `packages/compare/src/cli/` | SR-SURFACE-PARITY | the `compare` command; its page loop is a parity row |
+| `packages/core/src/report/` | SR-SURFACE-PARITY | its report writers are parity rows |
+| `packages/cli/package.json` | SR-NPM-PACKAGES | today's single package, split into seven by W-29 |
 | `package.json` | SR-NPM-PACKAGES | gains the workspaces (W-29) |
-| `src/services/exportReport.ts` | SR-REPORT-HTML | today's app HTML builder |
-| `cli/src/report/html.ts` | SR-REPORT-HTML | today's CLI HTML writer |
-| `src/services/exportReport.ts::buildJsonReport` | SR-REPORT-JSON | today's app JSON builder |
-| `cli/src/report/machine.ts` | SR-REPORT-JSON | today's CLI JSON writer |
-| `cli/src/core/manifest.ts` | SR-MANIFEST | today's manifest writer (generate) |
-| `src/services/pdfCompare.ts` | SR-COMPARE | the page comparison |
-| `src/services/changes.ts` | SR-COMPARE | changes and the page rule |
-| `src/store/compareStore.ts` | SR-COMPARE | the Compare tab's loop and pairing |
-| `src/features/spec/engine.ts` | SR-SPEC | the spec feature's headless surface |
-| `src/store/batchStore.ts` | SR-BULK-COMPARE | the Bulk tab's loop |
-| `src/services/batchExport.ts` | SR-BULK-COMPARE | the Bulk tab's exports |
-| `src/services/pdfElements.ts` | SR-INSPECT | element extraction |
-| `src/components/measure/MeasureView.tsx` | SR-INSPECT | Inspect's measurements and view |
-| `cli/src/index.ts` | SR-CLI | commands and options |
-| `cli/src/core/exit.ts` | SR-CLI | exit codes |
-| `cli/src/commands/` | SR-CLI | the command implementations |
-| `cli/verify/` | SR-TESTING | today's hand-run checks, ported into `npm test` by W-36 |
+| `packages/ui/src/services/exportReport.ts` | SR-REPORT-HTML | today's app HTML builder |
+| `packages/compare/src/reportHtml.ts` | SR-REPORT-HTML | today's CLI HTML writer |
+| `packages/ui/src/services/exportReport.ts::buildJsonReport` | SR-REPORT-JSON | today's app JSON builder |
+| `packages/compare/src/result.ts` | SR-REPORT-JSON | today's CLI JSON writer |
+| `packages/cli/src/core/manifest.ts` | SR-MANIFEST | today's manifest writer (generate) |
+| `packages/core/src/pdfCompare.ts` | SR-COMPARE | the page comparison |
+| `packages/compare/src/changes.ts` | SR-COMPARE | changes and the page rule |
+| `packages/ui/src/store/compareStore.ts` | SR-COMPARE | the Compare tab's loop and pairing |
+| `packages/spec/src/engine.ts` | SR-SPEC | the spec feature's headless surface |
+| `packages/ui/src/store/batchStore.ts` | SR-BULK-COMPARE | the Bulk tab's loop |
+| `packages/ui/src/services/batchExport.ts` | SR-BULK-COMPARE | the Bulk tab's exports |
+| `packages/core/src/pdfElements.ts` | SR-INSPECT | element extraction |
+| `packages/ui/src/components/measure/MeasureView.tsx` | SR-INSPECT | Inspect's measurements and view |
+| `packages/cli/src/index.ts` | SR-CLI | commands and options |
+| `packages/cli/src/core/exit.ts` | SR-CLI | exit codes |
+| `packages/cli/src/commands/` | SR-CLI | the commands the host still runs itself — `generate` |
+| `packages/cli/src/host.ts` | SR-NPM-PACKAGES | what a command module may use (decision 3) |
+| `packages/cli/src/core/discover.ts` | SR-NPM-PACKAGES | loading a command package by name (decisions 3–4) |
+| `packages/core/src/node/` | SR-NPM-PACKAGES | exit codes, `ToolError`, `fileFromPath` — shared across both bundles |
+| `packages/core/src/inspect.ts` | SR-INSPECT | `inspectCore` — elements, edge distances, line height (decision 1) |
+| `packages/core/src/report/inspectResult.ts` | SR-REPORT-JSON | `result.json` with `kind: "inspect"` |
+| `packages/core/src/report/inspectReportHtml.ts` | SR-REPORT-HTML | an inspect's `report.html` |
+| `packages/cli/src/commands/inspect.ts` | SR-INSPECT | `pdfsuite inspect` — a built-in of the host (decision 2) |
+| `scripts/bundle.mjs` | SR-NPM-PACKAGES | the one place that knows how to bundle pdf.js for Node |
+| `scripts/check-install.sh` | SR-NPM-PACKAGES | what an install gives you (§1) |
+| `packages/create/src/detect.ts` | SR-NPM-PACKAGES | new vs add vs refuse (decision 7) |
+| `packages/create/src/templates.ts` | SR-NPM-PACKAGES | every file a created app gets |
+| `packages/create/src/manifest.ts` | SR-NPM-PACKAGES | `.pdfsuite/installed.json` (decision 8) |
+| `scripts/check-create.sh` | SR-NPM-PACKAGES | a created app builds; add mode changes nothing else; the four sync rules |
+| `packages/create/src/sync.ts` | SR-NPM-PACKAGES | `--sync`, `--check`, `--restore` (decision 8) |
+| `packages/cli/verify/` | SR-TESTING | today's hand-run checks, ported into `npm test` by W-36 |
 | `work/samples/` | SR-TESTING | the sample set and its expected results |
 
 <!-- DESCRIBES-TABLE-END -->

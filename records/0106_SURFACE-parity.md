@@ -56,19 +56,19 @@ flowchart LR
 | Open a PDF | `loadPdf` | `loadPdf` | ✅ | core | — | — | W-13 (one opener) |
 | Compare one page | `comparePage` | `comparePage` | ✅ | core | — | — | — |
 | List the changes | `buildChanges` | `buildChanges` | ✅ | core | — | — | — |
-| Page pass/fail | `summaryPageDiffers` | `summaryPageDiffers` | ✅ | core | — | — | W-27 (one rule) |
-| Loop pages → pair result | Compare store and Bulk store, two loops | its own loop | ❌ three copies | core, `comparePair` | — | — | W-27 |
-| "Page changed" rule | `pageHasChange` (moved > 0.02″) | — | ❌ disagrees with pass/fail (> 2 px) | core, `pageVerdict` | — | — | W-27 |
-| Page pairing data | manual pairing | none | ❌ | core input | — | — | W-27, W-09 |
+| Page pass/fail | `pageVerdict` | `pageVerdict` | ✅ one rule in `@pdfsuite/compare` (W-27, 2026-11-06) | done | — | — | — |
+| Loop pages → pair result | `comparePair` | `comparePair` | ✅ one loop (W-27, 2026-11-06) — all three copies gone | done | — | — | — |
+| "Page changed" rule | `pageVerdict` | `pageVerdict` | ✅ the strip, Next change and the verdict agree (W-27, 2026-11-06); the 2–2.9 px band they disagreed about now counts as changed everywhere | done | — | — | — |
+| Page pairing data | `pages: PagePair[]` into `comparePair` | the same input, unused until `--pages` | 🟡 the shape is shared (W-27); the CLI passes it with **W-09** | core input | — | — | W-09 |
 | Pixel sensitivity, anti-aliasing | settings | flags | ⚠️ same defaults, separate controls | core value, recorded in `result.json` | each surface keeps its own control | — | W-27 |
-| Loop over many pairs | Bulk compare (its own loop) | none — `pdfsuite compare --each` coming | ❌ | core, `compareMany` — Bulk compare and `--each` both call it | — | — | W-27, W-09 |
+| Loop over many pairs | `comparePair` per pair | `comparePair` per pair | 🟡 `compareMany` exists (W-27); Bulk and `--each` adopt it with **W-09** | core, `compareMany` | — | — | W-09 |
 
 #### Reports and exports
 
 | step | app today | CLI today | shared today | where it lives | reason | ratified | closed by |
 |---|---|---|---|---|---|---|---|
-| `result.json` | JSON export, its own shape | its own JSON writer | ❌ | core builder; both emit it | — | — | W-27 |
-| `report.html` | `buildHtmlReport` | own writer, reuses the app's CSS and page detail | ⚠️ | core builder; both emit it | — | — | W-27 |
+| `result.json` | `buildCompareResultJson` | `buildCompareResultJson` | ✅ one builder, proved byte for byte by `compare-parity.ts` (W-27, 2026-11-06) | done | — | — | — |
+| `report.html` | `buildHtmlReport` — richer: heatmap, annotations, ignored regions | `buildCompareReportHtml`, from `result.json` alone | 🟡 the CLI is on the shared builder (W-09, 2026-11-06); the tab's report shows what the result does not carry | core builder; both emit it | — | — | B-018 |
 | `manifest.json` | — | coming in W-09 | ❌ | core builder; both emit it | — | — | W-27, W-09 |
 | Markdown fix-list | export (flag off) | dropped by W-09 | app only | UI only | the CLI writes three files only | Arpit, 2026-10-18 | — |
 | CSV | export (flag off) | dropped by W-09 | app only | UI only, a view of `result.json` | spreadsheet convenience | Arpit, 2026-10-18 | — |
@@ -94,8 +94,8 @@ flowchart LR
 
 | step | app today | CLI today | shared today | where it lives | reason | ratified | closed by |
 |---|---|---|---|---|---|---|---|
-| Extract text, images, fonts with positions | `renderElements` | none | ❌ | core; `pdfsuite inspect` | — | — | W-28 |
-| Edge distances, line height | computed inside `MeasureView.tsx` | none | ❌ | core functions | — | — | W-28 |
+| Extract text, images, fonts with positions | `renderElements` | `renderElements` | ✅ one extractor (W-28, 2026-11-06) | done | — | — | — |
+| Edge distances, line height | `inspectPage` | `inspectPage` | ✅ one measurement (W-28, 2026-11-06) — it had lived in `MeasureView.tsx`'s JSX, so there was nothing for a CLI to call; `inspect-parity.ts` diffs the two `result.json` byte for byte | done | — | — | — |
 | Document properties | none | none | ❌ | core; both | — | — | W-26 |
 | Hover, guides, selection | app | — | — | UI only | presentation | Arpit, 2026-10-18 | — |
 
@@ -129,9 +129,9 @@ L3 ([SR-LAW-3](0005_LAW-3-one-function-ui-and-cli.md)) requires one function per
 a ratified row for every difference. On 2026-10-18 the engine was shared but the page loop
 existed three times, "page changed" had two definitions, the reports had two writers per
 format, and Inspect and the spec check had no CLI at all — read from
-`cli/src/platform/engine.ts`, `cli/src/commands/compare.ts`, `cli/src/report/`,
-`src/store/compareStore.ts`, `src/store/batchStore.ts`, `src/services/exportReport.ts`,
-`src/components/measure/MeasureView.tsx` and `src/features/spec/`.
+`packages/cli/src/platform/engine.ts`, `packages/compare/src/cli/pair.ts`, `packages/core/src/report/`,
+`packages/ui/src/store/compareStore.ts`, `packages/ui/src/store/batchStore.ts`, `packages/ui/src/services/exportReport.ts`,
+`packages/ui/src/components/measure/MeasureView.tsx` and `packages/spec/src/`.
 
 ### Decision
 
@@ -152,7 +152,7 @@ format, and Inspect and the spec check had no CLI at all — read from
 ### Consequences
 
 - **Ratified:** every surface-only row, by Arpit on 2026-10-18 — through the Cowork session acting on his instruction to ratify what follows from L3's own test (`work/WORKLOG.md`, 2026-10-18). *Mark expected* holds only until W-07 rules on the `expected.json` ledger.
-- **Open:** W-27 (compare core and builders), W-28 (`pdfsuite inspect`), W-11
+- **Open:** W-27 (compare core and builders), W-11
   (`pdfsuite spec`), W-09, W-13, W-16, W-26 — named in the *closed by* column.
 - **Enforced today:** nothing mechanical; `B-013` names the missing check.
 
@@ -165,15 +165,15 @@ format, and Inspect and the spec check had no CLI at all — read from
 
 ### Reference (required)
 
-- [`cli/src/platform/engine.ts`](../cli/src/platform/engine.ts) — everything the CLI takes from the app
-- [`src/store/compareStore.ts`](../src/store/compareStore.ts) `computeAll`, `jump` · [`src/services/changes.ts`](../src/services/changes.ts) `pageHasChange`, `summaryPageDiffers`
+- [`packages/cli/src/platform/engine.ts`](../packages/cli/src/platform/engine.ts) — everything the CLI takes from the app
+- [`packages/ui/src/store/compareStore.ts`](../packages/ui/src/store/compareStore.ts) `computeAll`, `jump` · [`packages/compare/src/changes.ts`](../packages/compare/src/changes.ts) `pageHasChange`, `summaryPageDiffers`
 
 ### Veto condition
 
 **Reopen this decision if:** a step either surface performs has no row, or a row's
 *shared today* cell is wrong.
 
-**How to check it:** `grep -n "export" cli/src/platform/engine.ts src/features/spec/engine.ts` against the core rows; `grep -rn "comparePage(" src/store cli/src` against the page-loop row.
+**How to check it:** `grep -n "export" packages/cli/src/platform/engine.ts packages/spec/src/engine.ts` against the core rows; `grep -rn "comparePage(" src/store packages/cli/src` against the page-loop row.
 
 ---
 
@@ -185,9 +185,9 @@ format, and Inspect and the spec check had no CLI at all — read from
 
 **Code**
 
-- [`cli/src/platform/engine.ts`](../cli/src/platform/engine.ts) · [`cli/src/commands/compare.ts`](../cli/src/commands/compare.ts) · [`cli/src/report/`](../cli/src/report/)
-- [`src/store/compareStore.ts`](../src/store/compareStore.ts) · [`src/store/batchStore.ts`](../src/store/batchStore.ts) · [`src/services/exportReport.ts`](../src/services/exportReport.ts)
-- [`src/components/measure/MeasureView.tsx`](../src/components/measure/MeasureView.tsx) · [`src/features/spec/engine.ts`](../src/features/spec/engine.ts)
+- [`packages/cli/src/platform/engine.ts`](../packages/cli/src/platform/engine.ts) · [`packages/compare/src/cli/pair.ts`](../packages/compare/src/cli/pair.ts) · [`packages/core/src/report/`](../packages/core/src/report/)
+- [`packages/ui/src/store/compareStore.ts`](../packages/ui/src/store/compareStore.ts) · [`packages/ui/src/store/batchStore.ts`](../packages/ui/src/store/batchStore.ts) · [`packages/ui/src/services/exportReport.ts`](../packages/ui/src/services/exportReport.ts)
+- [`packages/ui/src/components/measure/MeasureView.tsx`](../packages/ui/src/components/measure/MeasureView.tsx) · [`packages/spec/src/engine.ts`](../packages/spec/src/engine.ts)
 
 **Project docs**
 

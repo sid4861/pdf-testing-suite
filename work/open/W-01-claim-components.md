@@ -5,8 +5,8 @@ description: "Opened at work-system setup so no component is unowned: every prod
 item: W-01
 filed: 2026-10-13
 filed_by: Arpit
-updated: 2026-10-18
-updated_by: Arpit
+updated: 2026-11-05
+updated_by: Siddharth
 ball: agent
 ---
 
@@ -57,8 +57,8 @@ the docs.
 
 | DoD | what | state |
 |---|---|---|
-| 1 · app | records for `src/` (and `index.html`, `vite.config.ts`, `tsconfig*`, `package*.json`, `flag.env`), split where decisions differ (e.g. feature flags, annotations, ignore-difference). **Spec paths done 2026-10-16:** SR-SPEC-INTAKE, SR-SPEC-CHECK, SR-CONSTANTS — moved to the sealed `src/features/spec/` by `main`'s spec separation; still unclaimed there: `sheetRead.ts`, `sheetSpec.ts` (likely SR-SPEC-INTAKE), `engine.ts`, `pdfjs.ts`, `index.ts`, `spec.css`, `README.md`. Also new on `main`: `pagePairs.ts`, `PagePairing.tsx`, `regionStore.ts`, `DataRegionLayer.tsx` | ⏳ |
-| 2 · CLIs | SR-CLI (accepted 2026-10-18) claims `cli/` — W-09 DoD 1; `cli-py/` was removed by W-03 on 2026-10-16 (SR-STACK-TYPESCRIPT) | ⏳ |
+| 1 · app | records for `src/` (and `index.html`, `vite.config.ts`, `tsconfig*`, `package*.json`, `flag.env`), split where decisions differ (e.g. feature flags, annotations, ignore-difference). **Spec paths claimed 2026-11-05 (W-04 DoD 7):** the fourteen files W-02 and W-04 added are in the Ownership table — intake, template, values, compile, validate, legacy, draft and outputs to SR-SPEC-INTAKE; pages, fonts, colour and the fix-list to SR-SPEC-CHECK; the three run files to SR-REPORT-JSON, SR-REPORT-HTML and SR-MANIFEST. `sheetRead.ts` and `sheetSpec.ts` were **deleted** (they violated SR-SPEC-INTAKE decision 8) and `specExport.ts` with them. Still unclaimed in that folder (now `packages/spec/`, W-32): `engine.ts`, `index.ts`, `cli/`, `spec.css`, `README.md` — `pdfjs.ts` was deleted with W-32. Also new on `main`: `pagePairs.ts`, `PagePairing.tsx`, `regionStore.ts`, `DataRegionLayer.tsx` | ⏳ |
+| 2 · CLIs | SR-CLI (accepted 2026-10-18) claims `packages/cli/` — W-09 DoD 1; `cli-py/` was removed by W-03 on 2026-10-16 (SR-STACK-TYPESCRIPT) | ⏳ |
 | 3 · static | records for `public/` and `tools/` (`public/samples/spec-sample.*` done 2026-10-16; the spec sample now lives in `work/samples/excel-spec-template-v2/`, owned by SR-SPEC-INTAKE) | ⏳ |
 | 4 · docs | `README.md`, `spec-standard.md` (done: SR-SPEC-INTAKE), `comparison.md`, `presentation-script.md`, `docs/ARCHITECTURE.md`, `docs/architecture/` owned by the record they describe, or a docs record | ⏳ |
 | 5 · strays | `.tmp-old-block.txt`, `.gitignore`, `.claude/launch.json` owned or removed (a removal is Siddharth's or Arpit's call) | ⏳ |

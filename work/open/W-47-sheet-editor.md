@@ -20,7 +20,7 @@ ball: agent
 | **Why** | Arpit: the Excel editor is part of sheetpane, used by pdfsuite |
 | **Done when** | On the fixture, a wrong unit is fixed in the browser, its error mark clears without a reload, and the saved workbook's SHA-256 is the one the next report records |
 | **Status** | 🟡 waiting · 0 of 5 DoD done |
-| **Waits on** | W-46 · sheetpane on npm (`mode="edit"` is in arpitarya/sheetpane, unpublished) |
+| **Waits on** | W-46 only — `mode="edit"` ships in `@sheetpane/grid` 0.5.1 (checked 2026-11-09) |
 | **Who** | `agent` · Sonnet |
 | **Record** | SR-SPEC-INTAKE (an edited workbook is validated like an uploaded one) |
 
@@ -55,7 +55,10 @@ named sheet pane. I'm working on it. It will be a dependency to the PDF suite."*
 
 ## Blockers
 
-- 🟡 W-46 · sheetpane on npm — `<sheetpane-excel mode="edit">` exists in the repo, not yet published (checked 2026-10-19).
+- 🟡 **W-46 only.** `<sheetpane-excel mode="edit">` is published — `@sheetpane/grid`
+  **0.5.1**, MIT, checked against the registry 2026-11-09 — so the dependency half of
+  this blocker is gone. What is left is W-46, which adds the sheet in View mode; this
+  item turns that sheet editable.
 
 ## Record affected
 
