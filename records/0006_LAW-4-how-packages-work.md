@@ -18,7 +18,7 @@ content_sha: ""
 ## §1 — For humans
 
 **pdfsuite is everything; a single package is a command line.** `npm create @pdfsuite`
-gives a team the whole product — a web app with Compare, Bulk compare, Spec and Inspect,
+gives a team the whole product — a web app with Compare, Compare · Many, Spec and Inspect,
 hostable at any URL, and the full CLI. Install only `@pdfsuite/compare` or
 `@pdfsuite/spec` in another repository and you get that capability on the command line,
 for Jenkins or any test suite — no UI.
@@ -62,7 +62,7 @@ list becomes.
 ### Decision
 
 1. **pdfsuite is everything.** `npm create @pdfsuite` delivers the whole product: the web
-   app (Compare, Bulk compare, Spec, Inspect) and the CLI — into a new app or an existing one.
+   app (Compare, Compare · Many, Spec, Inspect) and the CLI — into a new app or an existing one.
 2. **A domain package alone is a command line.** Installing `@pdfsuite/compare` or
    `@pdfsuite/spec` brings its CLI commands and its library, and never a UI.
 3. **One capability, one package.** Engine logic lives in `core` and the domain packages;

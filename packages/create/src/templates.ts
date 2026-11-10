@@ -161,19 +161,14 @@ export function newAppFiles(o: TemplateOptions): PlannedFile[] {
     type: 'module',
     scripts: {
       dev: 'vite',
-      // `vite build` alone, not `tsc --noEmit && vite build`.
-      //
-      // The @pdfsuite packages currently publish TypeScript **source** as
-      // their entry points, so `tsc` in a consumer's project type-checks our
-      // source with their compiler settings — and fails on things that are
-      // ours to fix, not theirs: missing `@types` for our dependencies, the
-      // `?url` import Vite resolves, `import.meta.env`. Vite strips the types
-      // without checking them, so the app builds and runs correctly.
-      //
-      // Filed as **B-022**: the packages should publish built JavaScript with
-      // declarations. When they do, `tsc --noEmit &&` belongs back in front of
-      // this, and `--sync` will put it there.
-      build: 'vite build',
+      // `tsc` first, then the bundle. It was `vite build` alone for one day
+      // (W-31): the packages published TypeScript source, so a consumer's
+      // compiler checked *our* code with *their* settings and reported our
+      // problems in their project. **W-52** made every package publish
+      // JavaScript with `.d.ts`, so this works again — and
+      // `scripts/check-create.sh` runs it against the packed tarballs,
+      // which is the only place the difference shows.
+      build: 'tsc --noEmit && vite build',
       preview: 'vite preview',
     },
     dependencies: {

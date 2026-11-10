@@ -9,8 +9,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "npm run build:packages && tsc -b && vite build",
+    "preview": "vite preview",
+    "build:packages": "npm run build --workspaces --if-present"
   },
   "dependencies": {
     "@sheetpane/import": "0.5.1",

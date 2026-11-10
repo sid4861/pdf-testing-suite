@@ -335,3 +335,24 @@ table.spec-checks tr.no td.ca { color: var(--red); }
   .sp-sheet { grid-template-columns: minmax(0, 1fr); }
   .sp-sheet sheetpane-errors { height: 260px; }
 }
+
+/* The cell an element came from, in its card head — the button that scrolls
+   the sheet to that row (W-46 DoD 5). Quiet until hovered: it is a way back
+   to the workbook, not the thing the card is about. */
+.sp-el-cell {
+  font: inherit;
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  cursor: pointer;
+}
+
+.sp-el-cell:hover,
+.sp-el-cell:focus-visible {
+  color: var(--indigo);
+  border-color: var(--indigo);
+}

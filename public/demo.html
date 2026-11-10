@@ -255,7 +255,7 @@
 <div class="hero">
   <div class="kicker">PDF Compare · QA Toolkit</div>
   <h1>Demo &amp; Walkthrough</h1>
-  <p>Everything the tool does, and how to use it — step by step. Two workspaces: <b>Compare 2 PDFs</b> (against a reference) and <b>Spec driven comparison</b> (against a JSON spec).</p>
+  <p>Everything the tool does, and how to use it — step by step. Two workspaces: <b>Compare</b> (against a reference) and <b>Specification</b> (against a JSON spec).</p>
   <div class="note-band"><b>Note</b> &nbsp;The panels below faithfully mirror the live application — they use the app's own styles, layout, and real example data, so this file explains the app even when you can't run it.</div>
 </div>
 
@@ -264,7 +264,7 @@
   <a href="#feat-compare">Compare features</a>
   <a href="#feat-spec">Spec features</a>
   <a href="#flow-compare">Walkthrough · Compare</a>
-  <a href="#flow-spec">Walkthrough · Spec driven comparison</a>
+  <a href="#flow-spec">Walkthrough · Specification</a>
 </div></nav>
 
 <!-- OVERVIEW -->
@@ -273,7 +273,7 @@
   <p class="lede">Pick a workspace from the tabs at the top of the app.</p>
   <div class="ws-cards">
     <div class="ws-card compare">
-      <span class="tag">Compare 2 PDFs</span>
+      <span class="tag">Compare</span>
       <h3>Reference vs recreation</h3>
       <p>You have an original PDF and a recreated one, and want to prove they match.</p>
       <ul>
@@ -283,7 +283,7 @@
       </ul>
     </div>
     <div class="ws-card spec">
-      <span class="tag">Spec driven comparison</span>
+      <span class="tag">Specification</span>
       <h3>PDF vs JSON spec</h3>
       <p>There's no reference PDF — only a spec describing what the page should contain.</p>
       <ul>
@@ -297,7 +297,7 @@
 
 <!-- COMPARE FEATURES -->
 <section id="feat-compare"><div class="wrap">
-  <h2><span class="num">02</span>Compare 2 PDFs — features</h2>
+  <h2><span class="num">02</span>Compare — features</h2>
   <p class="lede">Three lenses on the same pair of documents, plus review aids for long files.</p>
   <div class="feat-grid">
     <div class="feat"><div class="ic">📝</div><b>Word-level content diff</b><span>Added / removed / moved text on every page, reconstructed in reading order.</span></div>
@@ -313,7 +313,7 @@
 
 <!-- SPEC FEATURES -->
 <section id="feat-spec"><div class="wrap">
-  <h2><span class="num">03</span>Spec driven comparison — features</h2>
+  <h2><span class="num">03</span>Specification — features</h2>
   <p class="lede">Validate a generated PDF against a JSON spec, element by element.</p>
   <div class="feat-grid">
     <div class="feat"><div class="ic">📝</div><b>Text checks</b><span>Present · left · top · font size · exact/contains match.</span></div>
@@ -329,7 +329,7 @@
 
 <!-- WALKTHROUGH: COMPARE -->
 <section id="flow-compare"><div class="wrap">
-  <h2><span class="num">04</span>Walkthrough — Compare 2 PDFs</h2>
+  <h2><span class="num">04</span>Walkthrough — Compare</h2>
   <p class="lede">The example loads a deliberately complex 6-page invoice (Side A) vs a 5-page recreation (Side B).</p>
 
   <!-- step 1 -->
@@ -339,7 +339,7 @@
       <div class="device-body"><div class="app-ui">
         <div class="app-header">
           <div class="app-title">🔍 PDF Compare <span class="badge">QA</span></div>
-          <div class="ws-tabs"><button class="ws-t on">Compare 2 PDFs</button><button class="ws-t">Spec driven comparison</button></div>
+          <div class="ws-tabs"><button class="ws-t on">Compare</button><button class="ws-t">Specification</button></div>
           <div class="uploads">
             <div class="slot a"><span class="stag">A</span><div><div class="slabel">Side A · Original</div><div class="shint">Drop the reference PDF · browse</div></div></div>
             <div class="slot b"><span class="stag">B</span><div><div class="slabel">Side B · Recreated</div><div class="shint">Drop the generated PDF · browse</div></div></div>
@@ -581,7 +581,7 @@
 
 <!-- WALKTHROUGH: SPEC -->
 <section id="flow-spec"><div class="wrap">
-  <h2><span class="num">05</span>Walkthrough — Spec driven comparison</h2>
+  <h2><span class="num">05</span>Walkthrough — Specification</h2>
   <p class="lede">The example checks a 2-page statement (spec-sample.pdf) against spec-sample.json, with intentional deviations so every check type is shown.</p>
 
   <!-- step 1 -->
@@ -591,7 +591,7 @@
       <div class="device-body"><div class="app-ui">
         <div class="app-header">
           <div class="app-title">🔍 PDF Compare <span class="badge">QA</span></div>
-          <div class="ws-tabs"><button class="ws-t">Compare 2 PDFs</button><button class="ws-t on">Spec driven comparison</button></div>
+          <div class="ws-tabs"><button class="ws-t">Compare</button><button class="ws-t on">Specification</button></div>
         </div>
         <div class="subbar">
           <div class="uploads" style="max-width:480px">
@@ -671,7 +671,7 @@
 </div></section>
 
 <footer>
-  PDF Compare · Demo &amp; Walkthrough &nbsp;·&nbsp; Compare 2 PDFs + Spec driven comparison &nbsp;·&nbsp; runs entirely in your browser.
+  PDF Compare · Demo &amp; Walkthrough &nbsp;·&nbsp; Compare + Specification &nbsp;·&nbsp; runs entirely in your browser.
 </footer>
 
 </body>

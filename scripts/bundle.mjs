@@ -100,6 +100,11 @@ export async function bundle({ entry, outfile, external = [], banner = true }) {
     target: 'node20',
     format: 'esm',
     sourcemap: true,
+    // Resolve the workspace packages to their source (W-52). Without it
+    // esbuild takes `dist`, so the `?url` plugin and the pdfjs-legacy alias
+    // below never see the imports they exist for — and a stale `dist` ends
+    // up inside the published binary.
+    conditions: ['development'],
     // Native module — must stay external, cannot be bundled.
     external: ['@napi-rs/canvas', 'express', ...external],
     plugins: [urlSuffixPlugin, pdfjsLegacyPlugin],

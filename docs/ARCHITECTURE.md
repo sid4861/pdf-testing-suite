@@ -20,9 +20,9 @@ diagrams follow the code. Where the code disagrees with a record, the record win
 **Contents**
 
 - Part 1 · High level — [System overview](#system-overview) · [UI shell and state](#ui-shell-and-state) · [Feature flags](#feature-flags) · [Compare engine](#compare-engine-comparepage)
-- Part 2 · Each tab — [Compare](#compare--loading-scanning-and-navigation) · [Side by side](#side-by-side) · [Overlapping](#overlapping) · [View report](#view-report) · [Page pairing](#page-pairing) · [Export and Import ZIP](#export-menu-and-import-zip) · [Spec driven comparison](#spec-driven-comparison) · [Inspect](#inspect) · [Batch compare](#batch-compare)
+- Part 2 · Each tab — [Compare](#compare--loading-scanning-and-navigation) · [Side by side](#side-by-side) · [Overlapping](#overlapping) · [View report](#view-report) · [Page pairing](#page-pairing) · [Export and Import ZIP](#export-menu-and-import-zip) · [Specification](#spec-driven-comparison) · [Inspect](#inspect) · [Compare · Many](#batch-compare)
 - Part 3 · CLI — [Build and engine reuse](#how-the-cli-is-built-and-reuses-the-engine) · [`generate`](#pdfsuite-generate) · [`compare`](#pdfsuite-compare) · [`spec`](#pdfsuite-spec) · [Verdict rules: app vs CLI](#verdict-rules-app-vs-cli)
-- Part 4 · Target — [Packages and surfaces](#packages-and-surfaces-l3--l4) · [One compare core](#one-compare-core) · [The three output files](#the-three-output-files) · [The command line](#the-pdfsuite-command-line) · [Create, sync and hosting](#create-sync-and-hosting) · [Spec driven comparison, end to end](#spec-driven-comparison-end-to-end) · [Testing](#testing) · [The build order](#the-build-order)
+- Part 4 · Target — [Packages and surfaces](#packages-and-surfaces-l3--l4) · [One compare core](#one-compare-core) · [The three output files](#the-three-output-files) · [The command line](#the-pdfsuite-command-line) · [Create, sync and hosting](#create-sync-and-hosting) · [Specification, end to end](#spec-driven-comparison-end-to-end) · [Testing](#testing) · [The build order](#the-build-order)
 
 ---
 
@@ -41,9 +41,9 @@ flowchart LR
   subgraph BROWSER["Browser app · Vite + React 18"]
     SHELL["App.tsx<br/>workspace tabs + export corner"]
     WS1["Compare"]
-    WS2["Spec driven comparison"]
+    WS2["Specification"]
     WS3["Inspect"]
-    WS4["Batch compare"]
+    WS4["Compare · Many"]
     STORES["Zustand stores<br/>compare · annotation · ignore · region<br/>measure · batch"]
     SHELL --> WS1 & WS2 & WS3 & WS4
     WS1 & WS3 & WS4 --> STORES
@@ -92,17 +92,19 @@ flowchart LR
 - **`<PdfSuiteApp config={…}/>` is the whole surface:** `tabs`, `initialTab` and `flags`, all optional. Nothing in it can change what a comparison *finds* — that would be a decision living in the UI package, which L3 forbids.
 - **The workspace is plain `useState`** in [`PdfSuiteApp.tsx`](../packages/ui/src/PdfSuiteApp.tsx); each workspace owns one store, and Compare also uses the annotation, ignore and region stores.
 - **Two effects drive Compare:** compute the visible page; run a full scan automatically when the larger PDF has 60 pages or fewer.
-- **Stores meet in two places only:** Batch's "Open in Compare" (`adoptPair`) and Import ZIP (`adoptImported` + annotation `replaceAll`).
+- **Stores meet in two places only:** *Many*'s "Open" (`adoptPair`, which also switches the scope to *One*) and Import ZIP (`adoptImported` + annotation `replaceAll`).
 - **Feature flags are configuration, not a build-time edit.** The package owns the list and the defaults (all on); a host hands in what it wants changed. `flag.env` is still how *this* app does it: the shell reads the virtual module its own `vite.config.ts` synthesises and parses it with the package's `parseFlagEnv`. A package cannot read that module — the plugin is the host's.
-- **Tab names as the code has them today:** `Batch compare · Compare · Spec driven comparison · Inspect`. **W-06** (🔴, names owed Arpit's confirmation) proposes three tabs — **Compare** (One · Many) · **Specification** · **Inspect** — with Batch folded into Compare as *Many*.
+- **Three tabs, in this order: Compare · Specification · Inspect** — ruled by Siddharth on 2026-11-09 (**W-06**). Most-used first, and the order a tester reaches for them: a golden PDF exists → Compare; only a spec exists → Specification; dig into one PDF → Inspect.
+- **Comparing many pairs is Compare's *Many* scope**, not a fourth tab: it is the same question asked of a folder, and `compareMany` calls the same `comparePair`. A *One · Many* switch sits in Compare's sub-header, behind `FEATURE_BATCH_COMPARE`; "Open" on a pair loads it and switches to *One*. The internal ids keep the name `batch` — the store, the view, the CSS and the flag key — because renaming the key would silently reset an existing `flag.env`.
 
 ```mermaid
 flowchart TB
   classDef flag stroke-dasharray: 6 4
   SHELL["src/main.tsx — the app<br/>reads flag.env, renders PdfSuiteApp"] --> HEADER
   subgraph HEADER["@pdfsuite/ui · PdfSuiteApp.tsx"]
-    TABS["Workspace tabs, from config<br/>Batch compare · Compare<br/>Spec driven comparison · Inspect"]
-    RIGHT["Export corner<br/>Compare: Import ZIP + ExportMenu<br/>Batch: BatchExportMenu<br/>Spec: SpecExportMenu<br/>Inspect: nothing"]
+    TABS["Workspace tabs, from config<br/>Compare · Specification · Inspect"]
+    SCOPE["Compare's scope switch<br/>One · Many — flagged"]
+    RIGHT["Export corner<br/>Compare · One: Import ZIP + ExportMenu<br/>Compare · Many: BatchExportMenu<br/>Specification: SpecExportMenu<br/>Inspect: nothing"]
   end
   TABS -->|"ws state"| CWS & SWS & IWS & BWS
   CWS["Compare<br/>mode tabs: Side by side · Overlapping · View report<br/>SummaryChip · PageNavigator · PageStrip · PagePairing"]
@@ -152,7 +154,7 @@ flowchart LR
 |---|---|---|---|
 | annotations | `FEATURE_ANNOTATIONS` | true | comment pins in Side by side and Overlapping side-by-side |
 | exportZip | `FEATURE_EXPORT_ZIP` | true | ZIP bundle export |
-| batchCompare | `FEATURE_BATCH_COMPARE` | false | Batch compare workspace tab |
+| batchCompare | `FEATURE_BATCH_COMPARE` | false | Compare · Many workspace tab |
 | layoutSideBySide | `FEATURE_LAYOUT_SIDE_BY_SIDE` | false | side-by-side view inside Overlapping (otherwise it opens on Pixel diff) |
 | exportJsonCsv | `FEATURE_EXPORT_JSON_CSV` | false | JSON and CSV entries in every Export menu |
 | exportMarkdown | `FEATURE_EXPORT_MARKDOWN` | false | Markdown fix-list export and viewer tab |
@@ -392,7 +394,12 @@ flowchart LR
 
 Code: `ExportMenu.tsx` · `ImportBundleButton.tsx` · [`packages/ui/src/services/exportZip.ts`](../packages/ui/src/services/exportZip.ts) · [`packages/ui/src/services/importZip.ts`](../packages/ui/src/services/importZip.ts) · `exportMarkdown.ts`
 
-## Spec driven comparison
+## Specification
+
+- **The workbook is shown as a workbook** since **W-46** (2026-11-09): `@sheetpane/grid`'s `<sheetpane-excel>` and `<sheetpane-errors>`, with W-02's refusals and W-04's checks marked on the cells they came from. Arpit asked for this rather than a list — *a view that looks and feels like the sheet, with wrong and right highlighted*.
+- **Two review layers, not one list.** `validation` and `pdf` are replaced independently, so re-running a check leaves the refusals alone; the panel grows an **All · Validation · PDF check** switch of its own. Passes and not-checked cells are quiet until the panel's *On sheet* switch is on — a run makes hundreds of them.
+- **The mapping makes no judgment** ([`sheetMarks.ts`](../packages/spec/src/sheetMarks.ts)): a mark's severity is the one the engine already decided, and a finding with no cell to land on is dropped rather than guessed at. Each result mark carries `meta: { page, box, elementId }`, which is the whole of the sheet ↔ PDF correspondence — a cell selects its element on the page, and an element's cell button scrolls the sheet to that row.
+- **Nothing is uploaded:** sheetpane reads the file in the tab. That is what lets a real workbook be shown without breaking *real spec workbooks never leave the spec machine*.
 
 > **A package, since W-32 (2026-11-06).** Everything below is `@pdfsuite/spec`
 > (`packages/spec/`) behind three barrels: the package name for the app, `/engine` for a
@@ -425,7 +432,9 @@ flowchart TB
   ISV2 -->|"yes"| RT["readTemplate<br/>Lists · Settings · Pages List · page sheets<br/>one cell, one fact · no default unit or edge"]
   RT --> CS["compileSpec<br/>every assertion with source {sheet, cell}<br/>every edge → a distance from the top-left<br/>+ coverage: checked · noted · excluded · unreadable"]
   RT & CS --> BV["buildValidationReport<br/>error · warning · info, each with its cell<br/>+ every assertion in plain words"]
-  BV --> VP["SpecValidation · shown before any PDF is opened"]
+  BV --> VP["SpecValidation · every accepted row in plain words"]
+  BV --> MK["sheetMarks · findings → marks on their own cells<br/>severity as the engine decided it · no judgment here"]
+  MK --> SHEET["SheetView · @sheetpane/grid<br/>&lt;sheetpane-excel&gt; + &lt;sheetpane-errors&gt;<br/>layers: validation · pdf"]
   BV -->|"error on the file or the Pages List"| STOP["the run stops"]
   LS --> VS["validateSpec · shape only"]
   LP & VS & CS --> SS[("specStore")]
@@ -444,6 +453,9 @@ flowchart TB
     DIS --> CTB["checkTable · edges · width · rows/cols"]
     DIS --> CP["checkParagraph · edges · line spacing"]
   end
+  CT & CI & CTB & CP --> MK2["sheetMarks · each check on the cell it came from<br/>meta: page · box · elementId"]
+  MK2 --> SHEET
+  SHEET <-->|"a cell selects its element · an element its cell"| OVR["the page, with its boxes"]
   PS["pageSizeResult · pinned → error, else warning"] -.-> ER
   ANC["Anchors · locate by a nearby label"] -.-> DIS
   TOL["Tolerances: the row's own → Settings → SR-CONSTANTS,<br/>in the row's own unit"] -.-> DIS
@@ -498,7 +510,7 @@ Code: `packages/ui/src/components/measure/MeasureView.tsx` · `packages/ui/src/s
 
 > **Watch.** Line height and edge distances are computed inside `MeasureView.tsx`, so no CLI can give the same numbers today ([SR-SURFACE-PARITY](../records/0106_SURFACE-parity.md) Inspect rows). Weight comes from the font *name*, so stripped names read "Regular" — **W-15**.
 
-## Batch compare
+## Compare · Many
 
 - **Add many PDFs to each side and pair them** — automatically by order or row by row. Pairs run in order, a page at a time.
 - **Raw pixel buffers are dropped once a page is scored;** only PNG data URLs are kept.
@@ -783,7 +795,7 @@ flowchart TB
 flowchart TB
   classDef plan stroke-dasharray: 2 3
   subgraph SURF["The two surfaces — same functions (L3)"]
-    UI["@pdfsuite/ui<br/>Compare · Bulk compare · Spec · Inspect<br/>React components + PdfSuiteApp"]
+    UI["@pdfsuite/ui<br/>Compare · Compare · Many · Spec · Inspect<br/>React components + PdfSuiteApp"]
     CLI["@pdfsuite/cli<br/>pdfsuite host · console · exit codes · files on disk<br/>built in: inspect · generate · agents init"]
   end
   subgraph DOM["Domain packages — one capability each (L4)"]
@@ -818,7 +830,7 @@ The install table, the sync rules and the hosting rule are [SR-NPM-PACKAGES](../
 
 ## One compare core
 
-- **`comparePair` is the only entry** for one pair; **`compareMany`** is the only loop for many — the Compare tab, the Bulk compare tab, `pdfsuite compare` and `--each` all call them ([SR-COMPARE](../records/0111_COMPARE.md), [SR-BULK-COMPARE](../records/0113_BULK-compare.md)).
+- **`comparePair` is the only entry** for one pair; **`compareMany`** is the only loop for many — Compare's **One** and **Many** scopes, `pdfsuite compare` and `--each` all call them ([SR-COMPARE](../records/0111_COMPARE.md), [SR-BULK-COMPARE](../records/0113_BULK-compare.md)).
 - **One page rule, `pageVerdict`,** replaces `pageHasChange` and `summaryPageDiffers`; its limits live in the constants file ([SR-CONSTANTS](../records/0103_CONSTANTS.md), **W-05**). Every knob that moves it is recorded in `result.json`.
 - **Pairing is an input** (`PagePair[]`) — the tab's editor and the CLI's `--pages` produce the same list; unpaired pages are reported as added or removed.
 - **Three pure builders return strings;** the app wraps them in a download, the CLI writes them to disk — so both produce the same files, and a parity test proves it byte for byte.
@@ -852,7 +864,7 @@ flowchart TB
   J & H --> M
   subgraph APP["the app"]
     T1["Compare tab · strip · Next change · chip"]
-    T2["Bulk compare tab"]
+    T2["Compare · Many scope"]
     DL["Export menu → download"]
   end
   subgraph CLIX["the CLI"]
@@ -967,7 +979,7 @@ flowchart LR
 
 Built by **W-33** (`ui`), **W-31** (`create`, both modes), **W-34** (`--sync`), **W-35** (any URL).
 
-## Spec driven comparison, end to end
+## Specification, end to end
 
 - **Excel is the truth.** A Template v2 workbook is loaded with sheetpane's `@sheetpane/import` (browser and Node) and read in TypeScript, validated with every problem named by its cell, and compiled to a spec JSON in which every value names its sheet and cell; a spec JSON uploaded directly is used as is ([SR-SPEC-INTAKE](../records/0101_SPEC-intake.md), **W-02**). No converter in another language; no LLM — deterministic and auditable.
 - **No guesswork (decision 7a).** One row, one value, one Unit cell from a closed list; a blank, in-value, unknown or disallowed unit — or `px` without a declared *Pixels per inch* — is an **error** that names the cell, never "probably inches". The legacy nested layout is only a migration input: it yields a draft v2 workbook for a person to confirm, never an assertion. The validation report, the plain-words preview and the annotated workbook are **W-48**; the in-place sheet view is **W-46**.

@@ -28,14 +28,13 @@
     "node": ">=20"
   },
   "files": [
-    "dist/index.js",
-    "dist/pdf.worker.mjs",
+    "dist",
     "src",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc --noEmit && node build.mjs",
+    "build": "tsc --noEmit && tsc -p tsconfig.build.json && node build.mjs",
     "prepublishOnly": "npm run build",
     "portable": "sh scripts/make-portable.sh",
     "mock-api": "node mock-api/server.js",
@@ -69,6 +68,7 @@
     "verify:spec-cli": "npm run build && node build.mjs --entry verify/spec-cli.ts --out .work/spec-cli.js && node .work/spec-cli.js",
     "verify:spec-blank": "node build.mjs --entry verify/spec-blank-template.ts --out .work/spec-blank-template.js && node .work/spec-blank-template.js",
     "verify:spec-marks": "node build.mjs --entry verify/spec-sheet-marks.ts --out .work/spec-sheet-marks.js && node .work/spec-sheet-marks.js",
+    "verify:spec-oracle-v": "node build.mjs --entry verify/spec-validation-oracle.ts --out .work/spec-validation-oracle.js && node .work/spec-validation-oracle.js",
     "prepack": "npm run build"
   },
   "dependencies": {
@@ -89,8 +89,16 @@
     "esbuild@0.24.2": true
   },
   "exports": {
-    ".": "./src/host.ts",
-    "./host": "./src/host.ts",
+    ".": {
+      "development": "./src/host.ts",
+      "types": "./dist/host.d.ts",
+      "default": "./dist/host.js"
+    },
+    "./host": {
+      "development": "./src/host.ts",
+      "types": "./dist/host.d.ts",
+      "default": "./dist/host.js"
+    },
     "./bin": "./dist/index.js"
   }
 }

@@ -4,14 +4,22 @@
   "description": "The rulebook check: read a Template v2 workbook or spec JSON, validate it, check a PDF against it, and report coverage.",
   "license": "MIT",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./engine": "./src/engine.ts",
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./engine": {
+      "development": "./src/engine.ts",
+      "types": "./dist/engine.d.ts",
+      "default": "./dist/engine.js"
+    },
     "./cli": "./dist/cli.js",
-    "./spec.css": "./src/spec.css",
-    "./schema/result.v1.json": "./src/schema/result.v1.json"
+    "./spec.css": "./dist/spec.css",
+    "./schema/result.v1.json": "./dist/schema/result.v1.json"
   },
   "files": [
     "src",
@@ -43,7 +51,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && node build.mjs",
-    "prepack": "node build.mjs"
+    "build": "tsc --noEmit && node copy-assets.mjs && tsc -p tsconfig.build.json && node build.mjs",
+    "prepack": "node copy-assets.mjs && tsc -p tsconfig.build.json && node build.mjs"
   }
 }

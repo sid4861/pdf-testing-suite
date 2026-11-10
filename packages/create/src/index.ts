@@ -216,9 +216,6 @@ function nextSteps(p: CreatePlan): string[] {
   // saw nothing happen should know nothing was going to happen either way.
   steps.push('Agent files for Claude, Kiro, Codex and Copilot arrive with '
     + '`pdfsuite agents init` (not built yet).');
-  if (p.target.mode === 'new') {
-    steps.push('`npm run build` is `vite build`: the @pdfsuite packages still publish '
-      + 'TypeScript source, so `tsc` would report our errors in your project (B-022).');
-  }
+
   return steps;
 }

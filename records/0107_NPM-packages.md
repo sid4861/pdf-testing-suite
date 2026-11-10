@@ -58,7 +58,7 @@ flowchart LR
 | `@pdfsuite/spec` | the rulebook check: read `.xlsx` / `.json`, validate, check, coverage; its CLI command | `core`, `cli` | `pdfsuite spec`, `pdfsuite-spec` |
 | `@pdfsuite/cli` | the `pdfsuite` host: arguments, console, exit codes, files; built-in `inspect`, `generate`, `agents init`; loads `compare` and `spec` | `core`, `agents` | `pdfsuite` |
 | `@pdfsuite/agents` | agent files for Claude, Kiro, Codex and Copilot, from one source | — | used by `agents init` |
-| `@pdfsuite/ui` | the screens: Compare, Bulk compare, Spec, Inspect, as React components and one `<PdfSuiteApp/>` | `core`, `compare`, `spec`; React as a peer | a component library |
+| `@pdfsuite/ui` | the screens: Compare, Compare · Many, Spec, Inspect, as React components and one `<PdfSuiteApp/>` | `core`, `compare`, `spec`; React as a peer | a component library |
 | `@pdfsuite/create` | creates the app (new or existing), and syncs it on upgrade | — | `npm create @pdfsuite` |
 
 ### What you get
@@ -77,8 +77,8 @@ flowchart LR
 | tab | package |
 |---|---|
 | Compare | `@pdfsuite/compare` (`comparePair`) |
-| Bulk compare | `@pdfsuite/compare` (`compareMany` — the function `--each` calls) |
-| Spec driven comparison | `@pdfsuite/spec` |
+| Compare · Many | `@pdfsuite/compare` (`compareMany` — the function `--each` calls) |
+| Specification | `@pdfsuite/spec` |
 | Inspect | `@pdfsuite/core` |
 
 ---
@@ -105,7 +105,7 @@ the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
 4. **`compare` and `spec` each own a bin** — `pdfsuite-compare`, `pdfsuite-spec` — so a
    global install reaches the PATH; only `cli` owns `pdfsuite`.
 5. **Many pairs:** `pdfsuite compare --each <golden-dir> <candidate-dir>` pairs by relative
-   path and calls `compareMany` in one process — the same function Bulk compare calls; a
+   path and calls `compareMany` in one process — the same function Compare · Many calls; a
    golden or a candidate without a partner fails the run.
 6. **Each tab imports its package** (table above), and nothing else of another package
    than its public exports.
@@ -142,8 +142,8 @@ the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
 
 - **Open:** **W-10** (the agent files and publishing) and **W-35** (hosting at any URL).
   Everything else this record named has landed — W-09, W-27, W-29, W-30, W-31, W-32,
-  W-33 and W-34 — and what now stands between the suite and a first publish is
-  **B-022** (the packages ship TypeScript source) and the Node-floor ruling.
+  W-33, W-34 and W-52 — and what now stands between the suite and a first publish is
+  the **Node-floor ruling** alone.
 - **The workspace is real (2026-11-06, W-29):** `packages/core`, `compare`, `cli`, `agents`,
   `ui` and `create` are npm workspaces at one version, linked by npm and nothing else. The
   app, the spec feature and the CLI import `@pdfsuite/core` and `@pdfsuite/compare` **by
@@ -232,12 +232,36 @@ the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
   are normalised to `\n` first, because `core.autocrlf` is guaranteed to happen and
   guaranteed not to mean anything. Without it every file looks edited and an upgrade
   delivers nothing.
-- **The smoke test found a packaging defect: `tsc` does not work for a consumer.** Every
+- **Every package publishes JavaScript with declarations (2026-11-09, W-52).** `exports`
+  carries three conditions in this order: `development` → `src`, `types` → `dist/*.d.ts`,
+  `default` → `dist/*.js`. Conditions match in key order, so `development` is first on
+  purpose: this workspace, the CLI's esbuild and every `tsc` here set it and read
+  **source**, which keeps `npm run dev` and HMR as they were and means a stale `dist` can
+  never quietly become another package's types. A consumer sets no such condition and
+  gets the built files.
+- **`tsc` emits, not esbuild** — declarations are the whole point, and `tsc` is the only
+  thing that writes them. `?url` and `.css` imports pass through untouched, because they
+  are the consumer's bundler's to resolve; `ui` and `spec` copy their stylesheets into
+  `dist` so the emitted barrel's `import './styles.css'` finds one. The three entries
+  Node loads directly — `cli`'s binary and `compare`/`spec`'s command modules — stay
+  **esbuild bundles**, so `tsc` emits declarations only for those.
+- **What this buys, measured:** `scripts/check-create.sh` now runs `tsc --noEmit` inside
+  the created app and it is clean, with **no error reported inside a `@pdfsuite`
+  package**. Before it, eleven were — all of them ours, in somebody else's project. The
+  created app's `build` is `tsc --noEmit && vite build` again, and the root build makes
+  the packages first, so our own build exercises what a consumer gets rather than only
+  the source.
+- **Stated limit:** the emitted JavaScript uses extensionless relative imports
+  (`moduleResolution: bundler`), so `@pdfsuite/core`, `compare`, `spec` and `ui` are
+  **bundler-targeted** — Vite, esbuild, webpack. Everything Node loads directly is a
+  bundle, so no consumer we have is affected; a plain `node -e "import('@pdfsuite/core')"`
+  would need the extensions added at the source, which is a larger change than this item.
+- ~~**The smoke test found a packaging defect: `tsc` does not work for a consumer.** Every
   package publishes TypeScript *source* as its entry, so a consumer's `tsc` compiles our
   source with their settings and reports our problems in their project. A created app's
   `build` is therefore `vite build` alone, which works and is said in the file. Filed as
-  **B-022**, and it should land **before** anything is published — publishing a library
-  nobody can type-check against is worse than publishing a week later.
+  **B-022**, and it should land **before** anything is published.~~ — **done**, 2026-11-09
+  (W-52).
 - **Agent files are not written yet.** W-31's DoD 5 waits on **W-10**, which owns what a
   file for Claude, Kiro, Codex or Copilot contains and writes `pdfsuite agents init`.
   `create` parses `--no-agents` so the default does not change when W-10 lands, and says
@@ -245,6 +269,14 @@ the scope were unclaimed. `npm create @usr` runs `@usr/create` (npm docs).
 - **Still owed:** the Compare tab's richer HTML report, which shows what `result.json`
   does not carry — **B-018**. It lives in `@pdfsuite/ui`'s `services/exportReport.ts` now,
   which is the right place for a presentation-only report but still a second builder.
+- **Two third-party runtime dependencies, both Arpit's and both MIT** (2026-11-09, W-46):
+  `@sheetpane/import` reads the workbook (SR-SPEC-INTAKE decision 3) and `@sheetpane/grid`
+  shows it (W-46). Both are pinned **exactly to 0.5.1** in `@pdfsuite/spec` and bump
+  together: two versions of the same reader in one install is the `pdfjs-dist` mistake
+  again, in a package that parses the file a check is run against. Neither uploads
+  anything — the file is read in the browser tab — which is what lets the Specification
+  tab show a real workbook without breaking *real spec workbooks never leave the spec
+  machine*.
 - **Blocking publication:** `@sheetpane/import` declares `engines: node >=22` and this
   package publishes `>=20`. `spec` is the first command that depends on it, so the floor
   must rise to 22 or Arpit must lower sheetpane's — a ruling is in the queue (W-02 §Hazards).

@@ -13,7 +13,7 @@
  * which is the only way a spec gets corrected before it is trusted.
  */
 
-import type { IntakeNote } from './specIntake';
+import type { IntakeCode, IntakeNote } from './specIntake';
 import type { Extraction } from './specTemplate';
 import type { CompiledSpec, CoverageEntry, SourceCell } from './specCompile';
 import type { PdfSpec, SpecElement, SpecTolerance, SpecUnit } from './types';
@@ -47,6 +47,101 @@ export interface ValidationReport {
   coverage: CoverageEntry[];
   counts: CompiledSpec['counts'];
   assertions: ExplainedAssertion[];
+}
+
+/**
+ * One validation result, for every surface — W-48 DoD 1.
+ *
+ * `ValidationReport` above is how the tab has always read it: three lists,
+ * one per severity, because that is how it renders. This is the same
+ * findings in the shape anything *else* needs — one flat list of lines,
+ * each with its code, sheet and row, so a test, a CLI and the Validation
+ * sheet in an annotated workbook all read the same thing rather than three
+ * near-copies of it.
+ *
+ * It is derived, never stored. Two shapes of the same facts are fine; two
+ * sources of them are not.
+ */
+export interface ValidationLine {
+  severity: IntakeNote['severity'];
+  /** Which kind of refusal — the closed list in `specIntake.ts`. */
+  code?: IntakeCode;
+  /** The sheet's name, or `''` when the line is about the file. */
+  sheet: string;
+  /** 1-based, as Excel shows it; 0 when the line is not about one row. */
+  row: number;
+  /** `"F23"`, or `''`. */
+  cell: string;
+  message: string;
+}
+
+export interface ValidationResult {
+  workbook: { name: string; sha256: string | null; templateVersion: string | null };
+  lines: ValidationLine[];
+  /** Every row that *will* be checked, in plain words. */
+  assertions: ExplainedAssertion[];
+  coverage: CoverageEntry[];
+  counts: CompiledSpec['counts'];
+  /** An error on the file or the Pages List stops the run (decision 13). */
+  blocking: boolean;
+  blockedBecause: string | null;
+  totals: { errors: number; warnings: number; info: number; assertions: number };
+}
+
+/** `"F23"` → 23. A cell with no digits is not about a row. */
+function rowOf(cell: string | undefined): number {
+  const m = /(\d+)/.exec(cell ?? '');
+  return m ? Number(m[1]) : 0;
+}
+
+const lineOf = (n: IntakeNote): ValidationLine => ({
+  severity: n.severity,
+  ...(n.code ? { code: n.code } : {}),
+  sheet: n.sheet ?? '',
+  row: rowOf(n.cell),
+  cell: n.cell ?? '',
+  message: n.message,
+});
+
+/**
+ * The report, in the shape everything but the tab wants.
+ *
+ * Errors first, then warnings, then info — and within a severity, in the
+ * order the reader raised them, which is sheet order. A reader fixing a
+ * workbook works down it.
+ */
+export function toValidationResult(report: ValidationReport): ValidationResult {
+  const lines = [
+    ...report.errors.map(lineOf),
+    ...report.warnings.map(lineOf),
+    ...report.info.map(lineOf),
+  ];
+  return {
+    workbook: {
+      name: report.workbook,
+      sha256: report.sha256,
+      templateVersion: report.templateVersion,
+    },
+    lines,
+    assertions: report.assertions,
+    coverage: report.coverage,
+    counts: report.counts,
+    blocking: report.blocking,
+    blockedBecause: report.blockedBecause,
+    totals: {
+      errors: report.errors.length,
+      warnings: report.warnings.length,
+      info: report.info.length,
+      assertions: report.assertions.length,
+    },
+  };
+}
+
+/** The file written by `pdfsuite spec --validate-only --out <dir>`. */
+export const VALIDATION_SCHEMA = 'pdfsuite.validation/1';
+
+export function validationJsonText(result: ValidationResult): string {
+  return JSON.stringify({ schema: VALIDATION_SCHEMA, ...result }, null, 2) + '\n';
 }
 
 // ── plain words ───────────────────────────────────────────────────────

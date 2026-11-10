@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.emit.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"],
+    "lib": ["ES2022"],
+    // Declarations only: `dist/index.js` is esbuild's bundle, and the bin
+    // loads it with a bare `../dist/index.js` under Node, where `tsc`'s
+    // extensionless relative imports would not resolve.
+    "emitDeclarationOnly": true
+  },
+  "include": ["src"]
+}

@@ -3,6 +3,8 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    // Read sibling packages' source, not their built `dist` (W-52).
+    "customConditions": ["development"],
     "types": ["node"],
     "lib": ["ES2022"],
     "strict": true,

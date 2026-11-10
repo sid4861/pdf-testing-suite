@@ -20,7 +20,20 @@ import BatchView from './components/batch/BatchView';
 
 import { AUTO_SCAN_MAX_PAGES } from '@pdfsuite/core';
 
-export type Workspace = 'compare' | 'spec' | 'measure' | 'batch';
+/**
+ * The three tabs (W-06, ruled by Siddharth 2026-11-09).
+ *
+ * `batch` is **not** one of them any more: comparing many pairs is the same
+ * question as comparing one, so it is Compare's *Many* scope rather than a
+ * separate place to go. The internal id, the store and the view keep the
+ * name `batch` — renaming them would churn a dozen files to no one's
+ * benefit, and `FEATURE_BATCH_COMPARE` keeps its key so nobody's `flag.env`
+ * silently resets.
+ */
+export type Workspace = 'compare' | 'spec' | 'measure';
+
+/** Compare's two scopes: one pair, or every pair in two folders. */
+export type CompareScope = 'one' | 'many';
 
 /**
  * What a host may change without editing a component.
@@ -47,10 +60,18 @@ export interface PdfSuiteConfig {
 
 // Tab order and labels in one place: the header renders straight from this.
 const ALL_TABS: [Workspace, string][] = [
-  ['batch', 'Batch compare'],
+  // Most-used first, and the order a tester reaches for them: a golden PDF
+  // exists → Compare; only a spec exists → Specification; dig into one PDF
+  // → Inspect.
   ['compare', 'Compare'],
-  ['spec', 'Spec driven comparison'],
+  ['spec', 'Specification'],
   ['measure', 'Inspect'],
+];
+
+/** The scope switch's labels. Two plain words that pair; *bulk* is jargon. */
+const SCOPES: [CompareScope, string][] = [
+  ['one', 'One'],
+  ['many', 'Many'],
 ];
 
 /**
@@ -63,11 +84,9 @@ const ALL_TABS: [Workspace, string][] = [
  */
 function workspaceTabs(config: PdfSuiteConfig): [Workspace, string][] {
   const wanted = config.tabs;
-  return ALL_TABS.filter(([id]) => {
-    if (wanted && !wanted.includes(id)) return false;
-    if (id === 'batch' && !flags.batchCompare) return false;
-    return true;
-  }).sort((a, b) => (wanted ? wanted.indexOf(a[0]) - wanted.indexOf(b[0]) : 0));
+  if (!wanted) return ALL_TABS;
+  return ALL_TABS.filter(([id]) => wanted.includes(id))
+    .sort((a, b) => wanted.indexOf(a[0]) - wanted.indexOf(b[0]));
 }
 
 const MODE_TABS: [CompareMode, string, string][] = [
@@ -89,6 +108,7 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
   const [workspace, setWorkspace] = useState<Workspace>(
     () => config.initialTab ?? tabs[0]?.[0] ?? 'compare',
   );
+  const [scope, setScope] = useState<CompareScope>('one');
   const bothLoaded = useBothLoaded();
   const mode = useCompareStore((s) => s.mode);
   const setMode = useCompareStore((s) => s.setMode);
@@ -134,10 +154,12 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
     }
   }, [bothLoaded, summary, computingSummary, totalPages, computeAll]);
 
-  // The active workspace, with a disabled one folded back to Compare. Guarding
-  // here rather than at each use means a flag flip cannot strand the app on a
-  // tab that no longer exists.
-  const ws: Workspace = workspace === 'batch' && !flags.batchCompare ? 'compare' : workspace;
+  const ws: Workspace = workspace;
+  // *Many* is behind the same flag the Batch tab was. Folded back here rather
+  // than at each use, so turning the flag off cannot strand somebody in a
+  // scope that no longer exists.
+  const sc: CompareScope = scope === 'many' && !flags.batchCompare ? 'one' : scope;
+  const comparingMany = ws === 'compare' && sc === 'many';
 
   return (
     <div className="app">
@@ -153,7 +175,7 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
             </button>
           ))}
         </div>
-        {ws === 'compare' && bothLoaded && (
+        {ws === 'compare' && sc === 'one' && bothLoaded && (
           <div className="upload-row">
             <PdfUploadSlot side="A" label="Golden PDF" hint="Drop the golden PDF" />
             <PdfUploadSlot side="B" label="PDF to test" hint="Drop the PDF to test" />
@@ -163,11 +185,11 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
             Inspect has nothing to export, so it gets no button at all. */}
         {ws !== 'measure' && (
           <div className="header-right">
-            {ws === 'compare' && <ImportBundleButton />}
-            {ws === 'compare' ? (
-              <ExportMenu />
-            ) : ws === 'batch' ? (
+            {ws === 'compare' && sc === 'one' && <ImportBundleButton />}
+            {comparingMany ? (
               <BatchExportMenu />
+            ) : ws === 'compare' ? (
+              <ExportMenu />
             ) : (
               <SpecExportMenu />
             )}
@@ -179,10 +201,38 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
         <SpecTestView />
       ) : ws === 'measure' ? (
         <MeasureView />
-      ) : ws === 'batch' ? (
-        <BatchView onOpenCompare={() => setWorkspace('compare')} />
       ) : (
         <>
+          {/* Compare's own sub-header. The scope switch lives here and is
+              shown whether or not anything is loaded — it is how somebody
+              gets to *Many* in the first place. */}
+          {flags.batchCompare && (
+            <div className="subtoolbar scope-bar">
+              <div className="tabs" role="group" aria-label="How much to compare">
+                {SCOPES.map(([id, label]) => (
+                  <button
+                    key={id}
+                    className={`tab ${sc === id ? 'active' : ''}`}
+                    onClick={() => setScope(id)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <span className="scope-hint">
+                {sc === 'one'
+                  ? 'One golden PDF against one candidate.'
+                  : 'Every pair in two folders — open any pair to look at it on its own.'}
+              </span>
+            </div>
+          )}
+
+          {comparingMany ? (
+            // "Open" on a pair loads it here and switches to One, so the two
+            // scopes read as one thing rather than two tabs.
+            <BatchView onOpenCompare={() => setScope('one')} />
+          ) : (
+            <>
           {bothLoaded && (
             <>
               <div className="subtoolbar">
@@ -241,6 +291,8 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
               <CompareReport />
             )}
           </main>
+            </>
+          )}
         </>
       )}
     </div>

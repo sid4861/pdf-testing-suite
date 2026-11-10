@@ -24,6 +24,39 @@ entry is corrected by a new one. Distinct from `INTERVIEW.md`, which is the
 
 ---
 
+## 2026-11-09 — W-06: three tabs, and Compare grows a scope  ·  Claude Code (Opus 5)
+
+- **Asked:** *what is the next item* — then, mid-answer, *do w-06*.
+- **Done:** **W-06, all 6 DoD.** Took *"do w-06"* as the ruling the item had been waiting 22 days for: the proposal as written, no change to the names. Three tabs — **Compare · Specification · Inspect** — and comparing many pairs is Compare's **Many** scope rather than a fourth tab, behind `FEATURE_BATCH_COMPARE`, with "Open" on a pair switching to *One* and the export corner following the scope. Names rewritten across `README.md`, four `public/*.html` pages, four records, the glossary and ARCHITECTURE; SVGs 01, 02 and 20 re-rendered. The inbox row is gone.
+- **Decided / left open:** the item was filed as **Arpit's** to confirm and Siddharth ruled it — either decider rules alone, and a label Arpit wants different later is a one-line change and a re-render, which is cheaper than the tabs staying wrong for another three weeks. `Workspace` lost its `batch` id, which is a breaking change to `PdfSuiteConfig` and safe because nothing is published — a config naming a tab that no longer exists would be worse than a breaking type. Internal ids all keep the name `batch`, the flag key included: renaming it would silently reset an existing `flag.env`.
+- **Mistakes:** the blanket rename got three sentences wrong — "Compare · Many **tab**", when it is a scope — in two records and ARCHITECTURE, plus the `flag.env` comment. Each fixed by hand. A rename script is right about the words and wrong about the grammar around them, and the dry run is what showed it.
+- **Next:** **W-08** (the console shape), **W-36** (`npm test` on `node:test`), **W-43** (CI/CD) are the ready ones.
+
+---
+
+## 2026-11-09 — W-52: the packages publish JavaScript  ·  Claude Code (Opus 5)
+
+- **Asked:** *B-022* — the ruling to promote the backlog row and build it.
+- **Done:** filed **W-52** (B-022 left the backlog: a row leaves when it is paid), then built it, all 6 DoD. A shared `packages/tsconfig.emit.json` plus a `tsconfig.build.json` in each of the seven packages; `exports` with `development` → `src` first, then `types` and `default` → `dist`; `customConditions` in every tsconfig and `conditions` in `scripts/bundle.mjs` so the workspace and the CLI's esbuild still read source; stylesheets copied into `dist`; the three entries Node loads directly stay esbuild bundles. The created app's `build` is `tsc --noEmit && vite build` again, and `check-create.sh` grew to **76 checks**.
+- **The thing that matters:** in an app created from the packed tarballs, `tsc --noEmit` is **clean, with no error reported inside a `@pdfsuite` package**. It was eleven — every one of them ours, in somebody else's project. The Node-floor ruling is now the only thing between the suite and a first publish.
+- **Decided / left open:** **`publishConfig` was tried first and rejected** — keep `exports` on source, let npm rewrite it at publish. `npm pack` does not apply it (verified: the packed manifest kept `./src/index.ts`), so what is tested and what is published would have differed, which is worse than the problem. And the emitted JavaScript uses extensionless relative imports, so the four library packages are **bundler-targeted**; everything Node loads directly is a bundle, so no consumer we have is affected, and it is said in the record rather than left to be found.
+- **Mistakes:** an early `tsc` run without `outDir` emitted 48 `.js`/`.d.ts`/`.map` files **into `src/`** beside the sources. Removed — but `outDir` and `rootDir` cannot live in an extended tsconfig, because a relative path there resolves against the file it is written in, which is the lesson that cost those 48 files.
+- **Also:** everything through W-46 was committed as **`c3216aa` "spec driven"** by someone else while this session ran. Nothing was lost; W-52 sits on top. `LESSONS.md` already says to re-derive `git status` right before staging, and this is why.
+- **Next:** **W-08** (the console shape) or **W-35** (hosting at any URL).
+
+---
+
+## 2026-11-09 — W-46: the workbook as a workbook  ·  Claude Code (Opus 5)
+
+- **Asked:** *start W-46.*
+- **Done:** **DoD 1–4 of 6.** `@sheetpane/grid` 0.5.1 pinned in `@pdfsuite/spec`; `sheetMarks.ts` maps W-02's validation report and W-04's results onto the cells they came from, as two review layers; `SheetView.tsx` puts the sheet and the error panel in the tab; `verify/spec-sheet-marks.ts` (23 checks) proves every mark lands on a cell the workbook has. Verified in the browser with the errors workbook and the deviations PDF: 104 marks, and the panel reads **All · Validation 10 · PDF check 9** — DoD 4's switch, provided by sheetpane rather than built.
+- **Decided / left open:** the mapping makes **no judgment of its own** — a mark's severity is the one the spec engine already decided, and a mark with no cell is dropped rather than guessed at. The plain-words list stays below the sheet rather than being replaced by it: it says what marks cannot (every accepted row as a sentence) and it is W-48's contract.
+- **Mistakes:** three React 18 traps, each found by running it rather than reading it. `results="summary"` cannot be a JSX attribute at all — `@types/react` has `results?: number` on every element, so the type collapses to `never`. `className` on a custom element becomes a literal `classname=`, so the CSS matched nothing and the sheet rendered 1,690 px tall. And the JSX typings had to come in by triple-slash reference, because an ambient `.d.ts` nothing imports is loaded only by its own package's tsconfig. The test also caught a real bug I had written: validation marks were landing on a sheet instead of a cell, because an `IntakeNote` keeps `sheet` and `cell` apart while a `CheckResult` carries one qualified string.
+- **Then, same day:** **DoD 5 and most of 6.** The sheet and the page now point at each other, both ways through each mark's `meta` — one index, because deriving the correspondence twice is two answers waiting to disagree. The page→sheet affordance is the **cell reference as a button** in each element's card, not a clickable card: a card that reacts to a click is something only a mouse user discovers, and the cell is what somebody actually wants. Verified both directions in the browser. ARCHITECTURE's spec section and diagram redrawn, SR-SURFACE-PARITY given two UI-only rows, SR-NPM-PACKAGES naming both sheetpane packages pinned together, the register claiming the new files.
+- **Left:** DoD 6's Playwright test. Standing up Playwright as a side effect of a UI item is the browser-test item's job, and the mapping is already guarded headlessly by 23 checks — what is unguarded is the wiring, which was verified by hand and written into the item.
+
+---
+
 ## 2026-11-09 — is the spec tab actually working? · and W-46 re-balled  ·  Claude Code (Opus 5)
 
 - **Asked:** *is spec driven comparison fully coded and working in frontend?* — then *yes, re-ball W-46 and update the row.*

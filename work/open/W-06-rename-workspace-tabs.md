@@ -5,9 +5,9 @@ description: "Arpit, 2026-10-18: the workspace tabs — order, names, and Bulk c
 item: W-06
 filed: 2026-10-18
 filed_by: Arpit
-updated: 2026-10-18
-updated_by: Arpit
-ball: human
+updated: 2026-11-09
+updated_by: Siddharth
+ball: agent
 ---
 
 # W-06 — workspace tabs: order, names, and Compare's two scopes
@@ -19,8 +19,8 @@ ball: human
 | **What** | Three tabs in this order — **Compare · Specification · Inspect**; Bulk compare becomes Compare's **Many** scope beside **One**; *Spec driven comparison* becomes **Specification** |
 | **Why** | Arpit: better names, the best order, and Compare and Bulk compare should read as one thing |
 | **Done when** | The header shows the three tabs in order; Compare has a One · Many switch; every user doc, report footer and record says the new names; the build passes |
-| **Status** | 🔴 needs a ruling — Arpit confirms the names · 0 of 6 DoD done |
-| **Waits on** | Arpit confirming the names (inbox row) |
+| **Status** | 🟢 **6 of 6 DoD done 2026-11-09** · ruled by Siddharth the same day |
+| **Waits on** | nothing — ruled 2026-11-09 |
 | **Who** | `agent` · Sonnet |
 | **Record** | SR-BULK-COMPARE §1 · SR-SURFACE-PARITY · SR-NPM-PACKAGES · SR-LAW-4 wording — names only, no decision changes |
 
@@ -52,7 +52,17 @@ compare can seem like they are related? … Update the designs and the work item
 **Model:** Sonnet: labels, one segmented control and copy across known files; the build and a
 look at the header catch a slip.
 
-## The proposal — answered in the Cowork session of 2026-10-18, owed Arpit's confirmation
+## The ruling — Siddharth, 2026-11-09
+
+**Siddharth: *"do w-06"*** — the proposal below, as written, with no change to the names.
+
+Filed as Arpit's to confirm; either decider rules alone
+([SR-WORK-BLOCKERS](../../records/0056_WORK-blockers.md) decision 11), so this is the
+ruling and the inbox row is gone. A label Arpit wants different later is a one-line
+change and a re-render — cheap, and cheaper than the tabs staying wrong for another
+three weeks.
+
+## The proposal — answered in the Cowork session of 2026-10-18
 
 | today | proposed | why |
 |---|---|---|
@@ -68,12 +78,44 @@ Designs: the *PDF Suite — Proof redesign* canvas (Compare boards carry the sco
 
 | DoD | what | state |
 |---|---|---|
-| 1 · ruling | Arpit confirms or changes the names; this item re-balled 🟢 and its inbox row removed | ⏳ |
-| 2 · app | `packages/ui/src/PdfSuiteApp.tsx` `WORKSPACE_TABS` → `compare` · `spec` · `measure`, labels *Compare* · *Specification* · *Inspect*; Compare's sub-header gains a *One · Many* segmented control (hidden when `FEATURE_BATCH_COMPARE` is off); *Many* renders `BatchView`; "Open" on a pair switches to *One*; `batchExport.ts` footer and user-facing "Batch" text read *Many* | ⏳ |
-| 3 · user docs | `README.md`, `public/manual.html`, `public/demo.html`, `public/overview.html`, `public/presentation.html`: the new names and order | ⏳ |
-| 4 · records · glossary | user-facing names amended — SR-BULK-COMPARE §1 *Where you see it*, SR-SURFACE-PARITY section headings, SR-NPM-PACKAGES tab table, SR-LAW-4 §1 and decision 1 wording (tab list only), `docs/GLOSSARY.md`; record handles unchanged | ⏳ |
-| 5 · architecture | `docs/ARCHITECTURE.md` prose and Mermaid labels; SVGs 01, 02, 05, 10, 12 re-rendered | ⏳ |
-| 6 · check | `npm run build` passes; `sh scripts/check-boundary.sh` clean; the header seen with `FEATURE_BATCH_COMPARE` on and off | ⏳ |
+| 1 · ruling | Arpit confirms or changes the names; this item re-balled 🟢 and its inbox row removed | ✅ Siddharth, 2026-11-09 |
+| 2 · app | `packages/ui/src/PdfSuiteApp.tsx` `WORKSPACE_TABS` → `compare` · `spec` · `measure`, labels *Compare* · *Specification* · *Inspect*; Compare's sub-header gains a *One · Many* segmented control (hidden when `FEATURE_BATCH_COMPARE` is off); *Many* renders `BatchView`; "Open" on a pair switches to *One*; `batchExport.ts` footer and user-facing "Batch" text read *Many* | ✅ |
+| 3 · user docs | `README.md`, `public/manual.html`, `public/demo.html`, `public/overview.html`, `public/presentation.html`: the new names and order | ✅ |
+| 4 · records · glossary | user-facing names amended — SR-BULK-COMPARE §1 *Where you see it*, SR-SURFACE-PARITY section headings, SR-NPM-PACKAGES tab table, SR-LAW-4 §1 and decision 1 wording (tab list only), `docs/GLOSSARY.md`; record handles unchanged | ✅ |
+| 5 · architecture | `docs/ARCHITECTURE.md` prose and Mermaid labels; SVGs 01, 02, 05, 10, 12 re-rendered | ✅ |
+| 6 · check | `npm run build` passes; `sh scripts/check-boundary.sh` clean; the header seen with `FEATURE_BATCH_COMPARE` on and off | ✅ |
+
+## What landed — 2026-11-09
+
+- **Three tabs: Compare · Specification · Inspect.** `Workspace` is now those three ids;
+  `batch` is gone from the union, which is a change to `PdfSuiteConfig` and safe to make
+  because nothing is published yet — and a config naming a tab that no longer exists
+  would be worse than a breaking type.
+- **Compare has a *One · Many* switch** in its own sub-header, shown whether or not
+  anything is loaded, because that is how somebody reaches *Many* in the first place. It
+  is behind `FEATURE_BATCH_COMPARE`, and a scope folded back to *One* when the flag is
+  off, so flipping it cannot strand anybody somewhere that no longer exists.
+- **"Open" on a pair switches to *One*** with that pair loaded, which is what makes the
+  two scopes read as one thing.
+- **The export corner follows the scope**, not the tab: *Many* gets `BatchExportMenu`,
+  *One* gets `ExportMenu` and Import ZIP.
+- **Names everywhere a person reads them:** 33 lines across `README.md` and the four
+  `public/*.html` pages, 24 across four records, the glossary and ARCHITECTURE. SVGs 01,
+  02 and 20 re-rendered.
+
+### Verified in the browser, both ways
+
+With `FEATURE_BATCH_COMPARE` **off**: three tabs, no scope switch. **On**: the switch
+appears with *One* active and its hint; *Many* renders the bulk view with its own export
+menu and the hint changes to *"Every pair in two folders — open any pair to look at it on
+its own."*
+
+### Three sentences the blanket rename got wrong
+
+"Compare · Many **tab**" — it is a scope, not a tab — in SR-BULK-COMPARE twice and in
+ARCHITECTURE twice, plus the `flag.env` comment calling it a workspace tab. Each was
+rewritten by hand. A rename script is right about the words and wrong about the grammar
+around them.
 
 ## Out of scope, unless Arpit or Siddharth says otherwise
 
@@ -85,7 +127,7 @@ Designs: the *PDF Suite — Proof redesign* canvas (Compare boards carry the sco
 
 ## Blockers
 
-- 🔴 **Arpit confirms the names** — inbox row. Nothing else.
+- None. Ruled 2026-11-09.
 
 ## Record affected
 
@@ -96,8 +138,9 @@ substance; Arpit's confirmation is the ruling). W-01 owns the touched files unti
 
 ## Hazards
 
-- **The sealed folder:** `packages/spec/README.md` mentions "Batch compare". Do not edit
-  it from this machine; it changes on the other machine or not at all.
+- ~~**The sealed folder**~~ — settled: **W-32** made the spec feature an ordinary package
+  on 2026-11-06, so its README is edited here like anything else. It no longer mentions
+  the old name.
 - **Deep links:** W-35 adds hash routes per tab; *Many* needs its own route
   (`#/compare/many`) so a bookmark still lands there.
 - The touched files are W-01's, so commits stage `work/open/W-01-claim-components.md` too.

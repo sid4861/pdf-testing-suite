@@ -3,7 +3,7 @@ type: Standing Record
 kind: component
 name: SR-BULK-COMPARE
 title: "SR-BULK-COMPARE (0113) — how comparing many pairs works"
-description: "Many golden and candidate PDFs paired by name, each pair judged by SR-COMPARE through one compareMany function, orphans failing the run — the same in the Bulk compare tab and `pdfsuite compare --each`."
+description: "Many golden and candidate PDFs paired by name, each pair judged by SR-COMPARE through one compareMany function, orphans failing the run — the same in Compare's Many scope and `pdfsuite compare --each`."
 status: accepted
 date: 2026-10-18
 feature: compare many pairs
@@ -19,7 +19,7 @@ content_sha: ""
 
 **Point it at a folder of golden PDFs and a folder of candidates; it pairs them by name,
 compares every pair exactly as Compare would, and fails if any pair fails or any file has
-no partner.** The Bulk compare tab and `pdfsuite compare --each` run the same function,
+no partner.** Compare's **Many** scope and `pdfsuite compare --each` run the same function,
 `compareMany`.
 
 ```mermaid
@@ -49,7 +49,7 @@ flowchart LR
 | **Outputs** | `<out>/<pair-id>/` with that pair's three files; at `<out>/`, a `compare-many` `result.json`, an index `report.html` linking every pair, a `manifest.json` covering all |
 | **Exit code** | 0 all pass · 1 any fail or orphan · 2 broken |
 
-**Where you see it:** Bulk compare tab (feature flag today; "Open in Compare" hands a pair
+**Where you see it:** Compare's **Many** scope (feature flag today; "Open" on a pair hands it
 to the Compare tab); CLI — `pdfsuite compare --each golden/ candidate/ --out reports/`.
 
 ---

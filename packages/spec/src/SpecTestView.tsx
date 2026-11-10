@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSpecStore } from './specStore';
 import SpecValidation from './SpecValidation';
 import SheetView from './SheetView';
@@ -162,6 +162,51 @@ export default function SpecTestView() {
   );
   const sheetResults = useMemo(() => (report ? resultMarks(report) : []), [report]);
 
+  // ── the sheet and the page point at each other (DoD 5) ──────────────
+  //
+  // One index, both ways. A mark knows its cell and, through `meta`, the
+  // element and page it came from; that is the whole correspondence, and
+  // deriving it twice would be two answers to one question.
+  const [selectedCell, setSelectedCell] = useState<{ sheet: string; range: string } | null>(null);
+
+  const cellOfElement = useMemo(() => {
+    const m = new Map<string, { sheet: string; range: string }>();
+    // First wins: an element's rows are in workbook order, so the first is
+    // the one a person would scroll to.
+    for (const mark of sheetResults) {
+      const id = mark.meta?.elementId;
+      if (id && !m.has(id)) m.set(id, { sheet: mark.sheet, range: mark.range });
+    }
+    return m;
+  }, [sheetResults]);
+
+  const elementOfCell = useMemo(() => {
+    const m = new Map<string, { elementId: string; page: number }>();
+    for (const mark of sheetResults) {
+      if (!mark.meta) continue;
+      const key = `${mark.sheet}!${mark.range}`;
+      if (!m.has(key)) m.set(key, { elementId: mark.meta.elementId, page: mark.meta.page });
+    }
+    return m;
+  }, [sheetResults]);
+
+  /** A cell was picked on the sheet: show its element on the page. */
+  const onSheetSelect = useCallback((at: { sheet: string; range: string }) => {
+    const hit = elementOfCell.get(`${at.sheet}!${at.range}`);
+    if (!hit) return;
+    // The report's own page order, not the PDF's: `--pages` can bind them
+    // out of order, and the strip is indexed by the former.
+    const index = report?.pages.findIndex((p) => p.page === hit.page) ?? -1;
+    if (index >= 0) setPage(index);
+    setHovered(hit.elementId);
+  }, [elementOfCell, report, setPage]);
+
+  /** An element was picked on the page: select the cell it came from. */
+  const showCellFor = useCallback((elementId: string) => {
+    const at = cellOfElement.get(elementId);
+    if (at) setSelectedCell(at);
+  }, [cellOfElement]);
+
   // Auto-run when both a PDF and a spec are loaded.
   useEffect(() => {
     if (pdfDoc && spec && !report && !running) run();
@@ -235,6 +280,8 @@ export default function SpecTestView() {
           bytes={workbookBytes}
           validation={sheetValidation}
           results={sheetResults}
+          selected={selectedCell}
+          onSelect={onSheetSelect}
         />
       )}
 
@@ -495,6 +542,21 @@ export default function SpecTestView() {
                       <b>{e.label}</b>
                       <small>{e.detail}</small>
                     </div>
+                    {/* The cell, as a button rather than a clickable card:
+                        a card that reacts to a click is an affordance only a
+                        mouse user finds, and a keyboard user never reaches.
+                        This is also the thing somebody actually wants — the
+                        row to go and change. */}
+                    {cellOfElement.has(e.id) && (
+                      <button
+                        type="button"
+                        className="sp-el-cell"
+                        onClick={() => showCellFor(e.id)}
+                        title="Show this row in the workbook"
+                      >
+                        {cellOfElement.get(e.id)!.sheet}!{cellOfElement.get(e.id)!.range}
+                      </button>
+                    )}
                     <span className={`spec-badge ${e.status}`}>
                       {STATUS_LABEL[e.status]}
                     </span>

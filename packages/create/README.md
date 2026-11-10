@@ -111,11 +111,6 @@ customised on day one is not "behind", and must not fail your build forever.
 
 ## Known gaps
 
-- **`npm run build` is `vite build`, not `tsc --noEmit && vite build`.** The `@pdfsuite`
-  packages still publish TypeScript source, so `tsc` in your project type-checks *our*
-  source with *your* settings and reports our problems as yours. The app builds and runs
-  correctly; the fix is for the packages to publish built JavaScript with declarations,
-  filed as **B-022**.
 - **No agent files yet.** `--no-agents` is parsed so the default does not change later,
   but nothing is written: **W-10** owns what a file for Claude, Kiro, Codex or Copilot
   contains, and inventing four of them here would be guessing at content another item is

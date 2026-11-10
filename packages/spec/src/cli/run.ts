@@ -30,6 +30,9 @@ import {
   buildReportHtml,
   looksLegacy,
   writeBlankTemplate,
+  annotateWorkbook,
+  toValidationResult,
+  validationJsonText,
   type PdfSpec,
   type ValidationReport,
   type CompiledSpec,
@@ -78,6 +81,13 @@ interface ResolvedSpec {
   validation: ValidationReport | null;
   /** `true` when nothing can be checked against a PDF. */
   blocked: boolean;
+  /**
+   * The workbook exactly as it was read. Kept because the annotated
+   * workbook is *that file* with cells coloured, not a rebuilt one — a
+   * rebuild would lose the author's formatting, their notes column and
+   * their screenshots, which is most of what makes it theirs.
+   */
+  bytes?: Uint8Array;
 }
 
 /**
@@ -115,6 +125,7 @@ async function resolveSpec(file: string): Promise<ResolvedSpec> {
       compiled,
       validation,
       blocked: validation.blocking,
+      bytes: book.bytes,
     };
   }
 
@@ -181,7 +192,42 @@ export async function runSpecCommand(opts: SpecOptions): Promise<number> {
 
   if (opts.validateOnly) {
     const errors = resolved.validation?.errors.length ?? 0;
+
+    // With --out, the report is a pair of files as well as a console read:
+    // `validation.json` for anything that has to act on it, and the
+    // workbook back with its bad cells red for the person who has to fix
+    // them (W-48 DoD 5). Written even when there is nothing wrong — a CI
+    // job that keeps the clean report has something to diff next time.
+    if (opts.out && resolved.validation) {
+      const result = toValidationResult(resolved.validation);
+      fs.mkdirSync(opts.out, { recursive: true });
+      fs.writeFileSync(path.join(opts.out, 'validation.json'), validationJsonText(result));
+
+      const written = ['validation.json'];
+      if (resolved.bytes) {
+        const name = `${path.basename(opts.spec).replace(/\.[^.]+$/, '')}.annotated.xlsx`;
+        fs.writeFileSync(
+          path.join(opts.out, name),
+          await annotateWorkbook(resolved.bytes, resolved.validation),
+        );
+        written.push(name);
+      }
+      console.log('');
+      console.log(`  Written to ${opts.out}: ${written.join(' · ')}`);
+    } else if (opts.out) {
+      // A spec JSON has no workbook and no cells, so there is nothing to
+      // annotate and nothing a validation report would add.
+      console.log('');
+      console.log('  --out writes nothing for a spec JSON: there is no workbook to annotate.');
+    }
+
+    const counts = resolved.validation;
     console.log('');
+    if (counts) {
+      const n = (k: number, one: string) => `${k} ${one}${k === 1 ? '' : 's'}`;
+      console.log(`  ${n(counts.errors.length, 'error')} · ${n(counts.warnings.length, 'warning')}`
+        + ` · ${n(counts.info.length, 'note')} — ${n(counts.assertions.length, 'row')} will be checked`);
+    }
     if (errors > 0) {
       console.log(`${errors} row${errors === 1 ? '' : 's'} will not be checked until `
         + `${errors === 1 ? 'it is' : 'they are'} fixed. No PDF was opened (--validate-only).`);

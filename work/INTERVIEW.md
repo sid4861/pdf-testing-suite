@@ -192,6 +192,13 @@ nothing is reconstructed here after the fact. The state they left:
   in the first cut were invisible on the first upgrade and destructive on the second —
   an edit laundered into the record, a deletion forgotten, a `package.json` replaced
   wholesale. None would have been found by reading the code.
+- **The tabs are settled** (W-06, Siddharth 2026-11-09): **Compare · Specification ·
+  Inspect**, with many-pair comparison as Compare's **Many** scope. The judgment behind
+  it, which is Arpit's: comparing a folder is the same question as comparing a pair, so
+  it should not be somewhere else to go. One engine, one tab, a switch.
+- **Publishing is no longer blocked on the packaging** (W-52, same day): every package
+  ships built JavaScript with `.d.ts`, and a created app type-checks clean. The
+  **Node-floor ruling** is the only thing left.
 - **Owed before publishing:** the Node-floor ruling (`@sheetpane/import` wants `>=22`,
   pdfsuite publishes `>=20`). It bites only at publish, so it blocks W-10, not the work.
 - **Next:** **W-32** (`@pdfsuite/spec`, now unblocked by W-29) — which is also what lets

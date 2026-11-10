@@ -75,6 +75,20 @@ tar -tzf "$(tgz ui)" > "$SANDBOX/ui.list"
 grep -q 'package/src/styles.css' "$SANDBOX/ui.list"; ok 'ui ships its stylesheet' $?
 grep -q 'package/src/PdfSuiteApp.tsx' "$SANDBOX/ui.list"; ok 'and the component a shell mounts' $?
 
+# What W-52 added: every package ships built JavaScript **and** its types.
+# A tarball with no `.d.ts` is a package nobody can type-check against.
+for p in core compare spec ui; do
+  tar -tzf "$(tgz $p)" > "$SANDBOX/$p.list"
+  grep -q 'package/dist/index.d.ts' "$SANDBOX/$p.list"
+  ok "$p ships dist/index.d.ts" $?
+  grep -q 'package/dist/index.js' "$SANDBOX/$p.list"
+  ok "and dist/index.js beside it" $?
+done
+grep -q 'package/dist/styles.css' "$SANDBOX/ui.list"; ok 'ui ships its stylesheet in dist too' $?
+tar -tzf "$(tgz cli)" > "$SANDBOX/cli.list"
+grep -q 'package/dist/host.d.ts' "$SANDBOX/cli.list"; ok 'cli ships the host types a command package imports' $?
+grep -q 'package/src/host.ts' "$SANDBOX/cli.list"; ok 'and its source, for the development condition' $?
+
 CREATE_DIR="$SANDBOX/create-pkg"
 mkdir -p "$CREATE_DIR"
 tar -xzf "$(tgz create)" -C "$CREATE_DIR"
@@ -101,9 +115,19 @@ grep -q '@pdfsuite/ui' "$NEWAPP/src/main.tsx"; ok 'which mounts PdfSuiteApp from
 (cd "$NEWAPP" && npm i --silent $ALL >>"$SANDBOX/new.log" 2>&1 && npm i --silent >>"$SANDBOX/new.log" 2>&1) && r=0 || r=$?
 ok 'npm install succeeds from the packed packages' "$r"
 
+# `npm run build` is `tsc --noEmit && vite build` again (W-52). Before the
+# packages published declarations, `tsc` here reported eleven errors that
+# were *ours*, inside somebody else's project — which is the whole reason
+# this check installs from tarballs rather than trusting the workspace.
 (cd "$NEWAPP" && npm run build >>"$SANDBOX/new.log" 2>&1) && r=0 || r=$?
-ok 'npm run build succeeds — the app compiles and bundles' "$r"
+ok 'npm run build succeeds — the app type-checks and bundles' "$r"
 [ "$r" = "0" ] || tail -25 "$SANDBOX/new.log"
+
+(cd "$NEWAPP" && npx tsc --noEmit >"$SANDBOX/tsc.log" 2>&1) && r=0 || r=$?
+ok 'and `tsc --noEmit` on its own is clean' "$r"
+[ "$r" = "0" ] || head -12 "$SANDBOX/tsc.log"
+grep -q 'node_modules/@pdfsuite' "$SANDBOX/tsc.log" && r=1 || r=0
+ok 'with no error reported inside a @pdfsuite package' "$r"
 [ -f "$NEWAPP/dist/index.html" ]; ok 'and produces dist/index.html' $?
 
 # Every tab's code has to be in the bundle, or the app builds and shows three

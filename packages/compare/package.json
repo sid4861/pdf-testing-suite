@@ -4,10 +4,14 @@
   "description": "Golden against candidate: what changed on each page, how the pages pair up, and whether that is a failure.",
   "license": "MIT",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./cli": "./dist/cli.js"
   },
   "files": [
@@ -25,8 +29,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && node build.mjs",
-    "prepack": "node build.mjs"
+    "build": "tsc --noEmit && tsc -p tsconfig.build.json && node build.mjs",
+    "prepack": "tsc -p tsconfig.build.json && node build.mjs"
   },
   "bin": {
     "pdfsuite-compare": "./bin/pdfsuite-compare.mjs"

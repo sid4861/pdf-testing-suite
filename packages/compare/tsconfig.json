@@ -3,6 +3,8 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    // Read sibling packages' source, not their built `dist` (W-52).
+    "customConditions": ["development"],
     "types": ["node"],
     // DOM for *types only* — ImageData and the canvas types the page loop
     // names. Nothing DOM ships at runtime; the host installs the shim.

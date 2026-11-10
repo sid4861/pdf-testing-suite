@@ -33,6 +33,12 @@ export { compileSpec } from './specCompile';
 export type { CompiledSpec, CoverageEntry, SourceCell } from './specCompile';
 export { parseNumber, parseNumericValue, bandOf } from './specValues';
 export { buildValidationReport, explainSpec, coverageLine } from './specValidate';
+// The same findings in the shape everything but the tab reads (W-48).
+export {
+  toValidationResult, validationJsonText, VALIDATION_SCHEMA,
+  type ValidationResult, type ValidationLine,
+} from './specValidate';
+export { INTAKE_CODES, type IntakeCode } from './specIntake';
 // The legacy nested layout (W-02 DoD 4) — a draft workbook, never a spec.
 export { looksLegacy, readLegacy, parseProse, draftCounts } from './specLegacy';
 export type { LegacyDraft, DraftRow, DraftCell, Origin } from './specLegacy';

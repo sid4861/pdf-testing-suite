@@ -167,6 +167,8 @@ directions.
 | `packages/spec/src/SpecExportMenu.tsx` | SR-SPEC-CHECK | the spec tab's export menu |
 | `packages/spec/src/types.ts` | SR-SPEC-INTAKE | the spec JSON type |
 | `packages/spec/src/specIntake.ts` | SR-SPEC-INTAKE | the one workbook reader (decisions 1–6) |
+| `packages/spec/src/sheetMarks.ts` | SR-SPEC-INTAKE | findings → sheetpane marks, two layers (W-46) |
+| `packages/spec/src/SheetView.tsx` | SR-SPEC-CHECK | the workbook as a sheet, its cells marked (W-46) |
 | `packages/spec/src/specTemplate.ts` | SR-SPEC-INTAKE | Template v2 (decisions 7, 7a) |
 | `packages/spec/src/specValues.ts` | SR-SPEC-INTAKE | reading values (decisions 9, 11) |
 | `packages/spec/src/specCompile.ts` | SR-SPEC-INTAKE | the spec JSON, every value with its cell (decision 14) |
@@ -275,7 +277,8 @@ A component may be narrowed to symbols: `` `path::name,name` ``.
 | `packages/create/src/detect.ts` | SR-NPM-PACKAGES | new vs add vs refuse (decision 7) |
 | `packages/create/src/templates.ts` | SR-NPM-PACKAGES | every file a created app gets |
 | `packages/create/src/manifest.ts` | SR-NPM-PACKAGES | `.pdfsuite/installed.json` (decision 8) |
-| `scripts/check-create.sh` | SR-NPM-PACKAGES | a created app builds; add mode changes nothing else; the four sync rules |
+| `scripts/check-create.sh` | SR-NPM-PACKAGES | a created app **type-checks** and builds; add mode changes nothing else; the four sync rules |
+| `packages/tsconfig.emit.json` | SR-NPM-PACKAGES | the shared emit settings every package extends (W-52) |
 | `packages/create/src/sync.ts` | SR-NPM-PACKAGES | `--sync`, `--check`, `--restore` (decision 8) |
 | `packages/cli/verify/` | SR-TESTING | today's hand-run checks, ported into `npm test` by W-36 |
 | `work/samples/` | SR-TESTING | the sample set and its expected results |

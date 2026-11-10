@@ -14,7 +14,7 @@
  */
 
 import type { ImportedSheet } from '@sheetpane/import';
-import { cellRef, colName, type IntakeNote, type SpecWorkbook } from './specIntake';
+import { cellRef, colName, type IntakeCode, type IntakeNote, type SpecWorkbook } from './specIntake';
 import { parseNumericValue, type ParsedValue } from './specValues';
 
 // ── the shapes ────────────────────────────────────────────────────────
@@ -430,35 +430,51 @@ export function readPageSheet(
       continue;
     }
 
-    const bad = (col: number, message: string) => {
-      notes.push({ severity: 'error', sheet: sheet.name, cell: cellRef(r, col), message });
+    // A code as well as a message: the message is for the person reading
+    // the report, the code for everything else that has to act on the
+    // finding — the oracle, the Validation sheet, a rule over a batch of
+    // workbooks (W-48 DoD 1). The list is closed, in `specIntake.ts`.
+    const bad = (col: number, code: IntakeCode, message: string) => {
+      notes.push({ severity: 'error', code, sheet: sheet.name, cell: cellRef(r, col), message });
       row.usable = false;
     };
 
     // A label that is neither written nor covered by a merge is missing. The
     // reader never fills it in from the row above (decision 7).
-    if (!row.element) bad(COL.element, 'Element is blank and not covered by a merge.');
-    if (!row.group) bad(COL.group, 'Group is blank and not covered by a merge.');
+    if (!row.element) bad(COL.element, 'label-blank-outside-merge', 'Element is blank and not covered by a merge.');
+    if (!row.group) bad(COL.group, 'label-blank-outside-merge', 'Group is blank and not covered by a merge.');
 
     const rule = vocab.parameters.get(parameter.toLowerCase());
     if (!rule) {
-      bad(COL.parameter, `“${parameter}” is not on the Lists sheet, so there is no rule for what it may hold.`);
+      bad(COL.parameter, 'parameter-unknown', `“${parameter}” is not on the Lists sheet, so there is no rule for what it may hold.`);
       rows.push(row);
       continue;
     }
 
     // ── decision 7a · units are explicit, closed and checked ─────────
     if (UNIT_IN_VALUE.test(row.value)) {
-      bad(COL.value, `The unit belongs in the Unit cell: Value reads “${row.value}”.`);
+      bad(COL.value, 'unit-in-value', `The unit belongs in the Unit cell: Value reads “${row.value}”.`);
     }
     if (rule.unitRequired && !row.unit) {
-      bad(COL.unit, `“${rule.name}” needs a unit; the Unit cell is blank. There is no default.`);
+      bad(COL.unit, 'unit-missing', `“${rule.name}” needs a unit; the Unit cell is blank. There is no default.`);
     }
     if (row.unit && rule.unitsAllowed.length && !rule.unitsAllowed.includes(row.unit)) {
-      bad(COL.unit, `“${rule.name}” cannot be given in ${row.unit}; allowed: ${rule.unitsAllowed.join(', ')}.`);
+      // Two refusals, not one. A unit the suite has never heard of (`inch`)
+      // is a spelling to fix; a real unit this parameter does not take (`%`
+      // for a font size) is a different unit to choose. Reporting both as
+      // "cannot be given in inch; allowed: in, …" reads as nonsense, which
+      // is how the oracle found it.
+      const known = vocab.units.length === 0 || vocab.units.includes(row.unit);
+      if (known) {
+        bad(COL.unit, 'unit-disallowed',
+          `“${rule.name}” cannot be given in ${row.unit}; allowed: ${rule.unitsAllowed.join(', ')}.`);
+      } else {
+        bad(COL.unit, 'unit-unknown',
+          `${row.unit} is not a unit this suite knows; use one of ${vocab.units.join(', ')}.`);
+      }
     }
     if (row.unit === 'px' && settings.pixelsPerInch == null) {
-      bad(COL.unit, 'px needs “Pixels per inch” on the Settings sheet, which is blank.');
+      bad(COL.unit, 'px-without-density', 'px needs “Pixels per inch” on the Settings sheet, which is blank.');
     }
     // One cause, one message: a unit written into Value also makes it
     // "not a number", and reporting both would have the reviewer fix one
@@ -466,12 +482,12 @@ export function readPageSheet(
     const unitInValue = UNIT_IN_VALUE.test(row.value);
     if (rule.numberRequired && row.value && !unitInValue) {
       row.parsed = parseNumericValue(row.value, !!row.tolerance);
-      if (row.parsed.kind === 'error') bad(COL.value, row.parsed.message);
+      if (row.parsed.kind === 'error') bad(COL.value, row.parsed.code, row.parsed.message);
     } else if (row.value) {
       row.parsed = { kind: 'text', value: row.value };
     }
     if (rule.fromRequired && !row.from) {
-      bad(COL.from, `“${rule.name}” is measured from an edge; the From cell is blank. There is no default.`);
+      bad(COL.from, 'from-missing', `“${rule.name}” is measured from an edge; the From cell is blank. There is no default.`);
     }
 
     // A named colour has one hex, and the Lists sheet is where it is stated.
@@ -480,11 +496,11 @@ export function readPageSheet(
     if (rule.kind === 'colour' && row.notes) {
       const known = vocab.colours.get(row.notes.trim().toLowerCase());
       if (known && row.value && known.toUpperCase() !== row.value.trim().toUpperCase()) {
-        bad(COL.value, `${row.notes.trim()} is ${known} on the Lists sheet, not ${row.value.trim()}.`);
+        bad(COL.value, 'colour-name-mismatch', `${row.notes.trim()} is ${known} on the Lists sheet, not ${row.value.trim()}.`);
       }
     }
     if (row.check && vocab.checks.length && !vocab.checks.includes(row.check)) {
-      bad(COL.check, `Check? must be one of ${vocab.checks.join(', ')}; it reads “${row.check}”.`);
+      bad(COL.check, 'check-unknown', `Check? must be one of ${vocab.checks.join(', ')}; it reads “${row.check}”.`);
     }
 
     rows.push(row);

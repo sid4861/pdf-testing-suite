@@ -19,7 +19,7 @@ ball: agent
 | **What** | Add **sheetpane** (`@sheetpane/grid`) as a dependency; the Specification tab shows the uploaded workbook in `<sheetpane-excel>` (View mode) and `<sheetpane-errors>`, with validation and then pass/fail as marks on the cells |
 | **Why** | Arpit: after upload, not a list of what is wrong — a view that looks and feels like the sheet, with wrong and right highlighted; sheetpane is the separate component he is building for it |
 | **Done when** | The fixture workbook opens in sheetpane inside Specification with W-02's errors on their cells, then W-04's pass/fail after a check; selecting a cell highlights its element on the PDF page and back |
-| **Status** | 🟢 ready · 0 of 6 DoD done — unblocked 2026-11-09 |
+| **Status** | 🟢 **5 of 6 DoD done 2026-11-09** · DoD 6 part-done: the docs and the parity rows are in, its Playwright half waits on the browser-test harness item |
 | **Waits on** | nothing — `@sheetpane/grid` 0.5.1 is on npm (checked 2026-11-09); W-02 and W-04 give it cells |
 | **Who** | `agent` · Opus |
 | **Record** | SR-SPEC-INTAKE · SR-SPEC-CHECK (where results are shown) · SR-SURFACE-PARITY (UI-only row) · SR-NPM-PACKAGES (a third-party dependency) |
@@ -77,12 +77,82 @@ Written here so the two repos agree; sheetpane decides how in its own records.
 
 | DoD | what | state |
 |---|---|---|
-| 1 · dependency | `@sheetpane/grid` pinned exactly — **0.5.1**, the version `@sheetpane/import` is already pinned to — in `@pdfsuite/spec`'s `package.json` (the tab moved there with W-32); MIT checked against L2; SR-NPM-PACKAGES lists both as third-party runtime dependencies | ⏳ |
-| 2 · marks | one function maps W-02's validation report and W-04's results to sheetpane marks (`source.sheet`, `source.cell`); a test proves every mark lands on a cell sheetpane parsed | ⏳ |
-| 3 · validation view | after upload, sheetpane's sheet (View) and error component replace the list; sheet tabs carry counts | ⏳ |
-| 4 · results view | after a check, a *Validation · PDF check* switch shows pass/fail marks, with what the PDF measured | ⏳ |
-| 5 · sheet ↔ PDF | selecting a cell outlines its element on the PDF page; clicking a box selects its cell | ⏳ |
-| 6 · tests · docs | Playwright on the fixture (W-40), driving the sheet through `@sheetpane/testing`'s locators; `docs/ARCHITECTURE.md` spec diagram; SR-SURFACE-PARITY *sheet view* row (UI only) | ⏳ |
+| 1 · dependency | `@sheetpane/grid` pinned exactly — **0.5.1**, the version `@sheetpane/import` is already pinned to — in `@pdfsuite/spec`'s `package.json` (the tab moved there with W-32); MIT checked against L2; SR-NPM-PACKAGES lists both as third-party runtime dependencies | ✅ |
+| 2 · marks | one function maps W-02's validation report and W-04's results to sheetpane marks (`source.sheet`, `source.cell`); a test proves every mark lands on a cell sheetpane parsed | ✅ |
+| 3 · validation view | after upload, sheetpane's sheet (View) and error component replace the list; sheet tabs carry counts | ✅ |
+| 4 · results view | after a check, a *Validation · PDF check* switch shows pass/fail marks, with what the PDF measured | ✅ |
+| 5 · sheet ↔ PDF | selecting a cell outlines its element on the PDF page; clicking a box selects its cell | ✅ |
+| 6 · tests · docs | Playwright on the fixture (W-40), driving the sheet through `@sheetpane/testing`'s locators; `docs/ARCHITECTURE.md` spec diagram; SR-SURFACE-PARITY *sheet view* row (UI only) | 🟡 |
+
+## What landed — 2026-11-09 (DoD 1–4)
+
+- **`@sheetpane/grid` 0.5.1** pinned in `@pdfsuite/spec`, the same version as
+  `@sheetpane/import`. MIT, and nothing is uploaded — the file is read in the tab, which
+  matters more here than usual: a sheet viewer that posted the workbook anywhere would
+  break *real spec workbooks never leave the spec machine* whatever its licence said.
+- **`packages/spec/src/sheetMarks.ts`** — the join, and **no judgment of its own**: a
+  mark's severity is the one the spec engine already decided, and a mark with no cell to
+  land on is dropped rather than guessed at. Two layers (`validation`, `pdf`), so
+  re-running a check replaces one and leaves the other.
+- **`packages/spec/src/SheetView.tsx`** — the two elements in the tab, fed through a ref
+  because React 18 sets attributes only. The plain-words list stays underneath: it says
+  what the marks cannot (every *accepted* row as a sentence) and is W-48's contract.
+- **`verify/spec-sheet-marks.ts` — 23 checks.** It caught a real bug: all ten validation
+  marks were landing on a *sheet* instead of a cell, because an `IntakeNote` keeps
+  `sheet` and `cell` apart while a `CheckResult` carries one qualified `Sheet!A1`. Result
+  marks were fine, so only one side was wrong.
+
+### Verified in the browser
+
+The errors workbook and the deviations PDF, driven end to end: 104 marks in the pane,
+19 errors · 82 passes · 3 not checked, and the panel's header reads
+**All · Validation 10 · PDF check 9** — which is the *Validation · PDF check* switch DoD 4
+asks for, provided by sheetpane itself rather than built here.
+
+### Three React-18-isms, each found by running it
+
+1. `results="summary"` cannot be written as a JSX attribute: `@types/react` has carried
+   `results?: number` on every element since `<output>` had it, so the type collapses to
+   `never`. It is the default anyway; the attribute is gone and the reason is in the file.
+2. `className` on a custom element becomes a literal `classname=` attribute, so the CSS
+   matched nothing and the sheet rendered 1,690 px tall. Both elements are styled by tag
+   inside `.sp-sheet` now.
+3. The JSX tags come from `@sheetpane/grid/jsx` through a triple-slash reference in
+   `SheetView.tsx`, not a tsconfig `include` — this package is compiled by whoever imports
+   it, and an ambient `.d.ts` nothing imports is loaded only by its own tsconfig.
+
+## DoD 5 — both directions, 2026-11-09
+
+One index, both ways, built from the marks that already exist: `meta.elementId` says
+which element a row describes and `meta.page` which page it is on. Deriving the
+correspondence a second time would be a second answer waiting to disagree with the
+first.
+
+- **Sheet → page.** `sheetpane-select` finds the mark for that cell, moves the page
+  strip to *the report's* page order (not the PDF's — `--pages` can bind them out of
+  order) and highlights the element.
+- **Page → sheet.** Each element card carries its cell as a **button** (`1!E19`), which
+  scrolls the sheet to that row. A button rather than a clickable card: a card that
+  reacts to a click is an affordance only a mouse user finds, and the cell reference is
+  the thing somebody actually wants — the row to go and change.
+
+**Verified in the browser.** Clicking `1!E51` fired `sheetpane-select` with the right
+value (*"For internal planning use…"*). Selecting `2!E10` on the sheet moved the tab from
+PDF page 1 to page 2 and lit both overlay boxes for `left-sidebar-page-title`.
+
+## What is left
+
+**DoD 6's browser test only.** The ARCHITECTURE spec section and diagram are redrawn and
+re-rendered, SR-SURFACE-PARITY has its two UI-only rows (*the workbook as a sheet* and
+*sheet ↔ PDF*), SR-NPM-PACKAGES names both sheetpane packages as third-party runtime
+dependencies pinned together, and the register claims the two new files. What is missing
+is a Playwright test driving the sheet through `@sheetpane/testing`'s locators — the
+harness is the browser-test item, which has not started. Writing one here would mean
+standing up Playwright as a side effect of a UI item, which is that item's job.
+
+The 23-check `spec-sheet-marks.ts` covers the mapping itself headlessly, so what the
+browser test would add is the wiring: that a click on a cell really moves the page. That
+was verified by hand today and is written down above; it is not yet guarded.
 
 ## Blockers
 

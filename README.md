@@ -2,18 +2,18 @@
 
 A React app with four workspaces:
 
-- **Compare 2 PDFs** — compare a recreated PDF against a reference by **content** (text on every page),
+- **Compare** — compare a recreated PDF against a reference by **content** (text on every page),
   **layout** (pixel-level visual diff + precise text-position offsets), and a roll-up **pass/fail
   report** — then **export** the results.
-- **Spec driven comparison** — when there's no reference PDF, only a **JSON spec**, validate a generated PDF
+- **Specification** — when there's no reference PDF, only a **JSON spec**, validate a generated PDF
   against the spec (expected static text, image sizes/positions, table position/width, paragraph line
   spacing) with an annotated pass/fail report.
 - **Utilities** — load a single PDF, hover any element to highlight it, and click to inspect it. The
   **Position** sub-tab measures distance from the page edges (with guide lines) in inches; the **Font &
   paragraph** sub-tab reports a text run's font, size, weight/style, and line height.
-- **Batch compare** — add many PDFs to Side A and Side B, choose which A file pairs with which B file,
+- **Compare · Many** — add many PDFs to Side A and Side B, choose which A file pairs with which B file,
   and run every comparison in one go. See a per-pair pass/fail overview, drill into any pair (opens it in
-  **Compare 2 PDFs**), and export a combined **HTML / JSON / CSV** report covering all pairs' differences.
+  **Compare**), and export a combined **HTML / JSON / CSV** report covering all pairs' differences.
   The HTML export stays fully visual (rendered pages + pixel-diff heatmaps) even for large batches — raw
   pixel buffers are released after each page is scored, and images are downscaled/compressed at export
   time so file size stays manageable regardless of how many pairs or pages are included.
@@ -82,9 +82,9 @@ Report tab to see it flip to FAIL.
   (content ≥ %, pixels ≤ %, offset ≤ px), and shows an overall PASS/FAIL verdict. Rows drill into
   the Layout view.
 
-## Spec driven comparison (validate against a JSON spec)
+## Specification (validate against a JSON spec)
 
-Switch to the **Spec driven comparison** workspace when you don't have a reference PDF — only a design spec.
+Switch to the **Specification** workspace when you don't have a reference PDF — only a design spec.
 Upload the generated **PDF** and a **JSON spec**, and the checker validates the PDF against it,
 element by element, with an annotated pass/fail report you can export.
 
@@ -154,7 +154,7 @@ Features are switched on and off from **`flag.env`** at the repo root — plain 
 ```
 FEATURE_ANNOTATIONS=true          # click-to-comment pins
 FEATURE_EXPORT_ZIP=true           # "ZIP bundle" export entry
-FEATURE_BATCH_COMPARE=false       # the "Batch compare" workspace tab
+FEATURE_BATCH_COMPARE=false       # Compare's "Many" scope (the key keeps its old name)
 FEATURE_LAYOUT_SIDE_BY_SIDE=false # "Side by side" view in the Layout tab
 FEATURE_EXPORT_JSON_CSV=false     # "JSON" and "CSV" export entries
 ```
@@ -178,7 +178,7 @@ Diagrams of the app shell, every tab, the engine and each CLI command: [`docs/AR
 ```
 src/
   types/compare.ts              Shared interfaces (no React)
-  types/spec.ts                 Spec + result interfaces for "Spec driven comparison"
+  types/spec.ts                 Spec + result interfaces for "Specification"
   services/pdfCompare.ts        Compare engine: loadPdf, comparePage, diff/match/pixel helpers
   services/exportReport.ts      Compare JSON / CSV / HTML exporters
   services/specCheck.ts         Spec engine: extract text/images (points), evaluate elements

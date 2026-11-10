@@ -20,10 +20,12 @@ export type ParsedValue =
   | { kind: 'empty' }
   | { kind: 'error'; code: ValueErrorCode; message: string };
 
+/** A subset of `IntakeCode`: the refusals a *value* can earn on its own. */
 export type ValueErrorCode =
   | 'approximate-value'
   | 'number-expected'
-  | 'range-reversed';
+  | 'range-reversed'
+  | 'range-and-tolerance';
 
 /** Words that say "about". Any of them in a numeric cell is an error. */
 const APPROXIMATE = /(^|\s)(~|about|approx\.?|approximately|circa|ca\.|roughly|around)(\s|$)|~\s*\d/i;
@@ -103,7 +105,9 @@ export function parseNumericValue(raw: string, hasTolerance: boolean): ParsedVal
       if (hasTolerance) {
         return {
           kind: 'error',
-          code: 'number-expected',
+          // Its own code: "a range and a tolerance" is a different thing
+          // to fix from "that is not a number", and the oracle names it.
+          code: 'range-and-tolerance',
           message: `This row gives a range (${s}) and a Tolerance. A range is already the tolerance — give one or the other.`,
         };
       }

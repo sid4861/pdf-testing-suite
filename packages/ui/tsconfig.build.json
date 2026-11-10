@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.emit.json",
+  "compilerOptions": { "outDir": "dist", "rootDir": "src" },
+  "include": ["src", "../core/src/types/vite-shims.d.ts", "../core/src/types/import-meta-env.d.ts"]
+}

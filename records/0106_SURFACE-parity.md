@@ -49,7 +49,7 @@ flowchart LR
 **shared today:** ✅ one function · ⚠️ partly · ❌ separate or missing · — not applicable.
 **ratified:** a name and date, or **owed** — the decision sits in the inbox. No row is owed today.
 
-#### Compare and Bulk compare
+#### Compare and Compare · Many
 
 | step | app today | CLI today | shared today | where it lives | reason | ratified | closed by |
 |---|---|---|---|---|---|---|---|
@@ -99,7 +99,7 @@ flowchart LR
 | Document properties | none | none | ❌ | core; both | — | — | W-26 |
 | Hover, guides, selection | app | — | — | UI only | presentation | Arpit, 2026-10-18 | — |
 
-#### Spec driven comparison
+#### Specification
 
 | step | app today | CLI today | shared today | where it lives | reason | ratified | closed by |
 |---|---|---|---|---|---|---|---|
@@ -108,6 +108,8 @@ flowchart LR
 | Spec page → PDF page mapping | one-page mode, sheet ↔ page lists | not built | ❌ | core input (`--pages`) | — | — | W-11 |
 | Spec report, HTML and JSON | `exportSpecHtml` / `exportSpecJson`, tied to a download | not built | ❌ | a pure builder exported from `engine.ts` | — | — | W-11 (spec machine) |
 | Upload screen, highlights on the page | app | — | — | UI only | presentation | Arpit, 2026-10-18 | — |
+| The workbook as a sheet, its cells marked | `@sheetpane/grid` + `sheetMarks.ts` | — | — | UI only | showing a spreadsheet is presentation: the marks are a pure mapping of findings the engine already made, and the CLI writes the same findings into `result.json` and the annotated `.xlsx` | Arpit, 2026-10-18 (*not a list — a view that looks and feels like the sheet*) | — |
+| Sheet ↔ PDF: a cell selects its element, an element its cell | app, through each mark's `meta` | — | — | UI only | navigation | Arpit, 2026-10-18 | — |
 
 #### Opening files and delivering results
 

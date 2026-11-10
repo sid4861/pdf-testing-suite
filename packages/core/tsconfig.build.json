@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig.emit.json",
+  "compilerOptions": { "outDir": "dist", "rootDir": "src" },
+  // `src/types` holds the ambient `*?url` shim. It is compiled (the sources
+  // need it) and not emitted — `tsc` writes nothing for a `.d.ts` input — so
+  // it stays our problem and never reaches a consumer's global scope.
+  "include": ["src"]
+}

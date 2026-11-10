@@ -11,6 +11,30 @@ named here only as the failure that produced it. A lesson whose remedy is
 
 ---
 
+## 2026-11-09 — a path in an extended tsconfig resolves where it is *written*
+
+**What happened.** A shared `packages/tsconfig.emit.json` carried
+`"outDir": "dist", "rootDir": "src"`, and each package extended it. The first build
+reported every file as *not under rootDir `packages/src`* — and an earlier run, before
+`outDir` was set at all, had already written 48 `.js`, `.d.ts` and `.map` files **into
+`src/` beside the sources**, where they sat looking exactly like code somebody had
+committed.
+
+**Why.** A relative path in a tsconfig resolves against the file that *contains* it, not
+against the one doing the extending. So `dist` in `packages/tsconfig.emit.json` means
+`packages/dist`, for every package. Compiler options that name a path cannot be shared
+this way; the options that do not — `target`, `strict`, `declaration` — share fine.
+
+**The judgment.** Put `outDir` and `rootDir` in the leaf config, always, and say in the
+shared one why they are missing. More generally: when a build writes somewhere
+unexpected, check `git status` for files it wrote *outside* the output directory before
+re-running it. A build that half-failed usually left something behind, and the second
+run will not clean it up.
+
+**Cost:** 48 stray files and the few minutes to be sure none of them was real.
+
+---
+
 ## 2026-11-09 — a rule about not losing data has to be run twice
 
 **What happened.** `--sync` has four rules, and the one that matters is "never overwrite

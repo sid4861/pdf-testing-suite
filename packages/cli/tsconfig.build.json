@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.emit.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"],
+    // Declarations only. `dist/index.js` is esbuild's bundle — the binary —
+    // and `tsc` writing an unbundled one over it would publish a CLI that
+    // cannot start.
+    "emitDeclarationOnly": true
+  },
+  "include": ["src/host.ts", "src/core/exit.ts", "src/platform/pdf-log.ts"]
+}

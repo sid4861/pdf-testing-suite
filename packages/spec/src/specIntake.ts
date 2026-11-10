@@ -121,8 +121,50 @@ function fromImportError(err: ImportError): SpecIntakeError {
 
 // ── what was not read ─────────────────────────────────────────────────
 
+/**
+ * Every kind of refusal the reader can raise — a **closed** list
+ * (SR-SPEC-INTAKE decision 13, W-48 DoD 1).
+ *
+ * Closed on purpose. A code is what anything other than a human reads: the
+ * oracle test, the Validation sheet in the annotated workbook, and any rule
+ * somebody later writes over a batch of workbooks. Messages get reworded;
+ * codes do not, and adding one is a deliberate act rather than a typo in a
+ * string.
+ */
+export const INTAKE_CODES = [
+  // decision 7a — a unit is its own cell, from a closed list, never inferred
+  'unit-missing',
+  'unit-in-value',
+  'unit-unknown',
+  'unit-disallowed',
+  'px-without-density',
+  // the value itself
+  'number-expected',
+  'approximate-value',
+  'range-reversed',
+  'range-and-tolerance',
+  // the row's other cells
+  'from-missing',
+  'parameter-unknown',
+  'colour-name-mismatch',
+  'check-unknown',
+  'label-blank-outside-merge',
+  // the file and its sheets
+  'settings-unreadable',
+  'pages-list-unreadable',
+  'sheet-missing',
+  'template-version-unknown',
+] as const;
+
+export type IntakeCode = (typeof INTAKE_CODES)[number];
+
 export interface IntakeNote {
   severity: 'error' | 'warning' | 'info';
+  /**
+   * Which kind of refusal this is. Absent only on a note that is not one of
+   * the closed kinds — an `info` line about something skipped, say.
+   */
+  code?: IntakeCode;
   /** The sheet this is about, when it is about one. */
   sheet?: string;
   /** The cell or range, when it is about one. */
