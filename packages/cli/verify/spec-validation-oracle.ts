@@ -179,9 +179,14 @@ async function main() {
     beforeNames.every((n) => afterNames.includes(n)),
     `${beforeNames.length} → ${afterNames.length} parts`);
 
+  // What it adds is the Validation sheet and the four parts a cell comment
+  // needs. Anything else in this list would be the annotator having opinions
+  // about the rest of the workbook, which it must not have.
   const added = afterNames.filter((n) => !beforeNames.includes(n));
-  check('and what it added is sheet XML, nothing else',
-    added.every((n) => n.startsWith('xl/worksheets/')), added.join(', ') || 'nothing');
+  const allowedAdditions = /^xl\/(worksheets\/|comments\d+\.xml$|drawings\/vmlDrawing\d+\.vml$)/;
+  check('and what it added is the Validation sheet and the comment parts, nothing else',
+    added.every((n) => allowedAdditions.test(n)),
+    added.filter((n) => !allowedAdditions.test(n)).join(', ') || `${added.length} parts`);
 
   // Which parts changed, by content. The fewer the better, and each one
   // should be explainable in a sentence.
@@ -208,6 +213,41 @@ async function main() {
   check('and the author\'s own data parts are byte-identical',
     !changed.some((n) => n.startsWith('xl/media/') || n === 'docProps/core.xml'),
     changed.filter((n) => n.startsWith('xl/media/')).join(', ') || 'media untouched');
+
+  // The message has to be *on the cell*. A red cell with no sentence on it
+  // sends the person to another sheet to find out what is wrong.
+  const commentParts = afterNames.filter((n) => /^xl\/comments\d+\.xml$/.test(n));
+  check('each sheet with errors got a comments part',
+    commentParts.length === sheetsWithErrors.size,
+    `${commentParts.length} parts for ${sheetsWithErrors.size} sheets`);
+  check('and a VML drawing, without which Excel shows no comment at all',
+    afterNames.filter((n) => n.endsWith('.vml')).length === commentParts.length);
+  check('and the sheet rels that bind them',
+    afterNames.filter((n) => /^xl\/worksheets\/_rels\//.test(n)).length === commentParts.length);
+  const types = await after.files['[Content_Types].xml'].async('string');
+  check('and both are declared in [Content_Types].xml',
+    /Extension="vml"/.test(types) && /comments1\.xml/.test(types));
+
+  let commentRefs: string[] = [];
+  let commentText = '';
+  for (const n of commentParts) {
+    const xml = await after.files[n].async('string');
+    commentText += xml;
+    commentRefs.push(...[...xml.matchAll(/<comment ref="([A-Z]+\d+)"/g)].map((m) => m[1]));
+  }
+  check('one comment per error, and no others',
+    commentRefs.length === expected.errors.length, `${commentRefs.length} comments`);
+  check('each on the cell the error names',
+    expected.errors.every((e) => commentRefs.includes(e.cell)),
+    expected.errors.filter((e) => !commentRefs.includes(e.cell)).map((e) => e.cell).join(', '));
+  check('and carrying the message, not a code',
+    errors.every((l) => commentText.includes(l.message
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'))),
+    'the same sentence the person reads on screen');
+
+  // The hazard the item names: no inference leaks through a message.
+  check('and "assumed pt" appears nowhere in it',
+    !/assumed\s+pt/i.test(commentText));
 
   const sheetNames = await after.files['xl/workbook.xml'].async('string');
   check('a Validation sheet was added', /Validation/i.test(sheetNames));

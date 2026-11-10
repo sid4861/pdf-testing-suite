@@ -23,7 +23,7 @@ it, and do not read it top-down as a priority order.
 ## `unbuilt` — a ratified decision the code does not implement
 
 <!-- Ids are never reused. B-016 was issued twice (the PDF designer, and the
-     Compare tab's report); the second became B-018 on 2026-11-06. Next free: B-023.
+     Compare tab's report); the second became B-018 on 2026-11-06. Next free: B-024.
      B-022 left on 2026-11-09, promoted to W-52 — a row leaves when it is paid. -->
 
 | id | what is outstanding | named in | what closes it |
@@ -36,8 +36,9 @@ it, and do not read it top-down as a priority order.
 | B-016 | A PDF designer — `apps/designer`, `@pdfsuite/template`, `@pdfsuite/designer` (Arpit, 2026-10-18: "in future") | W-44 · SR-MONOREPO | a ruling to start it, then a `W-nn` |
 | B-017 | A PDF creator — `@pdfsuite/render`: template + data → PDF locally (Arpit, 2026-10-18: "in future") | W-44 · SR-MONOREPO | a ruling to start it, then a `W-nn` |
 | B-019 | `@pdfsuite/spec` styles itself with classes that now ship in `@pdfsuite/ui`. Narrowed by **W-33**: anyone rendering `<PdfSuiteApp/>` gets a styled Spec tab. What is left is installing `@pdfsuite/spec` **alone** and rendering `SpecTestView` yourself — `spec` cannot depend on `ui`, the dependency runs the other way | W-32 · W-33 · [`packages/spec/README.md`](../packages/spec/README.md) | a ruling: ship the shared classes from `core`, duplicate the handful `spec` uses, or state that the tab needs `ui` |
+| B-023 | **Warnings carry no code.** W-48 gave every *error* a code from the closed `INTAKE_CODES` list, so a script can branch on `px-without-density` instead of matching an English sentence. Warnings and notes still carry the sentence alone — which means `hidden-listed`, `formula-cell` and `merge-over-values`, all named in W-48's own DoD 1, have no machine-readable form | W-48 · [`packages/spec/src/specIntake.ts`](../packages/spec/src/specIntake.ts) | code the warnings too (the list is already closed, so it is additive), or rule that only errors are branched on and say so in SR-SPEC-INTAKE decision 13 — a ruling, then a `W-nn` |
 | B-021 | `@pdfsuite/ui`'s stylesheet defines `.card`, `.btn`, `.tabs`, `.chip` and friends as **global** class names. Dropped into a host application with its own CSS, they collide both ways | W-33 · [`packages/ui/src/styles.css`](../packages/ui/src/styles.css) | prefixing every class (a large mechanical rename), CSS modules, or a documented `@scope` — a ruling, then a `W-nn` |
-| B-020 | `specStore.loadExample()` fetches `samples/spec-sample.{pdf,json}` from the consumer's `public/` folder through `import.meta.env.BASE_URL` — an undocumented requirement on anyone installing the package, and the package's only assumption about the app around it | W-32 · `packages/spec/src/types/import-meta-env.d.ts` | bundling the sample into the package, or dropping *Load example* from the packaged tab — a ruling, then a `W-nn` |
+| B-020 | `specStore.loadExample()` fetches `samples/report-spec-with-errors.xlsx` and `samples/report-with-deviations.pdf` from the consumer's `public/` folder through `import.meta.env.BASE_URL` — an undocumented requirement on anyone installing the package, and the package's only assumption about the app around it | W-32 · `packages/spec/src/types/import-meta-env.d.ts` | bundling the sample into the package, or dropping *Load example* from the packaged tab — a ruling, then a `W-nn` |
 
 ---
 

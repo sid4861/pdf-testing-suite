@@ -475,6 +475,36 @@ Code, all under [`packages/spec/src/`](../packages/spec/README.md): `index.ts` �
 
 > **Watch.** `@sheetpane/import` declares `engines: node >=22` while `pdfsuite` publishes `node >=20` — a ruling is owed (**W-02** §Hazards). The HTML export inserts `units` unescaped (**W-04** DoD 1). Container fills, image content and rich-text per-word styles are named and unbuilt.
 
+### The validation report
+
+Nothing is checked against a PDF until the workbook itself reads. That pass is its
+own result, derived from the extraction every time rather than stored, so it cannot
+drift from the workbook:
+
+```
+readSpecWorkbook → readTemplate → compileSpec → buildValidationReport
+                                                      ↓
+                                            toValidationResult
+                                           ↙                  ↘
+                            the Specification tab        validation.json
+                            (counts, the lines by        (pdfsuite.validation/1)
+                             severity with their
+                             cells, every accepted       <stem>.annotated.xlsx
+                             row in plain words)         (red cells, comments,
+                                                          a Validation sheet)
+```
+
+Both surfaces run that one chain — the tab's two downloads and
+`pdfsuite spec <wb> --validate-only --out <dir>` produce the same bytes, which the
+oracle asserts rather than assumes (L3).
+
+Two things the report will not do. It **never guesses**: a row whose unit is blank, or
+whose `px` has no *Pixels per inch* to convert by, is an error — the message may name
+the likely fix, but the row yields no assertion and no default is assumed. And the
+annotator **never becomes a second reader**: it rewrites the XML parts it must by
+string and copies every other part of the zip byte for byte, so the author's
+formatting, notes and screenshots survive and no judgment of its own enters the file.
+
 ## Inspect
 
 - **One PDF; hover any text run or image to outline it, click to select it.**

@@ -508,6 +508,22 @@ pdfsuite spec ./report-spec.xlsx ./report.pdf --out ./reports/report
 | `--pages <map>` | `"1:2,2:3"` — spec page : PDF page, overriding the Pages List |
 | `--validate-only` | read the spec, report on it, open no PDF |
 
+With `--validate-only --out <dir>` the report is **two files** as well as a console read:
+
+| File | What it is for |
+|---|---|
+| `validation.json` | the whole report for something that has to act on it — schema `pdfsuite.validation/1`, every line with its sheet, row, cell and **code**, every accepted row in plain words, the coverage and the counts |
+| `<stem>.annotated.xlsx` | the workbook you uploaded, with each refused cell filled red and carrying its message as a cell comment, and a last **Validation** sheet listing every line — fix it in Excel and run it again |
+
+Both are written even when nothing is wrong: a CI job that keeps the clean report has
+something to diff next time. Two runs over the same workbook produce byte-identical
+JSON, so a committed report only changes when the workbook or the reader does.
+
+Each refusal carries a **code** from a closed list — `unit-missing`, `px-without-density`,
+`range-and-tolerance` and the rest — so a script can branch on the code and leave the
+English sentence to the person reading it. A code that is not on the list cannot be
+emitted; the list is `INTAKE_CODES`.
+
 **The spec is validated before any PDF is opened.** Every refused row names its own cell,
 so the fix is made in Excel rather than guessed at:
 

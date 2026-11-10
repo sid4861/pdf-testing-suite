@@ -256,9 +256,51 @@ function validationSheetXml(report: ValidationReport): string {
   }</sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>`;
 }
 
+/** A1 → zero-based row and column, which is what VML anchors speak in. */
+function cellIndex(ref: string): { row: number; col: number } | null {
+  const m = /^([A-Z]+)(\d+)$/.exec(ref.trim().toUpperCase());
+  if (!m) return null;
+  return { row: Number(m[2]) - 1, col: colIndex(m[1]) - 1 };
+}
+
 /**
- * The uploaded workbook with its error cells filled red and a Validation sheet
- * added. Returns the bytes; the original is not modified.
+ * The four parts a cell comment needs, for one sheet.
+ *
+ * `comments{n}.xml` holds the sentences; the VML drawing holds the yellow
+ * box Excel draws around one; the sheet's rels bind both to the sheet; and
+ * `<legacyDrawing>` at the end of the sheet points at the VML. Excel shows
+ * nothing if any of them is missing, which is why they are written together
+ * here rather than one at a time.
+ */
+function commentParts(
+  n: number,
+  cells: { cell: string; message: string }[],
+): { comments: string; vml: string; rels: string } {
+  const anchored = cells
+    .map((c) => ({ ...c, at: cellIndex(c.cell) }))
+    .filter((c): c is typeof c & { at: { row: number; col: number } } => c.at != null);
+
+  const comments = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<comments xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><authors><author>pdfsuite</author></authors><commentList>${
+    anchored.map((c) => `<comment ref="${c.cell.toUpperCase()}" authorId="0"><text><r><rPr><sz val="9"/><rFont val="Tahoma"/></rPr><t xml:space="preserve">${esc(c.message)}</t></r></text></comment>`).join('')
+  }</commentList></comments>`;
+
+  // One hidden shape per comment. `visibility:hidden` is what makes it a
+  // hover note rather than a box permanently covering the next column.
+  const shapes = anchored.map((c, i) => `<v:shape id="_x0000_s${1000 + n * 100 + i}" type="#_x0000_t202" style="position:absolute;margin-left:60pt;margin-top:2pt;width:260pt;height:60pt;z-index:${i + 1};visibility:hidden" fillcolor="#ffffe1" o:insetmode="auto"><v:fill color2="#ffffe1"/><v:shadow on="t" color="black" obscured="t"/><v:path o:connecttype="none"/><v:textbox style="mso-direction-alt:auto"><div style="text-align:left"></div></v:textbox><x:ClientData ObjectType="Note"><x:MoveWithCells/><x:SizeWithCells/><x:AutoFill>False</x:AutoFill><x:Row>${c.at.row}</x:Row><x:Column>${c.at.col}</x:Column></x:ClientData></v:shape>`).join('');
+
+  const vml = `<xml xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><o:shapelayout v:ext="edit"><o:idmap v:ext="edit" data="${n}"/></o:shapelayout><v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202" path="m,l,21600r21600,l21600,xe"><v:stroke joinstyle="miter"/><v:path gradientshapeok="t" o:connecttype="rect"/></v:shapetype>${shapes}</xml>`;
+
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdVml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing" Target="../drawings/vmlDrawing${n}.vml"/><Relationship Id="rIdCom" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="../comments${n}.xml"/></Relationships>`;
+
+  return { comments, vml, rels };
+}
+
+/**
+ * The uploaded workbook with its error cells filled red and carrying their
+ * message as a cell comment, and a Validation sheet added. Returns the
+ * bytes; the original is not modified.
  */
 export async function annotateWorkbook(
   original: Uint8Array,
@@ -285,19 +327,49 @@ export async function annotateWorkbook(
 
   // 2 · the error cells
   const parts = sheetParts(workbookXml, relsXml);
-  const bySheet = new Map<string, string[]>();
+  const bySheet = new Map<string, { cell: string; message: string }[]>();
   for (const e of report.errors) {
     if (!e.sheet || !e.cell) continue;
     const list = bySheet.get(e.sheet) ?? [];
-    list.push(e.cell);
+    list.push({ cell: e.cell, message: e.message });
     bySheet.set(e.sheet, list);
   }
+  let commentIndex = 0;
   for (const [sheet, cells] of bySheet) {
     const part = parts.get(sheet);
     if (!part) continue;
     let xml = await text(part);
     if (!xml) continue;
-    for (const cell of cells) xml = markCell(xml, cell, styled.index);
+    for (const c of cells) xml = markCell(xml, c.cell, styled.index);
+
+    // 2b · the message on the cell. Red says where; the comment says what,
+    // without leaving the row being fixed.
+    commentIndex += 1;
+    const n = commentIndex;
+    const made = commentParts(n, cells);
+    zip.file(`xl/comments${n}.xml`, made.comments);
+    zip.file(`xl/drawings/vmlDrawing${n}.vml`, made.vml);
+
+    // A sheet in these workbooks has no rels part of its own; if one ever
+    // does, its existing relationships are kept and ours appended.
+    const relsPart = part.replace(/^xl\/worksheets\//, 'xl/worksheets/_rels/') + '.rels';
+    const existing = await text(relsPart);
+    zip.file(relsPart, existing
+      ? existing.replace('</Relationships>', made.rels.slice(
+        made.rels.indexOf('>', made.rels.indexOf('<Relationships')) + 1,
+      ))
+      : made.rels);
+
+    // `legacyDrawing` is one of the last elements a worksheet may carry, so
+    // the end of the element is the one place it is always in schema order.
+    if (!/<legacyDrawing/.test(xml)) {
+      xml = xml.replace('</worksheet>', '<legacyDrawing r:id="rIdVml"/></worksheet>');
+    }
+    // The sheet now names a relationship, so it needs the r: namespace.
+    if (!/xmlns:r=/.test(xml)) {
+      xml = xml.replace('<worksheet ',
+        '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" ');
+    }
     zip.file(part, xml);
   }
 
@@ -317,7 +389,18 @@ export async function annotateWorkbook(
     '</Relationships>',
     `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="${partName.replace('xl/', '')}"/></Relationships>`,
   ));
-  zip.file('[Content_Types].xml', typesXml.replace(
+  // The comment parts must be declared too, or Excel calls the file corrupt
+  // rather than ignoring what it does not recognise.
+  let types = typesXml;
+  if (!/Extension="vml"/.test(types)) {
+    types = types.replace(/(<Types[^>]*>)/,
+      '$1<Default Extension="vml" ContentType="application/vnd.openxmlformats-officedocument.vmlDrawing"/>');
+  }
+  for (let n = 1; n <= commentIndex; n += 1) {
+    types = types.replace('</Types>',
+      `<Override PartName="/xl/comments${n}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml"/></Types>`);
+  }
+  zip.file('[Content_Types].xml', types.replace(
     '</Types>',
     `<Override PartName="/${partName}" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`,
   ));
@@ -354,6 +437,12 @@ export const MIME = {
 
 export const outputNames = {
   validation: (workbook: string) => `${stem(workbook)} — validation.html`,
+  /**
+   * The same report as a file something can read. Named `validation.json`
+   * rather than after the workbook so a CI job that keeps one per run has a
+   * stable name to diff; the CLI writes exactly this name under `--out`.
+   */
+  validationJson: (workbook: string) => `${stem(workbook)} — validation.json`,
   annotated: (workbook: string) => `${stem(workbook)} — validation.xlsx`,
   extraction: (workbook: string) => `${stem(workbook)} — extraction.json`,
   spec: (workbook: string) => `${stem(workbook)} — spec.json`,

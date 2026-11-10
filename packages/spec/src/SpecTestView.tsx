@@ -463,7 +463,7 @@ export default function SpecTestView() {
 
             <p className="empty-aside">
               <button className="btn quiet" onClick={loadExample} disabled={loadingExample}>
-                {loadingExample ? (<><span className="spinner" /> Loading…</>) : 'or load an example spec + PDF'}
+                {loadingExample ? (<><span className="spinner" /> Loading…</>) : 'or load an example workbook + PDF'}
               </button>
             </p>
           </div>

@@ -103,7 +103,8 @@ flowchart LR
 
 | step | app today | CLI today | shared today | where it lives | reason | ratified | closed by |
 |---|---|---|---|---|---|---|---|
-| Read the spec (`.xlsx` / `.json`) and validate it | `readWorkbook`, `sheetToSpec`, `validateSpec` | not built | ❌ | core, through `engine.ts` | — | — | W-11, W-02 |
+| Read the spec (`.xlsx` / `.json`) and validate it | `readSpecWorkbook`, `readTemplate`, `compileSpec`, `buildValidationReport` | the same four, through `pdfsuite spec` | ✅ one reader (W-48, 2026-11-10) | done | — | — | — |
+| **Validate the workbook, render its plain words, annotate it** | `SpecValidation` — counts, the lines by severity each with its cell, every accepted row in plain words, and two downloads | `pdfsuite spec <wb> --validate-only [--out <dir>]` — the counts line, `validation.json` and `<stem>.annotated.xlsx` | ✅ one function (W-48, 2026-11-10): `toValidationResult`, `validationJsonText` and `annotateWorkbook`, and the oracle asserts the CLI's lines are byte-identical to the tab's | done | — | — | W-48 |
 | Run the check | `runSpec` | not built | ❌ | core, through `engine.ts` | — | — | W-11 |
 | Spec page → PDF page mapping | one-page mode, sheet ↔ page lists | not built | ❌ | core input (`--pages`) | — | — | W-11 |
 | Spec report, HTML and JSON | `exportSpecHtml` / `exportSpecJson`, tied to a download | not built | ❌ | a pure builder exported from `engine.ts` | — | — | W-11 (spec machine) |

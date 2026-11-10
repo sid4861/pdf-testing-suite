@@ -197,6 +197,8 @@ directions.
 | `packages/cli/` | SR-CLI | `@pdfsuite/cli` — the `pdfsuite` command (claimed by W-09) |
 | `public/` | W-01 | static pages and samples — no record yet |
 | `public/samples/spec-sample.json` | SR-SPEC-CHECK | the in-app spec sample |
+| `public/samples/report-spec-with-errors.xlsx` | SR-SPEC-CHECK | the Specification tab’s *load an example* workbook — a copy of the W-48 fixture |
+| `public/samples/report-with-deviations.pdf` | SR-SPEC-CHECK | the PDF that example is checked against — a copy of the W-48 fixture |
 | `public/samples/spec-sample.pdf` | SR-SPEC-CHECK | the in-app spec sample |
 | `tools/` | W-01 | planning notes — no record yet |
 | `work/samples/excel-spec-template-v2/` | SR-SPEC-INTAKE | the spec sample: a Template v2 workbook (explicit units, merged labels, dropdowns, red cells), ten planted intake errors and their oracle, and the matching and deviating PDFs |

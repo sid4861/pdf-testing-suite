@@ -27,7 +27,9 @@ export default function SpecExportMenu() {
 
 
 
-  const take = (which: 'validation' | 'annotated' | 'extraction' | 'spec') => () => {
+  const take = (
+    which: 'validation' | 'validation-json' | 'annotated' | 'extraction' | 'spec',
+  ) => () => {
     void downloadOutput(which);
     setMenuOpen(false);
   };
@@ -60,8 +62,12 @@ export default function SpecExportMenu() {
             <>
               <div className="export-head">From the workbook</div>
               <button onClick={take('validation')}>
-                Validation report
+                Validation report (HTML)
                 <small>What was refused, and every assertion in plain words · HTML</small>
+              </button>
+              <button onClick={take('validation-json')}>
+                Validation report (JSON)
+                <small>The same lines as a file a script can read · JSON</small>
               </button>
               <button onClick={take('annotated')}>
                 Annotated workbook

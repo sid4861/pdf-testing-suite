@@ -17,6 +17,7 @@ import { buildReportHtml } from './specReportHtml';
 import { buildManifest, manifestText } from '@pdfsuite/core';
 import { buildFixList } from './specFixList';
 import { readTemplate, type Extraction } from './specTemplate';
+import { toValidationResult, validationJsonText } from './specValidate';
 import { compileSpec, type CompiledSpec } from './specCompile';
 import { buildValidationReport, type ValidationReport } from './specValidate';
 
@@ -95,7 +96,9 @@ interface SpecState {
   /** A blank Template v2 workbook to start a spec from (decision 7). */
   downloadBlankTemplate: () => Promise<void>;
   /** The four outputs of SR-SPEC-INTAKE decision 14. */
-  downloadOutput: (which: 'validation' | 'annotated' | 'extraction' | 'spec') => Promise<void>;
+  downloadOutput: (
+    which: 'validation' | 'validation-json' | 'annotated' | 'extraction' | 'spec',
+  ) => Promise<void>;
   /**
    * The three files of a run — `result.json`, `report.html`, `manifest.json`
    * — as one zip (SR-SPEC-CHECK decision 15), or the Markdown fix-list,
@@ -255,6 +258,14 @@ export const useSpecStore = create<SpecState>((set, get) => ({
     try {
       if (which === 'validation' && validation) {
         saveFile(outputNames.validation(name), validationReportHtml(validation), MIME.html);
+      } else if (which === 'validation-json' && validation) {
+        // The same lines the tab is showing and the CLI writes - one
+        // function behind both surfaces (L3), not a second rendering.
+        saveFile(
+          outputNames.validationJson(name),
+          validationJsonText(toValidationResult(validation)),
+          MIME.json,
+        );
       } else if (which === 'extraction' && extraction && compiled) {
         saveFile(outputNames.extraction(name), extractionJson(extraction, compiled), MIME.json);
       } else if (which === 'spec' && compiled) {
@@ -384,16 +395,27 @@ export const useSpecStore = create<SpecState>((set, get) => ({
   async loadExample() {
     set({ loadingExample: true });
     try {
+      // The Template v2 workbook, not the spec JSON that used to be here: a
+      // JSON skips the reader, the refusals, the sheet and the annotated
+      // workbook, which is most of what this tab is. And deliberately the
+      // copy *with* the ten planted errors — it shows both halves at once,
+      // ten refused rows naming their own cells and the 96 that are still
+      // checkable running through to a verdict. The clean workbook would
+      // validate silently and demonstrate only the second half.
       const base = import.meta.env.BASE_URL;
-      const [pdfRes, specRes] = await Promise.all([
-        fetch(`${base}samples/spec-sample.pdf`),
-        fetch(`${base}samples/spec-sample.json`),
+      const WORKBOOK = 'report-spec-with-errors.xlsx';
+      const PDF = 'report-with-deviations.pdf';
+      const [pdfRes, wbRes] = await Promise.all([
+        fetch(`${base}samples/${PDF}`),
+        fetch(`${base}samples/${WORKBOOK}`),
       ]);
-      if (!pdfRes.ok || !specRes.ok) throw new Error('Could not fetch the bundled spec example.');
+      if (!pdfRes.ok || !wbRes.ok) throw new Error('Could not fetch the bundled spec example.');
       const pdfBlob = await pdfRes.blob();
-      const specText = await specRes.text();
-      await get().loadPdfFile(new File([pdfBlob], 'spec-sample.pdf', { type: 'application/pdf' }));
-      get().loadSpecText(specText, 'spec-sample.json');
+      const wbBlob = await wbRes.blob();
+      await get().loadPdfFile(new File([pdfBlob], PDF, { type: 'application/pdf' }));
+      await get().loadSpecFile(new File([wbBlob], WORKBOOK, {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      }));
     } catch (err) {
       set({ errorSpec: err instanceof Error ? err.message : 'Failed to load example' });
     } finally {

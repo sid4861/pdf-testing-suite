@@ -11,6 +11,29 @@ named here only as the failure that produced it. A lesson whose remedy is
 
 ---
 
+
+## 2026-11-10 — "the pane cannot upload a file" is a statement about the pane
+
+I twice recorded the Specification tab as unverifiable because the browser pane
+cannot operate a native file picker, and shipped W-48's DoD 4 on a type-check and
+a byte-match instead. The picker is not the interface — the `change` handler is.
+
+```js
+const f = new File([await (await fetch(url)).arrayBuffer()], name, { type });
+const dt = new DataTransfer(); dt.items.add(f);
+input.files = dt.files;
+input.dispatchEvent(new Event('change', { bubbles: true }));
+```
+
+The dev server already serves the repository, fixtures included, so the file is a
+`fetch` away. This drives the same code path a drop or a picker does. The whole
+spec-driven chain then verified in one call — upload, validation, the sheet, the
+run against a PDF, the verdict, both downloads read back from the Blob.
+
+**The lesson is not the snippet.** "Not verified" is a true sentence that reads
+like a finding about the product when it is a finding about the method. Before
+writing one, say which of the two it is.
+
 ## 2026-11-09 — a path in an extended tsconfig resolves where it is *written*
 
 **What happened.** A shared `packages/tsconfig.emit.json` carried

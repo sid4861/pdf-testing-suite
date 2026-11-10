@@ -198,6 +198,39 @@ is the same kind of report written in Template v2 (the legacy-layout sample was 
     parsed, note, excluded or unreadable); the **spec JSON** (assertions only, each with
     `source: {sheet, cell}`, plus the workbook's SHA-256 and template version). The spec
     JSON download can be uploaded again directly.
+
+    **Built, 2026-11-10 (W-48).** Four things were open in the wording above and
+    are now settled:
+
+    - The validation report is **two files, not one**: the HTML a person reads
+      and `validation.json` for anything that has to act on it — schema
+      `pdfsuite.validation/1`, carrying the workbook's name, hash and template
+      version, every line, every assertion in plain words, the coverage and the
+      counts. The tab offers both; `pdfsuite spec <wb> --validate-only --out
+      <dir>` writes the same two files, `validation.json` and
+      `<stem>.annotated.xlsx`, and exits 2 when any line is an error.
+    - **Every refusal carries a code from a closed list** (`INTAKE_CODES` in
+      `specIntake.ts`): a caller can branch on `px-without-density` without
+      matching on an English sentence, and a new refusal cannot be invented
+      without being named there. The message stays the thing a person reads.
+    - The annotated workbook also puts **the message on the cell**, as a cell
+      comment, so the sentence is where the person is looking rather than on
+      another sheet. It is the uploaded file with parts rewritten by string:
+      the four plumbing parts, the sheets that carry an error, and the parts a
+      comment needs. No other part is re-serialised — the author's formatting,
+      their notes column and their screenshots come through byte for byte, and
+      the annotator makes **no judgment of its own**.
+    - The report is **derived, never stored**: `toValidationResult` builds it
+      from the extraction each time, so it cannot drift from the workbook. Two
+      builds of the same workbook are byte-identical, which is what makes a
+      committed report diffable.
+
+    The oracle is `packages/cli/verify/spec-validation-oracle.ts` (71 checks,
+    `npm run verify:spec-oracle-v` in `packages/cli`): it holds the reader to
+    `work/samples/excel-spec-template-v2/expected-validation.json` — ten planted
+    errors, each at its cell with its code, **and nothing else refused**, which
+    is the half that matters, because a validator that refuses a good row blocks
+    work that was fine.
 15. **Nobody hand-edits the JSON.** A correction goes into the workbook, or into a
     per-sheet overrides file checked in beside it.
 16. **Fixtures freeze the expected extraction and spec JSON** of the committed fictional

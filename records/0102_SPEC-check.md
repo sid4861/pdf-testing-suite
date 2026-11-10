@@ -7,7 +7,7 @@ description: "How the checker binds pages, reads the PDF, compares each assertio
 status: accepted
 date: 2026-10-16
 feature: spec check — a PDF against spec JSON
-owns: [packages/spec/src/specCheck.ts, packages/spec/src/specOutputs.ts, packages/spec/src/specStore.ts, packages/spec/src/SpecTestView.tsx, packages/spec/src/SpecExportMenu.tsx, public/samples/spec-sample.json, public/samples/spec-sample.pdf]
+owns: [packages/spec/src/specCheck.ts, packages/spec/src/specOutputs.ts, packages/spec/src/specStore.ts, packages/spec/src/SpecTestView.tsx, packages/spec/src/SpecExportMenu.tsx, public/samples/spec-sample.json, public/samples/spec-sample.pdf, public/samples/report-spec-with-errors.xlsx, public/samples/report-with-deviations.pdf]
 laws: [L0]
 timestamp: 2026-10-16T11:30:00+05:30
 content_sha: ""

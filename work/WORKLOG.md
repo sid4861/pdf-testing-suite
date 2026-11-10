@@ -24,6 +24,56 @@ entry is corrected by a new one. Distinct from `INTERVIEW.md`, which is the
 
 ---
 
+## 2026-11-10 — W-48: the validation report becomes a contract  ·  Claude Code (Opus 5)
+
+- **Asked:** *do w-48*.
+- **Done:** **W-48, all 7 DoD.** Every refusal now carries a code from the closed
+  `INTAKE_CODES` list, so a caller branches on `px-without-density` rather than matching an
+  English sentence. `toValidationResult` builds the whole report from the extraction each
+  time — derived, never stored — and `validationJsonText` emits it as
+  `pdfsuite.validation/1`, byte-identical across runs. `annotateWorkbook` now puts the
+  message **on the cell** as a comment, which is four more zip parts rather than one: Excel
+  shows nothing without the VML drawing, the sheet rels and the content-type declaration.
+  The tab gained *Validation report (JSON)*; `pdfsuite spec <wb> --validate-only --out
+  <dir>` writes `validation.json` and `<stem>.annotated.xlsx` and prints the counts line.
+  SR-SPEC-INTAKE decision 14 is marked built, SR-SURFACE-PARITY has the core row, and the
+  CLI README and ARCHITECTURE say what `--out` writes.
+- **Decided / left open:** the item's DoD 5 asked for exit **0/1/2**; SR-CLI already gave
+  `--validate-only` rows-that-will-not-be-checked the value **2**, so the code stayed and
+  the item was corrected — the record is the spec, not the work item. Two fields in DoD 1's
+  sketch were dropped on purpose: a line carries no `parameter` (it is already in the
+  message, and a second copy is a second source that can disagree) and an assertion carries
+  one `sentence` rather than `part`/`tolerance`/`unit`/`words` split apart. **Codes are on
+  errors only** — warnings still carry the sentence alone, filed as **B-023** so it reads as
+  a decision rather than an omission. The item's own Blockers still claimed
+  `packages/spec/src/` was sealed and *"this machine does not edit that folder"*; W-32
+  removed that on Siddharth's 2026-11-03 ruling and the folder is now the workspace package
+  `packages/spec/`, so the lines were corrected — what has not changed is that real spec
+  workbooks never leave the spec machine, which is a rule about data, not code.
+- **Mistakes:** the oracle found one of mine before I could ship it — `2!F71` writes `inch`,
+  and the reader refused it as `unit-disallowed`, producing *“cannot be given in inch;
+  allowed: in, mm, cm, pt, px, %”*: a message that lists the fix as allowed while rejecting
+  the typo. Read aloud it is nonsense, and a smoke test would have passed it. `unit-unknown`
+  is now separate. Two of my own checks were written stale and had to be loosened honestly
+  rather than deleted — a changed-parts count of five when eight parts legitimately change,
+  and an additions check that predated the comment parts; both now name what is allowed
+  instead of counting. I first wrote the tab off as unverifiable because the pane cannot
+  operate a file picker — which is not the same as the app not accepting a file. Fetching
+  the fixture from the dev server and setting `input.files` through a `DataTransfer` drives
+  the real `change` handler, and the whole path then checks out, downloads included. "Not
+  verified" was a true sentence standing in for an untested one.
+- **Also, asked after the demo question:** *make the load example link start from
+  work/samples/excel-spec-template-v2/*. Done — `loadExample` now fetches
+  `report-spec-with-errors.xlsx` + `report-with-deviations.pdf`, copied into `public/samples/`
+  because `public/` is the only folder that ships; serving them from `work/` would work in the
+  dev server, which happens to serve the repository, and nowhere else. Deliberately the copy
+  **with** the ten planted errors: the clean one validates silently and would demonstrate only
+  the second half. Verified by clicking it — ten refusals, then ✗ 12/19 elements pass.
+- **Next:** **W-08** (the console shape), **W-36** (`npm test` on `node:test`), **W-43**
+  (CI/CD) are the ready ones.
+
+---
+
 ## 2026-11-09 — W-06: three tabs, and Compare grows a scope  ·  Claude Code (Opus 5)
 
 - **Asked:** *what is the next item* — then, mid-answer, *do w-06*.

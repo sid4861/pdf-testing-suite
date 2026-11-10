@@ -102,10 +102,14 @@ the **expected** box (dashed) and the **actual** box (green pass / red fail) so 
 at a glance. Tolerances default to 0.06″ position / 0.06″ size / 0.03″ spacing and can be overridden
 globally or per element.
 
-Click **Load example spec + PDF** to try it: a 2-page statement (`spec-sample.pdf`) checked against
-[`spec-sample.json`](public/samples/spec-sample.json), with intentional deviations (a too-tall logo,
-a too-narrow table, wrong line spacing, and a missing watermark) so every check type is demonstrated.
-Export the result as an **HTML report** (annotated pages + checks) or **JSON**.
+Click **load an example workbook + PDF** to try it: the Template v2 workbook
+[`report-spec-with-errors.xlsx`](public/samples/report-spec-with-errors.xlsx) against a 4-page
+report with intentional deviations. It is deliberately the copy **with ten planted errors**, so
+one click shows both halves of the tab — ten rows refused before any PDF is opened, each naming
+its own cell (*“‘Font size’ needs a unit; the Unit cell is blank. There is no default.”*), and the
+96 rows that are still checkable running through to a verdict. Export the result as an **HTML
+report** (annotated pages + checks) or **JSON**, or take the workbook back with its bad cells
+red.
 
 > **Reports list failures only.** Every report — HTML, JSON, CSV and the batch and
 > spec equivalents — includes the pages, pairs and elements that fell outside
@@ -187,7 +191,9 @@ src/
   store/specStore.ts            Zustand store (spec: pdf + spec + results)
   components/compare/           Compare UI: slots, navigator, content/layout/report, measure overlay
   components/spec/              Spec UI: SpecTestView (upload, overlay viz, results, export)
-public/samples/                 Bundled examples: invoice PDFs + spec-sample.pdf/.json
+public/samples/                 Bundled examples: invoice PDFs, spec-sample.pdf/.json (Inspect,
+                                Compare · Many), report-spec-with-errors.xlsx +
+                                report-with-deviations.pdf (Specification)
 ```
 
 The engine is framework-agnostic and touches the DOM only for `<canvas>` work. All rendering,
