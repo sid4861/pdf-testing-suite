@@ -111,6 +111,26 @@ interface SpecState {
   run: () => Promise<void>;
   setPage: (i: number) => void;
   loadExample: () => Promise<void>;
+
+  /**
+   * Which half of the Specification tab is showing. `page` opens: the thing
+   * being judged is the PDF, so that is what the tab leads with, the same
+   * shape as Compare (Siddharth, 2026-11-18). The workbook is one click
+   * away rather than gone — it is still the only place a refusal sits on
+   * the cell it came from. In the store because the switch is rendered in
+   * the app header and read by the body.
+   */
+  view: 'page' | 'workbook';
+  setView: (view: 'page' | 'workbook') => void;
+
+  /**
+   * Whether the findings rail is open — the results beside the page, and
+   * the problems panel beside the sheet. One flag for both: it is the same
+   * question (“do I want the detail, or the width?”) and a person who
+   * closes it in one view does not expect it open in the other.
+   */
+  railOpen: boolean;
+  setRailOpen: (open: boolean) => void;
 }
 
 /** A file name without its extension, for naming what a run produced. */
@@ -127,6 +147,11 @@ export const useSpecStore = create<SpecState>((set, get) => ({
   spec: null,
   specName: null,
   errorSpec: null,
+
+  view: 'page',
+  setView: (view) => set({ view }),
+  railOpen: true,
+  setRailOpen: (railOpen) => set({ railOpen }),
 
   loadingWorkbook: false,
   legacyDraft: null,

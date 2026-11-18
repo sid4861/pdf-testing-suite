@@ -68,6 +68,7 @@
     "verify:spec-cli": "npm run build && node build.mjs --entry verify/spec-cli.ts --out .work/spec-cli.js && node .work/spec-cli.js",
     "verify:spec-blank": "node build.mjs --entry verify/spec-blank-template.ts --out .work/spec-blank-template.js && node .work/spec-blank-template.js",
     "verify:spec-marks": "node build.mjs --entry verify/spec-sheet-marks.ts --out .work/spec-sheet-marks.js && node .work/spec-sheet-marks.js",
+    "verify:create-spec": "node build.mjs --entry verify/create-spec-roundtrip.ts --out .work/create-spec.js && node .work/create-spec.js",
     "verify:spec-oracle-v": "node build.mjs --entry verify/spec-validation-oracle.ts --out .work/spec-validation-oracle.js && node .work/spec-validation-oracle.js",
     "prepack": "npm run build"
   },

@@ -27,7 +27,7 @@ const HEAD = [
   'Check?', 'Tolerance', 'Exact text', 'Pattern', 'Notes', 'Description',
 ];
 
-type Cell = string | number | null;
+export type Cell = string | number | null;
 
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -52,18 +52,25 @@ class Strings {
   }
 }
 
-interface SheetSpec {
+export interface SheetSpec {
   name: string;
   cols: number[];
   rows: Cell[][];
   /** The style index for a cell, which is how the highlights are carried. */
   styles?: (r: number, c: number) => number | undefined;
+  /**
+   * Merged ranges, `A2:A9`. The reader resolves a blank Element, Part or
+   * Group through the merge the file declares — never by copying the last
+   * value downwards (SR-SPEC-INTAKE decision 7) — so a generator that wants
+   * grouped labels has to declare real merges, not leave blanks.
+   */
+  merges?: string[];
 }
 
 /**
  * Style 1 head · 2 wrapped · 3 amber (inferred) · 4 red (unreadable) · 5 note.
  */
-const STYLE = { head: 1, wrap: 2, inferred: 3, unreadable: 4, note: 5 } as const;
+export const STYLE = { head: 1, wrap: 2, inferred: 3, unreadable: 4, note: 5 } as const;
 
 const STYLES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
@@ -90,8 +97,13 @@ function sheetXml(sh: SheetSpec, S: Strings): string {
     if (cs.length) rows.push(`<row r="${ri + 1}">${cs.join('')}</row>`);
   });
   const cols = sh.cols.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('');
+  // `mergeCells` goes after `sheetData` and before `pageMargins`, which is
+  // the schema's order; out of order, Excel calls the file corrupt.
+  const merges = sh.merges?.length
+    ? `<mergeCells count="${sh.merges.length}">${sh.merges.map((m) => `<mergeCell ref="${m}"/>`).join('')}</mergeCells>`
+    : '';
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>${cols}</cols><sheetData>${rows.join('')}</sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>`;
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>${cols}</cols><sheetData>${rows.join('')}</sheetData>${merges}<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>`;
 }
 
 const fillFor = (origin: Origin): number | undefined =>
@@ -153,9 +165,23 @@ const PARAMETER_RULES: [string, string, string, string, string, string][] = [
   ['Columns', 'count', 'count', 'No', 'Yes', 'No'],
   ['File name', 'text', '', 'No', 'No', 'No'],
   ['Note', 'text', '', 'No', 'No', 'No'],
+  // The rest of the catalogue the fixture declares. This list and
+  // `work/samples/excel-spec-template-v2`'s `Lists` sheet are the same
+  // vocabulary, and a parameter missing here is refused as
+  // `parameter-unknown` in any workbook written from it — which is how
+  // the Create spec canvas (W-54) found these nine missing.
+  ['Wrap at', 'length', 'in mm cm pt px %', 'Yes', 'Yes', 'Yes'],
+  ['Row height', 'length', 'in mm cm pt px %', 'Yes', 'Yes', 'No'],
+  ['Weight', 'points', 'pt', 'Yes', 'Yes', 'No'],
+  ['Alternative wording', 'text', '', 'No', 'No', 'No'],
+  ['Line break after', 'text', '', 'No', 'No', 'No'],
+  ['Italic words', 'text', '', 'No', 'No', 'No'],
+  ['Column widths', 'lengths', 'in mm cm pt px %', 'Yes', 'No', 'No'],
+  ['Column headers', 'text', '', 'No', 'No', 'No'],
+  ['Column alignment', 'list', '', 'No', 'No', 'No'],
 ];
 
-function listsSheet(): SheetSpec {
+export function listsSheet(): SheetSpec {
   const head = ['Group', 'Unit', 'From', 'Check?', 'Case', 'Font', 'Colour name', 'Hex',
     'Parameter', 'Kind', 'Units allowed', 'Unit required', 'Number required', 'From required'];
   const groups = ['Position', 'Size', 'Image', 'Text', 'Font', 'Colour', 'Table', 'Graph', 'Data', 'Note'];
@@ -285,7 +311,7 @@ export async function writeBlankTemplate(): Promise<Uint8Array> {
 }
 
 /** The `.xlsx` container: the parts Excel needs, and nothing else. */
-async function writeWorkbook(sheets: SheetSpec[]): Promise<Uint8Array> {
+export async function writeWorkbook(sheets: SheetSpec[]): Promise<Uint8Array> {
   const S = new Strings();
   const xmls = sheets.map((sh) => sheetXml(sh, S)); // fills S
 

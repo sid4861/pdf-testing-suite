@@ -5,6 +5,11 @@ description: "The Fleet Operations Review spec as a Template v2 workbook — one
 
 # Template v2 spec workbook — explicit units, no guesswork
 
+> **Converting somebody else's spec into this shape?** Two files, meant to be used
+> together: [`PROMPT.md`](PROMPT.md) is the prompt to paste into an AI agent, and
+> [`TEMPLATE-V2-STRUCTURE.md`](TEMPLATE-V2-STRUCTURE.md) is the format description to
+> attach with it — every sheet, column and refusal rule, standalone.
+
 **What this is.** A fictional 4-page landscape *Fleet Operations Review* — images, a graph
 drawn as vectors, a graph embedded as an image, three tables, paragraphs — its spec as a
 **Template v2** workbook, and the two PDFs it is checked against. The spec uses the layout of [SR-SPEC-INTAKE](../../../records/0101_SPEC-intake.md) decisions 7

@@ -69,6 +69,18 @@ export { buildManifest, manifestText, MANIFEST_SCHEMA } from '@pdfsuite/core';
 export type { Manifest, ManifestEntry, ManifestFile } from '@pdfsuite/core';
 export { buildFixList } from './specFixList';
 
+// ── the Create spec canvas (W-54) ─────────────────────────────
+//
+// The mockup is the source of truth and the workbook is derived from it,
+// so the engine exports the derivation — a headless caller can turn a
+// saved mockup into a workbook without the canvas.
+export { toWorkbook, toSheets, workbookFileName, mockupFileName, mockupJson } from './create/toWorkbook';
+export { emptyDoc, newElement, newId, DEFAULT_FONTS, DEFAULT_PALETTE, DEFAULT_TOLERANCES } from './create/model';
+export type {
+  SpecDoc, MockupPage, MockupElement, ElementKind, Rect, Tolerances,
+  BoxElement, TextElement, ImageElement, TableElement,
+} from './create/model';
+
 export type {
   PdfSpec, SpecPage, SpecRepeats, SpecElement, SpecUnit, SpecTolerance, SpecAnchor,
   PageFinding,

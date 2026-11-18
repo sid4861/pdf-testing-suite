@@ -24,6 +24,207 @@ entry is corrected by a new one. Distinct from `INTERVIEW.md`, which is the
 
 ---
 
+## 2026-11-18 — W-54: Create spec, the canvas that writes the workbook  ·  Claude Code (Opus 5)
+
+- **Asked:** *start development* — on W-54, with three of its rulings still owed.
+- **Done:** **5 of 7 DoD.** The model, the generator, the tab, the read-only Workbook view,
+  and the proof. I built the generator **first**, before any UI, because that is where
+  correctness lives and it can be tested headlessly — and the test earned itself immediately:
+  three table rows came back `parameter-unknown`, which turned out to be nine parameters the
+  shared `Lists` catalogue in `specDraft.ts` was missing against the fixture. One vocabulary,
+  so I completed the catalogue rather than narrowing the canvas; the blank template and the
+  legacy draft get them too. The shared writer also gained `merges`, because the reader
+  resolves a blank label through a declared merge and never by copying downwards, so a
+  generator that wants grouped labels has to emit real ranges.
+- **Then, reported and fixed:** *if I put text above image in order, it still appears behind
+  image on canvas* — and it did. `raise` was `z += 1`, which produces **ties**, and a tie is
+  decided by DOM order, so the layer list and the canvas disagreed. Reordering now swaps with
+  the neighbour and renumbers `0..n-1`, so `z` stays a strict order; *bring to front* and
+  *send to back* came with it. Verified through all four controls with the canvas and the
+  list agreeing at every step.
+- **And the bigger point behind it:** *the idea is to create high fidelity mockups* — so the
+  page takes the edits, not a side panel. Double-click text to type it, double-click a table
+  to type its column headers, click an empty image frame to choose a picture, drag a column
+  edge to move width between two columns. The panel keeps what has no place on a page: units,
+  tolerances, which text identifies the page. A mockup you edit through a form beside it is a
+  form with a picture next to it.
+- **Then: “think of all these basic features right? … instead of me coming up with them.”**
+  Fair. Typing in a text element did not work, and nothing could be deleted. The first was
+  mine twice over: `contentEditable` makes a box typable and **focuses nothing**, so
+  double-click raised the outline and the keystrokes went to the window — and I had
+  “verified” it by *dispatching* events, which puts focus nowhere and passes anyway. The
+  caret is now placed and the contents selected.
+- **So I did the whole set rather than the two named:** Delete and Backspace remove; arrows
+  nudge a sixteenth of an inch and Shift a quarter, the same grid the drag snaps to; Enter
+  and F2 edit; Tab cycles the stack top-first, the order the layer list shows; Ctrl+D
+  duplicates; Ctrl+[ and Ctrl+] restack; Esc backs out of editing then out of the selection;
+  Ctrl+Z and Ctrl+Shift+Z undo and redo, with **buttons** beside the zoom because a
+  keyboard-only feature is one nobody has. A drag is **one** undo step: a gesture snapshots
+  at its start and suppresses the rest, or crossing the page would take forty presses to
+  undo. Every key bails out when focus is in a field — Delete inside a text box deletes a
+  character.
+- **Verified with real clicks and real keystrokes this time**, which is the actual lesson:
+  double-click put the caret in the text and typing landed; Enter committed; Delete removed;
+  Ctrl+Z restored it with its text. Headers took *Month*, Tab moved on, *Deliveries* landed.
+  Arrow moved 4px at 70% zoom and Shift+Arrow 17px — a sixteenth and a quarter inch.
+- **Decided / left open:** Siddharth said start with three questions outstanding, so I built
+  each the way the item recommended and recorded all three as **provisional** in the item and
+  the inbox — the identifier is a checkbox on a text element, the pickers are restricted to
+  `Lists`, the mockup saves as a sidecar `.json`. Each is cheap to overturn and the item says
+  how cheap. The canvas is in **inches** end to end: screen pixels exist only in one `scale`
+  number, applied on the way out to CSS and divided back out on the way in from the mouse, so
+  `px-without-density` is unreachable by construction rather than by validation.
+- **Mistakes:** a blanket rename of `SpecPage`/`SpecElement` to the canvas's names caught
+  `engine.ts`'s pre-existing re-export of the *other* `SpecPage` from `types.ts` — two
+  different things with one name, and a regex does not know which. Fixed by restoring that
+  line; the lesson is the one already in LESSONS.md about re-deriving anchors. I also chased
+  a phantom 500 on `SheetView.tsx` that was a stale console entry from a mid-edit save.
+- **Next:** the record (an SR for the canvas; the SR-SURFACE-PARITY row is written), and
+  dragging a table’s column edge on the canvas.
+
+---
+
+## 2026-11-18 — W-53: the Specification tab leads with the page  ·  Claude Code (Opus 5)
+
+- **Asked:** *change the ui design of the spec driven, make it similar to the compare tab,
+  instead of excel pdf should be shown in middle with differences highlighted on the pdf* —
+  then, mid-build, *we do not need 2 rows, move everything on row 2 in row 1 beside the export
+  button*.
+- **Done:** **W-53, all 5 DoD.** The tab now opens on the page: the rendered PDF centre stage
+  on a grey stage with −/+/Fit zoom, the expected (dashed indigo) and actual (green pass, red
+  fail) boxes drawn on it, and the per-element results in a right rail — the Compare shape,
+  with `.spec-grid` reversed from *narrow page, wide results* to the other way round. The
+  workbook moved behind a **Page · Workbook** switch, each view whole rather than stacked. The
+  sub-toolbar is gone: slots, switch and verdict chip sit in `.app-header` beside Export, which
+  is what Compare's slots already did. That forced two refactors — `view` into the store and
+  `SpecUpload` into its own file — because the header and the body are two components now, and
+  added `SpecHeaderBar` as a third export from the app barrel.
+- **Then, same session:** *no need to have all pages one page, add previous and next button
+  to navigate to and fro pages similar to compare tab at top beside export button, remove the
+  number of elements pass pill.* Done — `‹ Page n of m ›` sits in the header beside Export and
+  clamps at both ends, and the mode switch and the pill are gone. **What that costs:** *One
+  page* was the only way in the app to point one spec page at a different PDF page. The Pages
+  List still binds by identifying text and the CLI keeps `--pages`, so only the one-off
+  override moved to the command line; the store keeps `mode` and both targets, so the
+  controls are a render away if they are wanted back.
+- **And then the rail:** *view this in a sidebar … which can be opened and closed … scrolling
+  in the sidebar does not scroll the pdf … more prominent hover … the hover on pdf should show
+  before and after value … it should just have 3 columns, spec, pdf, difference, cell …
+  clicking on the cell navigates to it in the workbook tab.* All six done. The table was the
+  real fix: six unnamed columns, with the two that matter — what the spec asked for and what
+  the PDF has — sitting third and fourth in the same weight as the rest, and a tick at the end
+  repeating what the colour already said. It is now **Spec · PDF · Difference · Cell**, the
+  tick on the row's own label, the cell a button into the workbook. Hover fades every other
+  overlay to 0.18 rather than putting a faint ring on one box among a dozen, and a card on the
+  page reads *Font size 28pt → 24pt −4.0pt*.
+- **Reviewed and fixed, same day:** *this is ugly, make the button similar to compare tab,
+  animated and with bg color — for some page, info in sidebar is not complete.* The second
+  was a real bug of mine: the rail is a capped-height flex column, flex items shrink by
+  default, so the cards were squeezed instead of the rail scrolling, and `.spec-el`'s clip ate
+  the checks under their own header. One `flex: 0 0 auto`; now 0 clipped across all four pages
+  (2 · 7 · 5 · 5 cards, 95 rows). The toggle became an indigo pill with a hover lift and a
+  single chevron that turns 180° — the direction is the state — and the grid animates over
+  .22s, both behind `prefers-reduced-motion`.
+- **Four more from review, same day:** the toggle became Compare's own `.view-changes`
+  button rather than a lookalike; the rail learned to *slide* (`flex-basis` 400 → 0, measured
+  400 · 360 · 194 · 74 · 22 · 4px over ~225ms) after both `grid-template-columns` and a
+  `min()` flex basis turned out not to interpolate — frame-sampled, they hold and then snap;
+  the hover runs **both ways**, an element on the PDF ringing its card and scrolling the rail
+  to it; and the checks table got `table-layout: fixed` because it was running past the card
+  and the clip was eating the **Cell** column. Two bugs underneath: `.view-changes.on:hover`
+  never restated `color`, so the open state was white-on-pale — **wrong in Compare too**,
+  fixed once in `@pdfsuite/ui` — and `el.select` was being dropped when it arrived before
+  `sheetpane-load`, which is why a cell click landed the workbook on the Pages List instead
+  of the page's own sheet.
+- **A second pass on the clutter, same day:** *this info is not useful* (the per-page summary
+  card) · *remove all this info below the sheet* (the plain-words report) · *create a sidebar
+  similar to page tab and move this in sidebar* (the problems panel) · *remove this red
+  indicator* (the Workbook tab's count) · *remove this empty space below* · *improve the
+  information hierarchy, lots of pills*. All done. The panel was trimmed through sheetpane's
+  **public API** rather than by reaching into it: `readonly` drops the Flag-issue form and
+  the action buttons, `results="off"` drops the *Passed 82 / Not checked 3* counters, and
+  `errorTypes` gives the rows English — they were rendering our raw type id, `spec-refused`,
+  which is a thing I named, not a thing anyone reads. The workbook now fills the window
+  instead of a 420px box, and `theme` is pinned to `light`: `auto` was following the OS into
+  dark inside a light app.
+- **What gave way, and it should be on the record:** nothing on the Page view says a row was
+  refused any more — the `n refused` chip went with the summary card and the count went with
+  the tab badge — and the plain-words list is now only in the two downloads, though
+  SR-SPEC-INTAKE decision 14 asks for it to be *shown*. Both were rulings, not accidents, and
+  both are a render away from coming back. The panel's severity and author filter rows
+  (`All 19 · ✕19 · !0 · i0`, `Anyone · People · Workbook rules`) are inside
+  `<sheetpane-errors>`'s shadow DOM, which exposes only `root` and `detail` as parts — those
+  need an option upstream in Arpit's package, or our own list built off `sheetMarks`. I did
+  not fork it.
+- **And the shell, last:** *the nav bar's height changes slightly as I navigate … looks very
+  jerky … animate the tab change*. Measured before touching it: **65 · 77 · 65px** across
+  Compare · Specification · Inspect, because an upload slot is 12px taller than a tab button,
+  so every switch shunted the whole page down and back. One `min-height` on `.app-header`,
+  the tallest state setting it for all three — 77 · 77 · 77 after, with the body starting at
+  77 everywhere. The workspace body is keyed on the tab so React remounts it and a 200ms
+  cross-fade runs; the header's own contents fade and the tab pill transitions. All of it
+  behind `prefers-reduced-motion`. This is W-06's header in `@pdfsuite/ui`, not the
+  Specification tab — the jump was simply found here.
+- **The one thing to watch:** `key={ws}` remounts the workspace, so a view that kept
+  something durable in its own `useState` would lose it on every tab switch. None do today —
+  the report, the files, the view and the rail are all in the store — and a round trip
+  through Compare and back was checked to keep the results and not re-run the check. It is
+  in W-53's Hazards.
+- **Also asked:** a Markdown file describing the structure of
+  `report-spec-with-errors.xlsx`, to hand to any AI agent so it can convert somebody's
+  existing spec into the required shape. Written as
+  `work/samples/excel-spec-template-v2/TEMPLATE-V2-STRUCTURE.md` and built **from the file
+  and the reader**, not from memory: the sheets and columns read out of the workbook's own
+  XML, the vocabulary out of its `Lists` sheet, and the refusal codes cross-checked against
+  `expected-validation.json` — all ten planted ones match. It leads with the thing that
+  actually matters for a conversion — *the reader never guesses, so a row you are unsure
+  about is better marked `Note` than filled in* — and ends with a self-check list and the
+  `--validate-only` command that proves it.
+- **And the prompt to go with it:** `PROMPT.md` beside the structure file — paste one,
+  attach the other. It asks the agent for a **script**, not hand-written cells, because the
+  label columns need real merged ranges; and for a `CONVERSION-REPORT.md` whose *first*
+  section is every row the source did not answer, since that list is the actual deliverable
+  to the spec's author. The line it draws is the one that makes the output gradeable:
+  refusals caused by a vague source are the **expected** result, refusals caused by the
+  converter are not, and the agent must say which kind its own workbook would produce.
+- **Filed W-54, no code:** *Create spec* — a fourth tab where a page is drawn on a canvas and
+  a Template v2 workbook is written underneath. Asked to confirm understanding before
+  building, I put six questions; Siddharth ruled five of them in one reply: canvas is the
+  source of truth, stacking stays on the canvas (so **no record change** — a sidebar records
+  its own size and position, a heading on it is a separate part with its own), the CLI does
+  not get it, image content is not compared, inches and points. The three I could not answer
+  for him are in the inbox. Two consequences I spelled out rather than let him discover: the
+  Workbook view in that tab must be **read-only**, because two editable surfaces over one
+  model means one silently overwrites the other; and a workbook **cannot** be read back into
+  a canvas, so the mockup needs its own saved format — which is the third open ruling. The
+  nicest part of the idea is one neither of us said first: a canvas **cannot produce** most
+  of the errors this format exists to catch, so it is a stricter input than Excel, not just
+  a friendlier one.
+- **Decided / left open:** this **reverses Arpit's 2026-10-18 ruling**, *"not a list — a view
+  that looks and feels like the sheet"*, which was the whole basis of W-46. Either decider
+  rules alone, as on W-06, so Siddharth's words are the ruling. I narrowed rather than deleted
+  it in SR-SURFACE-PARITY: the sheet stays, keeps its marks, and is one click away — it is
+  still the only place a refusal sits on the cell a reviewer has to change. If Arpit wants the
+  tab to open on the workbook instead, that is one line. The new global class names
+  `.tab-count` and `.sp-refused-chip` join B-021's pile of unprefixed selectors.
+- **Mistakes:** a patch script asserted its way to a half-applied file — the first edit matched
+  and the second did not, and because the script only writes at the end, *none* of it landed
+  while I believed the first had. Re-running after dropping the "already applied" edit then
+  deleted the component's own `export default function` line, because the anchor I reused was
+  a banner comment that had left with `SpecUpload` an hour earlier. `tsc` caught it at the
+  closing brace, 500 lines from the cause. The lesson is in LESSONS.md already: re-derive the
+  anchor, never reuse one from memory of the file.
+- **Mistakes:** I nearly shipped the switch as a plain hide-the-sheet toggle, which would have
+  made a workbook with ten refusals look clean to anyone who stayed on the page. A refusal is
+  not a failing check — it is a row that was never checked — so the page view carries a
+  `10 refused` chip and the Workbook tab a count badge. Also chased a phantom
+  `SpecUpload is not defined` for a round: the console buffer had kept the pre-fix errors
+  across a reload, and the timestamp in the stack trace was the tell.
+- **Next:** **W-08** (the console shape), **W-36** (`npm test` on `node:test`), **W-43**
+  (CI/CD) are the ready ones. W-51 will restyle both of these views to Proof.
+
+---
+
 ## 2026-11-10 — W-48: the validation report becomes a contract  ·  Claude Code (Opus 5)
 
 - **Asked:** *do w-48*.

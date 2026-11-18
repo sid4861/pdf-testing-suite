@@ -11,3 +11,8 @@ import './spec.css';
 
 export { default as SpecTestView } from './SpecTestView';
 export { default as SpecExportMenu } from './SpecExportMenu';
+export { default as SpecHeaderBar } from './SpecHeaderBar';
+
+// The Create spec canvas (W-54): the tab, and its controls for the header.
+export { default as CreateSpecView } from './create/CreateSpecView';
+export { default as CreateHeaderBar } from './create/CreateHeaderBar';

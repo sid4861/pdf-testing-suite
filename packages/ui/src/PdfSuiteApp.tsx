@@ -14,7 +14,9 @@ import BatchExportMenu from './components/batch/BatchExportMenu';
 import { configureFlags, flags, type FeatureFlags } from './flags';
 // Each screen imports its own package and nothing else of another package
 // than its public exports (SR-NPM-PACKAGES decision 6).
-import { SpecExportMenu, SpecTestView } from '@pdfsuite/spec';
+import {
+  CreateHeaderBar, CreateSpecView, SpecExportMenu, SpecHeaderBar, SpecTestView,
+} from '@pdfsuite/spec';
 import MeasureView from './components/measure/MeasureView';
 import BatchView from './components/batch/BatchView';
 
@@ -30,7 +32,7 @@ import { AUTO_SCAN_MAX_PAGES } from '@pdfsuite/core';
  * benefit, and `FEATURE_BATCH_COMPARE` keeps its key so nobody's `flag.env`
  * silently resets.
  */
-export type Workspace = 'compare' | 'spec' | 'measure';
+export type Workspace = 'compare' | 'spec' | 'measure' | 'create';
 
 /** Compare's two scopes: one pair, or every pair in two folders. */
 export type CompareScope = 'one' | 'many';
@@ -66,6 +68,9 @@ const ALL_TABS: [Workspace, string][] = [
   ['compare', 'Compare'],
   ['spec', 'Specification'],
   ['measure', 'Inspect'],
+  // Authoring, after the three that read something. A spec is written
+  // once and checked many times, so it does not lead (W-54).
+  ['create', 'Create spec'],
 ];
 
 /** The scope switch's labels. Two plain words that pair; *bulk* is jargon. */
@@ -83,9 +88,12 @@ const SCOPES: [CompareScope, string][] = [
  * defaults every time (W-33).
  */
 function workspaceTabs(config: PdfSuiteConfig): [Workspace, string][] {
+  // A flagged-off workspace is not a tab, whatever the host asked for:
+  // listing `create` in `tabs` must not reach past the flag.
+  const available = ALL_TABS.filter(([id]) => id !== 'create' || flags.createSpec);
   const wanted = config.tabs;
-  if (!wanted) return ALL_TABS;
-  return ALL_TABS.filter(([id]) => wanted.includes(id))
+  if (!wanted) return available;
+  return available.filter(([id]) => wanted.includes(id))
     .sort((a, b) => wanted.indexOf(a[0]) - wanted.indexOf(b[0]));
 }
 
@@ -154,7 +162,10 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
     }
   }, [bothLoaded, summary, computingSummary, totalPages, computeAll]);
 
-  const ws: Workspace = workspace;
+  // Folded back here rather than at each use, the same way *Many* is: with
+  // the flag off, a saved or configured `create` would otherwise strand
+  // somebody on a workspace with no tab to leave it by.
+  const ws: Workspace = workspace === 'create' && !flags.createSpec ? 'compare' : workspace;
   // *Many* is behind the same flag the Batch tab was. Folded back here rather
   // than at each use, so turning the flag off cannot strand somebody in a
   // scope that no longer exists.
@@ -181,9 +192,14 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
             <PdfUploadSlot side="B" label="PDF to test" hint="Drop the PDF to test" />
           </div>
         )}
+        {/* Specification's controls live here too, for the same reason
+            Compare's slots do: one row is enough, and a second strip under
+            the header costs 48px of the page it exists to show. */}
+        {ws === 'spec' && <SpecHeaderBar />}
+        {ws === 'create' && flags.createSpec && <CreateHeaderBar />}
         {/* Every workspace that produces results exports from the same corner.
             Inspect has nothing to export, so it gets no button at all. */}
-        {ws !== 'measure' && (
+        {ws !== 'measure' && ws !== 'create' && (
           <div className="header-right">
             {ws === 'compare' && sc === 'one' && <ImportBundleButton />}
             {comparingMany ? (
@@ -197,8 +213,14 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
         )}
       </header>
 
+      {/* Keyed on the workspace so React remounts this subtree on a switch
+          and the fade runs. Without the key the class is already on the
+          element and the animation never restarts — the swap just cuts. */}
+      <div className="ws-swap" key={ws}>
       {ws === 'spec' ? (
         <SpecTestView />
+      ) : ws === 'create' && flags.createSpec ? (
+        <CreateSpecView />
       ) : ws === 'measure' ? (
         <MeasureView />
       ) : (
@@ -295,6 +317,7 @@ export default function PdfSuiteApp({ config = {} }: { config?: PdfSuiteConfig }
           )}
         </>
       )}
+      </div>
     </div>
   );
 }

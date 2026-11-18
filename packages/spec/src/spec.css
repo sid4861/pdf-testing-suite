@@ -96,11 +96,40 @@
 
 .empty-state.sp-compact { padding-top: 48px; }
 
-.spec-grid { display: grid; grid-template-columns: minmax(300px, 460px) 1fr; gap: 16px; align-items: start; }
-@media (max-width: 900px) { .spec-grid { grid-template-columns: 1fr; } }
+/* The page leads, the results follow — the same shape as Compare
+   (Siddharth, 2026-11-18). It was the other way round, and a page in a
+   460px column is a thumbnail: you could see that something was marked
+   but not what.
 
-.spec-pagewrap { position: relative; display: inline-block; line-height: 0; max-width: 100%; }
-.spec-pagewrap img { max-width: 100%; border: 1px solid var(--border); border-radius: 6px; }
+   Flex, not grid, because the rail has to *slide*. `grid-template-columns`
+   is listed as animatable and does not interpolate here — sampled frame by
+   frame it holds the old value for ~100ms and then snaps. `flex-basis` is
+   a plain length and animates properly. */
+.spec-grid { display: flex; gap: 16px; align-items: flex-start; }
+.spec-stage-card { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 1100px) { .spec-grid { flex-direction: column; } }
+
+.spec-stage-card { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.spec-stage { max-height: min(78vh, 900px); }
+/* The stage holds the page; the wrapper's width is the zoom, and the
+   overlays are percentages of it, so they follow for free. */
+.spec-stage .stage-content { width: 100%; display: flex; justify-content: center; }
+
+.spec-pagewrap { position: relative; display: inline-block; line-height: 0; max-width: none; }
+.spec-pagewrap img { width: 100%; border: 1px solid var(--border); border-radius: 6px; }
+.spec-ov-pair { position: absolute; inset: 0; pointer-events: none; }
+
+/* Refused rows are not failing checks: they were never checked. The page
+   view must not swallow them, so it carries the count and the way back. */
+.sp-refused-chip {
+  font: inherit; font-size: 12px; font-weight: 600;
+  color: var(--red); background: var(--red-soft);
+  border: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
+  border-radius: 999px; padding: 2px 10px; cursor: pointer;
+}
+.sp-refused-chip:hover { background: color-mix(in srgb, var(--red) 18%, transparent); }
+
+
 .spec-ov { position: absolute; box-sizing: border-box; border-width: 1.5px; border-style: solid; border-radius: 2px; pointer-events: none; transition: box-shadow .1s; }
 .spec-ov.expected { border-style: dashed; }
 .spec-ov.actual { background: color-mix(in srgb, currentColor 8%, transparent); }
@@ -110,7 +139,59 @@
 .overlay-legend .dot.act-pass { border-color: var(--emerald); background: var(--emerald-soft); }
 .overlay-legend .dot.act-fail { border-color: var(--red); background: var(--red-soft); }
 
-.spec-results { display: flex; flex-direction: column; gap: 12px; }
+/* The rail scrolls inside itself. Before this, reading the results
+   dragged the page out of view — the two were one scroller, so looking at
+   the thing you were reading about meant scrolling back. */
+.spec-results {
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: min(78vh, 900px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+/* A flex item shrinks by default. With a capped height that meant every
+   card was squeezed to fit the rail instead of the rail scrolling — and
+   because `.spec-el` clips, what got cut was the bottom of the table: a
+   card showing its title and the *header* of its checks, with the checks
+   themselves gone. Nothing shrinks; the rail scrolls. */
+.spec-results > * { flex: 0 0 auto; }
+/* Closed, the page gets the whole width — which is the point of putting
+   the page in the middle. Animated, so the page is seen to grow into the
+   space rather than jumping and leaving you to work out what moved. */
+/* The rail stays mounted and clips itself, so there is something to move:
+   its basis closes while it fades and slides right, and the page grows
+   into the space it leaves. The fade is shorter than the slide, so the
+   text is gone before the column is narrow enough to reflow it. */
+.spec-results {
+  /* Three longhands, and the basis a plain length. In the `flex`
+     shorthand with a `min()` basis the transition did not interpolate at
+     all — sampled every 45ms it was still 400px, then 4px. */
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 400px;
+  min-width: 0;
+  overflow-x: hidden;
+  transition:
+    flex-basis .28s cubic-bezier(.4, 0, .2, 1),
+    margin-left .28s cubic-bezier(.4, 0, .2, 1),
+    opacity .18s ease,
+    transform .28s cubic-bezier(.4, 0, .2, 1);
+}
+.spec-results.closed {
+  flex-basis: 0px;
+  margin-left: -16px;          /* swallow the flex gap as it goes */
+  opacity: 0;
+  transform: translateX(16px);
+  pointer-events: none;
+}
+@media (max-width: 1340px) { .spec-results { flex-basis: 340px; } }
+@media (max-width: 1100px) { .spec-results { flex-basis: auto; width: 100%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spec-results { transition: none; }
+  .spec-results.closed { transform: none; }
+}
+
 .spec-summary { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .spec-el { padding: 0; overflow: hidden; border-left: 3px solid var(--border-strong); }
 .spec-el.pass { border-left-color: var(--emerald); }
@@ -133,15 +214,51 @@
 .spec-el.warning { border-left-color: var(--amber); }
 .spec-el.unverifiable { border-left-color: var(--border-strong); }
 
-table.spec-checks { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-table.spec-checks td { padding: 4px 14px; border-top: 1px solid #f1f5f9; }
+/* Fixed layout, and the columns declared. Left to itself the table sized
+   every column to its content and ran past the card, which clips — so the
+   Cell column, the one thing in the row you act on, was the one cut off.
+   Fixed layout makes the value columns wrap instead. */
+table.spec-checks {
+  width: 100%; border-collapse: collapse; font-size: 12.5px;
+  table-layout: fixed;
+}
+table.spec-checks td, table.spec-checks th { overflow-wrap: anywhere; }
+table.spec-checks .cn { width: 20%; }
+table.spec-checks .ce, table.spec-checks .ca { width: 23%; }
+/* “DIFFERENCE” is the longest header; give it room or it wraps to
+   “DIFFE / RENCE”, which is worse than a narrower value column. */
+table.spec-checks .cd { width: 19%; }
+/* Wide enough for `Sheet!AA100`, and it never gives width back. */
+table.spec-checks .cc { width: 15%; min-width: 60px; }
+table.spec-checks td { padding: 4px 10px; border-top: 1px solid #f1f5f9; }
 table.spec-checks td.cn { color: var(--muted); width: 30%; }
 table.spec-checks td.ce, table.spec-checks td.ca, table.spec-checks td.cd { font-variant-numeric: tabular-nums; font-family: ui-monospace, Menlo, Consolas, monospace; }
 table.spec-checks td.cd { color: var(--faint); }
-table.spec-checks td.ck { text-align: right; width: 24px; }
-table.spec-checks tr.ok td.ck { color: var(--emerald); }
-table.spec-checks tr.no td.ck { color: var(--red); font-weight: 700; }
-table.spec-checks tr.no td.ca { color: var(--red); }
+table.spec-checks thead th {
+  padding: 6px 10px 4px; text-align: left; font-size: 10px; font-weight: 600;
+  letter-spacing: .02em; text-transform: uppercase; color: var(--faint);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+table.spec-checks thead th.cc { text-align: right; }
+/* The tick moves onto the row's own label, so the eye reads name, spec,
+   pdf, difference in one pass instead of ending on a sixth column that
+   repeats the colour. */
+table.spec-checks td.cn .ck { display: inline-block; width: 14px; font-weight: 700; }
+table.spec-checks tr.ok td.cn .ck { color: var(--emerald); }
+table.spec-checks tr.no td.cn .ck { color: var(--red); }
+table.spec-checks tr.no td.ca { color: var(--red); font-weight: 600; }
+table.spec-checks tr.no td.cd { color: var(--red); }
+table.spec-checks tr:hover { background: var(--hover, #f8fafc); }
+
+/* Decision 12: a finding nobody can trace to a cell is a finding nobody
+   can act on — so the cell goes somewhere. */
+.cc-link {
+  font: inherit; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px; color: var(--indigo); background: none; border: 0;
+  padding: 1px 3px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+}
+.cc-link:hover { background: var(--indigo-soft, #eef2ff); text-decoration: underline; }
 /* ── Spec: choose what gets checked ─────────────────────── */
 .spec-target {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
@@ -293,6 +410,7 @@ table.spec-checks tr.no td.ca { color: var(--red); }
 .spec-checks td.cc {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10.5px; color: var(--faint); white-space: nowrap; text-align: right;
+  padding-right: 12px;
 }
 .check-note {
   display: block; font-size: 11px; color: var(--amber); font-style: italic;
@@ -310,20 +428,59 @@ table.spec-checks tr.no td.ca { color: var(--red); }
    and left to itself the sheet collapses to nothing and looks broken
    rather than empty. The panel is given a third of the width and a floor,
    so a long message wraps instead of squeezing the sheet away. */
+/* Flex, and the panel a rail that closes — the same shape and the same
+   mechanism as the page view's results (flex-basis animates, grid tracks
+   do not). */
+.sp-sheet-card {
+  padding: 0; overflow: hidden; margin: 12px 0 0;
+  display: flex; flex-direction: column;
+  /* What the app header above it takes, plus the body's own bottom
+     padding. Measured, not guessed: the card's top sits at 89px and the
+     page should end 12px below it. */
+  height: calc(100vh - 101px);
+  min-height: 420px;
+}
+.sp-sheet { flex: 1 1 auto; min-height: 0; }
 .sp-sheet {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  display: flex;
   gap: 12px;
-  margin: 12px 0 18px;
+  padding: 0 12px 12px;
+}
+.sp-sheet sheetpane-excel { flex: 1 1 auto; }
+.sp-errors-rail {
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 360px;
+  min-width: 0;
+  overflow: hidden;
+  transition:
+    flex-basis .28s cubic-bezier(.4, 0, .2, 1),
+    margin-left .28s cubic-bezier(.4, 0, .2, 1),
+    opacity .18s ease,
+    transform .28s cubic-bezier(.4, 0, .2, 1);
+}
+.sp-errors-rail.closed {
+  flex-basis: 0px;
+  margin-left: -12px;
+  opacity: 0;
+  transform: translateX(16px);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-errors-rail { transition: none; }
+  .sp-errors-rail.closed { transform: none; }
 }
 
 /* By tag, not by class: React 18 writes `className` on a custom element as
    a literal `classname=` attribute, so a class selector here matches
    nothing and the sheet renders at its content's full height. */
 .sp-sheet sheetpane-excel,
-.sp-sheet sheetpane-errors {
+.sp-errors-rail sheetpane-errors {
   display: block;
-  height: 420px;
+  /* The workbook fills what is left of the window rather than sitting in
+     a 420px box with grey underneath it (Siddharth, 2026-11-18): a sheet
+     is read by scrolling, and a short one wastes the screen it needs. */
+  height: 100%;
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -332,8 +489,9 @@ table.spec-checks tr.no td.ca { color: var(--red); }
 
 /* Under about 900px the two stack: a sheet 260px wide is not a sheet. */
 @media (max-width: 900px) {
-  .sp-sheet { grid-template-columns: minmax(0, 1fr); }
-  .sp-sheet sheetpane-errors { height: 260px; }
+  .sp-sheet { flex-direction: column; }
+  .sp-errors-rail { flex-basis: auto; width: 100%; }
+  .sp-errors-rail sheetpane-errors { height: 260px; }
 }
 
 /* The cell an element came from, in its card head — the button that scrolls
@@ -356,3 +514,215 @@ table.spec-checks tr.no td.ca { color: var(--red); }
   color: var(--indigo);
   border-color: var(--indigo);
 }
+
+/* ── the header bar ─────────────────────────────────────────────────── */
+/* Everything the Specification tab needs sits on the app header's one row
+   beside Export (Siddharth, 2026-11-18). The slots give up width first,
+   because a file name can ellipsis and a view switch cannot. */
+.spec-headerbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+.spec-headerbar .upload-row { flex: 1 1 auto; min-width: 0; max-width: 560px; }
+.spec-headerbar .tabs,
+.spec-headerbar .summary-chip { flex: 0 0 auto; }
+/* `margin-left:auto` on .header-right already pushes Export to the corner,
+   so the spacer here only has to stop the chip hugging the switch. */
+.spec-headerbar .spacer { flex: 1 1 0; min-width: 8px; }
+
+@media (max-width: 1200px) {
+  .spec-headerbar .upload-row { max-width: 360px; }
+}
+
+/* ── hover: the row and the page point at each other ────────────────── */
+/* Hovering a result used to put a faint ring on one box among a dozen.
+   Everything else now fades, so the one being talked about is the only
+   thing with colour. */
+.spec-pagewrap.hovering .spec-ov:not(.active) { opacity: .18; }
+.spec-pagewrap.hovering img { filter: saturate(.85) brightness(1.02); }
+.spec-ov.active {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 5px currentColor, 0 6px 20px rgba(15, 23, 42, .25);
+  border-width: 2.5px;
+  z-index: 7;
+}
+.spec-ov-pair { position: absolute; inset: 0; pointer-events: none; }
+
+/* What the spec asked for and what the PDF has, on the page itself —
+   Compare shows before → after on hover, and a spec check is the same
+   question asked of one document. */
+.spec-hovercard {
+  position: absolute; z-index: 9; min-width: 240px; max-width: 420px;
+  margin: 8px 0; padding: 10px 12px;
+  background: var(--panel, #fff); color: var(--ink, #0f172a);
+  border: 1px solid var(--border-strong, #cbd5e1); border-left: 3px solid var(--border-strong);
+  border-radius: 8px; box-shadow: 0 10px 30px rgba(15, 23, 42, .22);
+  font-size: 12px; line-height: 1.45; pointer-events: none;
+}
+.spec-hovercard.fail, .spec-hovercard.not-found { border-left-color: var(--red); }
+.spec-hovercard.pass { border-left-color: var(--emerald); }
+.spec-hovercard.warning, .spec-hovercard.unverifiable { border-left-color: var(--amber); }
+.spec-hovercard .hc-title { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.spec-hovercard .hc-title b { font-size: 13px; }
+.spec-hovercard .hc-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.spec-hovercard .hc-rows li {
+  display: grid; grid-template-columns: minmax(64px, auto) 1fr auto 1fr auto;
+  gap: 8px; align-items: baseline;
+}
+.spec-hovercard .hc-name { color: var(--muted); }
+.spec-hovercard .hc-spec, .spec-hovercard .hc-pdf, .spec-hovercard .hc-delta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.spec-hovercard .hc-arrow { color: var(--faint); }
+.spec-hovercard li.no .hc-pdf { color: var(--red); font-weight: 600; }
+.spec-hovercard .hc-delta { color: var(--faint); }
+
+/* ── page → rail ─────────────────────────────────────────────────────── */
+/* The hit area over each element. The overlay boxes stay
+   `pointer-events: none`: a 1.5px border is not a hover target, and the
+   dashed expected box is usually under the actual one. */
+.spec-ov-hit {
+  position: absolute; box-sizing: border-box;
+  cursor: pointer; z-index: 5; border-radius: 3px;
+  pointer-events: auto;
+}
+.spec-pagewrap.hovering .spec-ov-hit { cursor: pointer; }
+
+/* The card the page is pointing at. Hovering an element on the PDF has to
+   do something the eye catches in the rail, or the direction only works
+   one way and the page looks inert. */
+.spec-el.hot {
+  box-shadow: 0 0 0 2px var(--indigo), var(--shadow);
+  position: relative; z-index: 2;
+}
+.spec-el { transition: box-shadow .14s ease; }
+@media (prefers-reduced-motion: reduce) { .spec-el { transition: none; } }
+
+/* What is left of the page summary: only the thing that is not said
+   anywhere else — that this page was not found where the Pages List puts
+   it. Everything else on that card repeated the header, the strip or the
+   cards' own badges. */
+.spec-binding-note {
+  margin: 0; display: flex; flex-wrap: wrap; gap: 8px;
+  font-size: 12px; color: var(--amber-ink, #92400e);
+  background: var(--amber-soft, #fffbeb);
+  border: 1px solid color-mix(in srgb, var(--amber, #f59e0b) 35%, transparent);
+  border-radius: 8px; padding: 7px 11px;
+}
+
+/* The panel fills its rail, so closing it slides the panel out rather
+   than squeezing its contents on the way. */
+.sp-errors-rail sheetpane-errors { width: 100%; }
+
+/* ── Create spec: the canvas (W-54) ──────────────────────────────────── */
+/* Everything here is drawn at `scale` screen pixels per inch. The model
+   is in inches; this is the only place the two meet. */
+.cs-body { padding-bottom: 12px; }
+.cs-grid {
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.cs-stage-card { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.cs-stage { max-height: min(74vh, 860px); }
+.cs-panel { flex: 0 0 330px; display: flex; flex-direction: column; gap: 12px; max-height: min(74vh, 860px); overflow-y: auto; overscroll-behavior: contain; }
+.cs-panel > * { flex: 0 0 auto; }
+@media (max-width: 1100px) { .cs-grid { flex-direction: column; } .cs-panel { flex-basis: auto; width: 100%; } }
+
+.cs-page {
+  position: relative; box-shadow: 0 2px 14px rgba(15, 23, 42, .18);
+  border: 1px solid var(--border-strong);
+}
+.cs-el { position: absolute; box-sizing: border-box; cursor: move; outline: 1px dashed transparent; }
+.cs-el:hover { outline-color: color-mix(in srgb, var(--indigo) 45%, transparent); }
+.cs-el.sel { outline: 1.5px solid var(--indigo); }
+.cs-el > * { width: 100%; height: 100%; }
+.cs-box { border: 1px solid color-mix(in srgb, var(--ink, #0f172a) 12%, transparent); }
+.cs-el img { object-fit: cover; }
+.cs-placeholder {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 12px; color: var(--faint);
+  background: repeating-linear-gradient(45deg, #f8fafc 0 8px, #eef2f7 8px 16px);
+  border: 1px dashed var(--border-strong);
+}
+.cs-text { display: flex; align-items: flex-start; line-height: 1.15; overflow: hidden; white-space: pre-wrap; }
+.cs-table { display: flex; flex-direction: column; border: 1px solid var(--border-strong); background: #fff; }
+.cs-tr { display: flex; border-bottom: 1px solid var(--border); }
+.cs-tr.head { background: var(--indigo-soft); font-weight: 600; }
+.cs-td { border-right: 1px solid var(--border); font-size: 10px; padding: 1px 3px; overflow: hidden; }
+
+/* Resize handles, big enough to actually grab. */
+.cs-handle {
+  position: absolute; width: 9px; height: 9px; background: #fff;
+  border: 1.5px solid var(--indigo); border-radius: 2px; z-index: 2;
+}
+.cs-handle.nw { left: -5px; top: -5px; cursor: nwse-resize; }
+.cs-handle.ne { right: -5px; top: -5px; cursor: nesw-resize; }
+.cs-handle.sw { left: -5px; bottom: -5px; cursor: nesw-resize; }
+.cs-handle.se { right: -5px; bottom: -5px; cursor: nwse-resize; }
+
+/* ── the panel ───────────────────────────────────────────────────────── */
+.cs-head { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; }
+.cs-head.sub { margin-top: 10px; }
+.cs-add-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.cs-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.cs-field { display: flex; align-items: center; gap: 6px; font-size: 12px; margin-bottom: 6px; flex: 1 1 120px; }
+.cs-field > span { color: var(--muted); flex: 0 0 62px; }
+.cs-field.wide { flex-basis: 100%; }
+.cs-field input, .cs-field select {
+  flex: 1 1 auto; min-width: 0; font: inherit; font-size: 12px;
+  padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--panel);
+}
+.cs-field i { font-style: normal; color: var(--faint); font-size: 11px; }
+.cs-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; margin: 2px 10px 6px 0; }
+.cs-layers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.cs-layers li { display: flex; align-items: center; gap: 2px; border-radius: 6px; }
+.cs-layers li.sel { background: var(--indigo-soft); }
+.cs-layer { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 7px; background: none; border: 0; padding: 5px 6px; font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.cs-kind { width: 16px; color: var(--faint); }
+.cs-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-z { background: none; border: 0; color: var(--faint); cursor: pointer; padding: 3px 5px; border-radius: 5px; font-size: 13px; }
+.cs-z:hover { background: var(--border); color: var(--text); }
+.cs-empty, .cs-aside { font-size: 11.5px; color: var(--faint); margin: 6px 0 0; line-height: 1.45; }
+.cs-title input { font: inherit; font-weight: 600; font-size: 14px; padding: 5px 9px; border: 1px solid transparent; border-radius: 7px; background: transparent; width: 180px; }
+.cs-title input:hover, .cs-title input:focus { border-color: var(--border-strong); background: var(--panel); }
+.cs-readonly {
+  margin: 12px 0 0; padding: 9px 12px; font-size: 12.5px;
+  color: var(--muted); background: var(--panel);
+  border: 1px solid var(--border); border-left: 3px solid var(--indigo); border-radius: 8px;
+}
+.cs-building { position: fixed; right: 18px; bottom: 14px; font-size: 11px; color: var(--faint); }
+
+/* ── editing on the page ─────────────────────────────────────────────── */
+/* A mockup you edit through a side panel is a form with a picture beside
+   it, so the page itself takes the edits: double-click text or a table,
+   click an empty image frame. */
+.cs-text.editing {
+  outline: 2px solid var(--indigo); outline-offset: 1px;
+  background: color-mix(in srgb, var(--indigo) 6%, transparent);
+  cursor: text;
+}
+.cs-el .cs-placeholder {
+  font: inherit; width: 100%; height: 100%; cursor: pointer;
+}
+.cs-el .cs-placeholder:hover {
+  border-color: var(--indigo); color: var(--indigo);
+}
+.cs-th-input {
+  width: 100%; min-width: 0; font: inherit; font-size: inherit; font-weight: inherit;
+  border: 0; background: color-mix(in srgb, var(--indigo) 10%, transparent);
+  padding: 0 2px; border-radius: 2px; outline: 1px solid var(--indigo);
+}
+/* The edge between two columns. Wider than it looks, or nobody hits it. */
+.cs-colgrip {
+  position: absolute; top: 0; bottom: 0; width: 9px; margin-left: -4.5px;
+  cursor: col-resize; z-index: 3;
+}
+.cs-colgrip::after {
+  content: ''; position: absolute; left: 3.5px; top: 0; bottom: 0; width: 2px;
+  background: var(--indigo); opacity: 0; transition: opacity .12s;
+}
+.cs-colgrip:hover::after { opacity: 1; }
+.cs-keys { font-size: 11px; color: var(--faint); line-height: 1.6; margin: 8px 0 0; }
+.cs-keys b { font-weight: 600; color: var(--muted); }

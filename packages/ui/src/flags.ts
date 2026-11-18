@@ -35,11 +35,20 @@ export interface FeatureFlags {
   exportJsonCsv: boolean;
   /** "Markdown fix-list": the Export entry and the report viewer tab. */
   exportMarkdown: boolean;
+  /** The "Create spec" workspace tab: author a spec on a canvas (W-54). */
+  createSpec: boolean;
 }
 
 /**
- * Defaults are all ON: a missing or misspelled key should not quietly remove
- * a feature. Switching something off is a thing somebody has to say.
+ * Defaults are ON: a missing or misspelled key should not quietly remove a
+ * feature. Switching something off is a thing somebody has to say.
+ *
+ * **`createSpec` is the one exception, and it is deliberate.** That rule
+ * protects *finished* features from a typo; it is not a licence to ship an
+ * unfinished one to everybody who installs the package. The Create spec
+ * canvas is at 7 of 9 DoD (W-54) and this package publishes to other
+ * people's applications, so it is off until it is done — at which point
+ * this line becomes `true` like the rest and the exception goes away.
  */
 export const DEFAULT_FLAGS: FeatureFlags = {
   annotations: true,
@@ -48,6 +57,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   layoutSideBySide: true,
   exportJsonCsv: true,
   exportMarkdown: true,
+  createSpec: false,
 };
 
 /** The `flag.env` key each flag is spelled with, for a host that uses one. */
@@ -58,6 +68,7 @@ export const FLAG_ENV_KEYS: Record<keyof FeatureFlags, string> = {
   layoutSideBySide: 'FEATURE_LAYOUT_SIDE_BY_SIDE',
   exportJsonCsv: 'FEATURE_EXPORT_JSON_CSV',
   exportMarkdown: 'FEATURE_EXPORT_MARKDOWN',
+  createSpec: 'FEATURE_CREATE_SPEC',
 };
 
 const TRUTHY = new Set(['true', '1', 'on', 'yes', 'enabled']);

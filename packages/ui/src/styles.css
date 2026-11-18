@@ -60,6 +60,34 @@ button {
   background: var(--panel);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  /* One height, whatever is in it. The header holds different things in
+     each workspace — upload slots in Compare and Specification, nothing
+     but tabs in Inspect — and a slot is 12px taller than a tab button, so
+     switching tabs moved everything below it by 12px. Measured 65 · 77 ·
+     65 before this. The tallest state sets the height for all of them. */
+  min-height: 77px;
+  box-sizing: border-box;
+}
+
+/* The tab itself settles rather than snapping. */
+.ws-tab { transition: background .16s ease, color .16s ease, box-shadow .16s ease; }
+
+/* What the header holds changes with the workspace; fade it in so the
+   swap reads as one thing arriving, not as a flicker. */
+.app-header > *:not(.workspace-tabs) { animation: headerIn .18s ease both; }
+@keyframes headerIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* The workspace body, keyed on the tab, so switching cross-fades and
+   lifts a few pixels instead of cutting. */
+.ws-swap { animation: wsIn .2s cubic-bezier(.4, 0, .2, 1) both; }
+@keyframes wsIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws-tab { transition: none; }
+  .app-header > *:not(.workspace-tabs), .ws-swap { animation: none; }
 }
 
 .app-title {
@@ -779,7 +807,14 @@ table.report td.res-fail { color: var(--red); font-weight: 700; }
 }
 .view-changes:hover:not(:disabled) { background: #4338ca; border-color: #4338ca; color: #fff; }
 .view-changes.on { background: var(--indigo-soft); border-color: var(--indigo); color: var(--indigo); }
-.view-changes.on:hover:not(:disabled) { background: var(--indigo-soft); border-color: var(--indigo); }
+/* `color` has to be restated. The plain `:hover` above sets it to white for
+   the solid state, and the `.on` rule did not override it — so hovering the
+   open state gave white text on pale indigo, which is unreadable. It was
+   wrong in Compare too; it is one rule, so both are fixed here. */
+.view-changes.on:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--indigo) 14%, #fff);
+  border-color: var(--indigo); color: var(--indigo);
+}
 
 /* A page with a panel docking on its right edge — the button says what it does
    rather than relying on the label alone. */

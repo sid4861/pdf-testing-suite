@@ -12,6 +12,82 @@ named here only as the failure that produced it. A lesson whose remedy is
 ---
 
 
+
+
+
+## 2026-11-18 — dispatching an event is not using the feature
+
+I built in-place editing on the canvas, checked it by dispatching `dblclick`, reading
+`contenteditable="true"`, setting `textContent` and dispatching `blur`, and reported it
+working. It was not. `contentEditable` makes a box typable and **focuses nothing**, so a
+real double-click raised the outline and every keystroke went to the window. The test
+passed because it never needed focus.
+
+```ts
+node.focus();
+const range = document.createRange();
+range.selectNodeContents(node);           // so the first keystroke replaces the placeholder
+window.getSelection()?.removeAllRanges();
+window.getSelection()?.addRange(range);
+```
+
+**Dispatched events skip exactly the part that breaks**: focus, hit-testing, z-order,
+pointer capture, native defaults. They are fine for asserting *state* after an action, and
+worthless for asserting that the action is reachable.
+
+- Drive anything a person does with a pointer or a keyboard through the real input path —
+  `computer` clicks and keys — at least once.
+- When a check needs no focus to pass, the feature it checks probably needs focus to work.
+
+## 2026-11-18 — a capped-height flex column squeezes its children, it does not scroll
+
+The Specification rail got `max-height` and `overflow-y: auto` so it would scroll without
+dragging the page. It did not scroll. It *shrank*: `display: flex; flex-direction: column`
+makes every child a flex item, a flex item has `flex-shrink: 1`, and the children duly
+compressed to fit the cap. Because the cards also clip, each one rendered its title and the
+**header row** of its checks with the checks themselves gone — which reads as missing data,
+not as a layout bug, and that is how it was reported: *"for some page, info in sidebar is
+not complete."*
+
+```css
+.spec-results > * { flex: 0 0 auto; }
+```
+
+Two things to carry:
+
+- **`overflow` on a flex container only scrolls once the children refuse to shrink.** Any
+  scrolling flex column wants `flex: 0 0 auto` on its items, or `min-height: 0` where the
+  child is itself the scroller.
+- **I verified the rail by measuring the rail** — `overflow-y` computed, `scrollHeight >
+  clientHeight` — and all of it passed while the cards were being cut in half. Check the
+  thing the user reads, not the box around it: `card.scrollHeight > card.clientHeight` over
+  every card on every page is the assertion that would have caught it, and is now the one in
+  the item.
+
+## 2026-11-18 — a patch script that writes at the end applies none of it, and anchors rot
+
+Two failures in one afternoon, same root.
+
+**One.** A script with eight `sw(old, new)` edits asserted on edit two. Edits are applied to
+a string and written once at the end — so nothing landed, while the console output and my
+own memory said edit one had. Re-running after "already applied, drop it" then skipped a
+change that had never happened.
+
+**Two.** The re-run's anchor was a banner comment, `// ── upload slot ──`, which had moved
+to another file an hour earlier in the same session. The replacement swallowed
+`export default function SpecTestView() {`, and `tsc` reported it at the closing brace 500
+lines later.
+
+Both are the same mistake: **trusting a remembered picture of the file instead of the file.**
+
+- A multi-edit script is all-or-nothing. After a failure, assume **nothing** landed and
+  check the file, not the log.
+- Re-derive every anchor from the current file right before using it — especially in a
+  session that has already moved code around.
+- Anchor on something structural (`export default function X`, a `className` that exists
+  because the UI needs it) rather than on a decorative comment, which is exactly the thing a
+  refactor deletes.
+
 ## 2026-11-10 — "the pane cannot upload a file" is a statement about the pane
 
 I twice recorded the Specification tab as unverifiable because the browser pane
